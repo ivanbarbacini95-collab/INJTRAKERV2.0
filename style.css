@@ -9,100 +9,118 @@ body {
 h1.dashboard-title {
   text-align: center;
   margin-bottom: 1rem;
+  border: 2px solid #22c55e;
+  padding: 0.5rem 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+h1.dashboard-title::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  border: 2px solid #22c55e;
+  animation: border-slide 2s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes border-slide {
+  0% { clip-path: inset(0 100% 100% 0);}
+  25% { clip-path: inset(0 0 100% 0);}
+  50% { clip-path: inset(0 0 0 0);}
+  75% { clip-path: inset(0 0 0 100%);}
+  100% { clip-path: inset(0 100% 100% 0);}
 }
 
 .container {
-  max-width: 700px;
+  max-width: 900px;
   margin: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.card {
-  border: 2px solid #4b5563;
-  border-radius: 0.5rem;
-  padding: 0.8rem 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.reward-card {
-  border-color: #22c55e;
-}
-
-.label {
-  font-size: 1.1rem;
-  color: #9ca3af;
-}
-
-.value {
-  font-size: 1.5rem;
-  font-weight: bold;
-  text-align: right;
-  color: #f9fafb;
-}
-
-.value.up { color: #22c55e; }
-.value.down { color: #ef4444; }
-
-.sub {
-  font-size: 0.9rem;
-  color: #9ca3af;
-}
-
-.sub-row {
-  display: flex;
-  justify-content: space-between;
 }
 
 #addressInput {
+  width: 100%;
   padding: 0.6rem;
+  margin-bottom: 1rem;
   border-radius: 0.5rem;
   border: 2px solid #4b5563;
   background: #000;
   color: #f9fafb;
 }
 
-#addressInput:focus {
-  outline: none;
-  border-color: #38bdf8;
-  box-shadow: 0 0 8px rgba(56,189,248,0.3);
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
+  gap: 1rem;
 }
 
-#priceChart {
+.card {
+  border: 2px solid #4b5563;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 120px;
+}
+
+.card .label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #9ca3af;
+  margin-bottom: 0.5rem;
+}
+
+.card .value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: right;
+}
+
+.card .sub {
+  font-size: 0.9rem;
+  color: #9ca3af;
+  text-align: right;
+}
+
+.reward-card .reward-bar-container {
+  position: relative;
+  height: 10px;
+  background: #1f2937;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.reward-card .reward-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #84cc16);
+  width: 0%;
+  background-size: 40px 10px;
+}
+
+.reward-card .reward-target {
+  position: absolute;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: #facc15;
+  animation: blink 1s ease infinite;
+}
+
+@keyframes blink {
+  0%, 50%, 100% { opacity: 0.3; }
+  25%, 75% { opacity: 1; }
+}
+
+.chart-card canvas {
   width: 100%;
   height: 160px;
 }
 
-.reward-bar-bg {
-  position: relative;
-  width: 100%;
-  height: 8px;
-  background: #4b5563;
-  border-radius: 4px;
-  overflow: hidden;
-}
+.up { color: #22c55e; }
+.down { color: #ef4444; }
 
-.reward-bar-fill {
-  width: 0%;
-  height: 100%;
-  background: #22c55e;
-  transition: width 0.2s linear;
-  border-radius: 4px;
-  background-size: 20px 100%;
-}
-
-.reward-target {
-  position: absolute;
-  top: -16px;
-  font-size: 0.7rem;
-  color: #9ca3af;
-  transform: translateX(-50%);
-}
-
-@media (max-width: 700px) {
-  .value { font-size: 1.3rem; }
-  .label { font-size: 1rem; }
+@media(max-width:600px){
+  .card .value { font-size: 1.2rem; }
 }
