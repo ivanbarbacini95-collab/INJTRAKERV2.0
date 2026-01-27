@@ -8,37 +8,13 @@ let apr = 0;
 
 let chart, chartData = [];
 
-const price = document.getElementById("price");
-const available = document.getElementById("available");
-const stake = document.getElementById("stake");
-const rewards = document.getElementById("rewards");
-const aprEl = document.getElementById("apr");
-
-const availableUsd = document.getElementById("availableUsd");
-const stakeUsd = document.getElementById("stakeUsd");
-const rewardsUsd = document.getElementById("rewardsUsd");
-const dailyRewards = document.getElementById("dailyRewards");
-const monthlyRewards = document.getElementById("monthlyRewards");
-const updated = document.getElementById("updated");
-const price24h = document.getElementById("price24h");
-
-const addressInput = document.getElementById("addressInput");
-addressInput.value = address;
-addressInput.onchange = e => {
-  address = e.target.value.trim();
-  localStorage.setItem("inj_address", address);
-  loadData();
-};
-
 // ---------- Utils ----------
 const fetchJSON = url => fetch(url).then(r => r.json());
 const formatUSD = v => "≈ $" + v.toFixed(2);
 
-// Ridimensionamento automatico font numeri
-function fitTextToContainer(el, maxFont = 28, minFont = 12) {
+function fitTextToContainer(el, maxFont = 28, minFont = 10) {
   let fontSize = maxFont;
   el.style.fontSize = fontSize + "px";
-
   while ((el.scrollWidth > el.clientWidth || el.scrollHeight > el.clientHeight) && fontSize > minFont) {
     fontSize -= 1;
     el.style.fontSize = fontSize + "px";
@@ -50,8 +26,17 @@ function updateNumber(el, oldV, newV, fixed) {
   el.innerText = newV.toFixed(fixed);
   if (newV > oldV) el.classList.add("digit-up");
   if (newV < oldV) el.classList.add("digit-down");
-  fitTextToContainer(el, 28, 12);
+  fitTextToContainer(el, 28, 10);
 }
+
+// ---------- Address ----------
+const addressInput = document.getElementById("addressInput");
+addressInput.value = address;
+addressInput.onchange = e => {
+  address = e.target.value.trim();
+  localStorage.setItem("inj_address", address);
+  loadData();
+};
 
 // ---------- Load Injective Data ----------
 async function loadData() {
@@ -61,18 +46,21 @@ async function loadData() {
     const balance = await fetchJSON(`https://lcd.injective.network/cosmos/bank/v1beta1/balances/${address}`);
     availableInj = (balance.balances?.find(b => b.denom === "inj")?.amount || 0) / 1e18;
 
-    const stakeData = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/delegations/${address}`);
-    stakeInj = stakeData.delegation_responses?.reduce((s,d)=>s+Number(d.balance.amount),0)/1e18 || 0;
+    const stake = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/delegations/${address}`);
+    stakeInj = stake.delegation_responses?.reduce((s,d)=>s+Number(d.balance.amount),0)/1e18 || 0;
 
-    const rewardsData = await fetchJSON(`https://lcd.injective.network/cosmos/distribution/v1beta1/delegators/${address}/rewards`);
-    rewardsInj = rewardsData.rewards?.reduce((s,r)=>s + Number(r.reward[0]?.amount||0),0)/1e18 || 0;
+    const rewards = await fetchJSON(`https://lcd.injective.network/cosmos/distribution/v1beta1/delegators/${address}/rewards`);
+    rewardsInj = rewards.rewards?.reduce((s,r)=>s + Number(r.reward[0]?.amount||0),0)/1e18 || 0;
 
     const inflation = await fetchJSON(`https://lcd.injective.network/cosmos/mint/v1beta1/inflation`);
     const pool = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/pool`);
     apr = (inflation.inflation * Number(pool.pool.bonded_tokens + pool.pool.not_bonded_tokens) / pool.pool.bonded_tokens) * 100;
 
-  } catch (e) { console.error(e); }
+  } catch (e) {
+    console.error(e);
+  }
 }
+
 loadData();
 setInterval(loadData, 60000);
 
@@ -122,7 +110,6 @@ function animate() {
   const prevP = displayedPrice;
   displayedPrice += (targetPrice - displayedPrice) * 0.1;
   updateNumber(price, prevP, displayedPrice, 4);
-  price24h.innerText = (((displayedPrice - price24hOpen)/price24hOpen*100).toFixed(2) + "% | " + formatUSD(displayedPrice));
 
   const prevA = displayedAvailable;
   displayedAvailable += (availableInj - displayedAvailable) * 0.1;
@@ -143,7 +130,6 @@ function animate() {
   monthlyRewards.innerText = (displayedStake * apr / 100 / 12).toFixed(4) + " INJ / mese";
 
   aprEl.innerText = apr.toFixed(2) + "%";
-
   updated.innerText = "Last Update: " + new Date().toLocaleTimeString();
 
   requestAnimationFrame(animate);
