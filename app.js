@@ -10,8 +10,8 @@ const rewardsUsdEl = document.getElementById("rewardsUsd");
 const aprEl = document.getElementById("apr");
 const updatedEl = document.getElementById("updated");
 const rewardBarEl = document.getElementById("rewardBar");
-const rewardTargetsEl = document.getElementById("rewardTargets");
-const rewardTargetsArray = [0.005,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.1];
+
+const rewardMax = 0.05; // max reward per barra (0-0.05 INJ)
 
 // ---------- Stato ----------
 let address = localStorage.getItem("inj_address") || "";
@@ -20,7 +20,6 @@ let stakeInj = 0, displayedStake = 0;
 let rewardsInj = 0, displayedRewards = 0;
 let availableInj = 0, displayedAvailable = 0;
 let apr = 0;
-
 let chart, chartData = [];
 
 // ---------- Utils ----------
@@ -47,27 +46,21 @@ async function loadData() {
   if (!address) return;
 
   try {
-    // Available
     const balance = await fetchJSON(`https://lcd.injective.network/cosmos/bank/v1beta1/balances/${address}`);
     availableInj = (balance.balances?.find(b => b.denom === "inj")?.amount || 0) / 1e18;
 
-    // Stake
     const stake = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/delegations/${address}`);
     stakeInj = stake.delegation_responses?.reduce((s,d)=>s+Number(d.balance.amount),0)/1e18 || 0;
 
-    // Rewards
     const rewards = await fetchJSON(`https://lcd.injective.network/cosmos/distribution/v1beta1/delegators/${address}/rewards`);
     rewardsInj = rewards.rewards?.reduce((s,r)=>s + Number(r.reward[0]?.amount||0),0)/1e18 || 0;
 
-    // APR
     const inflation = await fetchJSON(`https://lcd.injective.network/cosmos/mint/v1beta1/inflation`);
     const pool = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/pool`);
     apr = (inflation.inflation * (Number(pool.pool.bonded_tokens) + Number(pool.pool.not_bonded_tokens)) / Number(pool.pool.bonded_tokens)) * 100;
 
   } catch(e){ console.error(e); }
 }
-
-// Aggiorna ogni minuto
 loadData();
 setInterval(loadData, 60000);
 
@@ -97,10 +90,7 @@ function drawChart() {
         fill: true
       }]
     },
-    options: {
-      plugins: { legend:{display:false} },
-      scales: { x:{ display:false }, y:{ beginAtZero:false } }
-    }
+    options: { plugins:{legend:{display:false}}, scales:{x:{display:false},y:{beginAtZero:false}} }
   });
 }
 
@@ -114,20 +104,12 @@ startWS();
 
 // ---------- Reward Bar ----------
 function updateRewardBar() {
-  const maxReward = Math.max(rewardsInj, rewardTargetsArray[rewardTargetsArray.length-1]);
-  const fillPercent = Math.min(displayedRewards / maxReward * 100, 100);
-  rewardBarEl.style.width = fillPercent + "%";
-
-  rewardTargetsEl.innerHTML = "";
-  rewardTargetsArray.forEach(target => {
-    const span = document.createElement("span");
-    span.style.left = (target/maxReward*100)+"%";
-    span.innerText = target.toFixed(3);
-    rewardTargetsEl.appendChild(span);
-  });
+  const percent = Math.min(displayedRewards / rewardMax * 100, 100);
+  rewardBarEl.style.width = percent + "%";
+  rewardBarEl.innerHTML = `<span>${percent.toFixed(1)}%</span>`;
 }
 
-// ---------- Animation Loop ----------
+// ---------- Animation ----------
 function animate() {
   // Price
   const prevP = displayedPrice;
@@ -147,9 +129,8 @@ function animate() {
   stakeUsdEl.innerText = formatUSD(displayedStake * displayedPrice);
 
   // Rewards
-  const prevR = displayedRewards;
   displayedRewards += (rewardsInj - displayedRewards) * 0.02;
-  updateNumber(rewardsEl, prevR, displayedRewards, 6);
+  updateNumber(rewardsEl, 0, displayedRewards, 6);
   rewardsUsdEl.innerText = formatUSD(displayedRewards * displayedPrice);
   updateRewardBar();
 
@@ -159,7 +140,7 @@ function animate() {
   // Last update
   updatedEl.innerText = "Last Update: " + new Date().toLocaleTimeString();
 
-  // Aggiorna grafico in tempo reale
+  // Grafico in tempo reale
   if(chart){
     chart.data.datasets[0].data.push(displayedPrice);
     if(chart.data.datasets[0].data.length > 24) chart.data.datasets[0].data.shift();
@@ -170,4 +151,3 @@ function animate() {
 }
 
 animate();
-
