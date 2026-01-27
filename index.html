@@ -4,18 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Injective Dashboard</title>
+
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
 <div class="container">
   <h1>Injective Dashboard</h1>
 
   <input type="text" id="addressInput" placeholder="Inserisci indirizzo INJ">
 
-  <!-- Cards -->
   <div class="cards">
-
     <div class="card">
       <span class="label">INJ Price</span>
       <span class="value" id="price">$0.0000</span>
@@ -51,7 +52,6 @@
       <span class="label">Grafico 24h</span>
       <canvas id="priceChart"></canvas>
     </div>
-
   </div>
 
   <div id="updated">Last Update: --:--:--</div>
