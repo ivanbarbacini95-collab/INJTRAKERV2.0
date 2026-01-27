@@ -4,71 +4,88 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Injective Dashboard</title>
-  <link rel="stylesheet" href="style.css">
+
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
-  <script src="app.js" defer></script>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>Injective Dashboard</h1>
-
 <div class="container">
+  <h1 class="dashboard-title">Injective Dashboard</h1>
 
-  <!-- INPUT INDIRIZZO SOPRA CARD -->
-  <div class="address-container">
-    <input type="text" id="addressInput" placeholder="Inserisci indirizzo INJ">
-  </div>
+  <!-- INPUT ADDRESS -->
+  <input type="text" id="addressInput" placeholder="Inserisci indirizzo INJ">
 
-  <!-- INJ PRICE CARD -->
-  <div class="card" id="priceCard">
-    <div class="label">INJ Price</div>
-    <div class="value" id="price">$0.0000</div>
-    <div class="sub-row">
+  <!-- CARD INJ PRICE -->
+  <div class="card">
+    <div class="card-label">INJ Price</div>
+    <div class="card-value">
+      <span id="price">$0.0000</span>
+    </div>
+    <div class="card-sub horizontal">
       <span class="sub" id="price24h">0.00% | ≈ $0.00</span>
     </div>
   </div>
 
-  <!-- AVAILABLE CARD -->
+  <!-- CARD AVAILABLE -->
   <div class="card">
-    <div class="label">INJ Balance 💵</div>
-    <div class="value" id="available">0.000000</div>
-    <div class="sub" id="availableUsd">≈ $0.00</div>
+    <div class="card-label">INJ Balance 💵</div>
+    <div class="card-value">
+      <span id="available">0.0000000</span>
+    </div>
+    <div class="card-sub">
+      <span id="availableUsd">≈ $0.00</span>
+    </div>
   </div>
 
-  <!-- STAKE CARD -->
+  <!-- CARD STAKE -->
   <div class="card">
-    <div class="label">Staked ⛏️</div>
-    <div class="value" id="stake">0.0000</div>
-    <div class="sub" id="stakeUsd">≈ $0.00</div>
+    <div class="card-label">Staked ⛏️</div>
+    <div class="card-value">
+      <span id="stake">0.0000</span>
+    </div>
+    <div class="card-sub">
+      <span id="stakeUsd">≈ $0.00</span>
+    </div>
   </div>
 
-  <!-- REWARDS CARD -->
+  <!-- CARD REWARDS -->
   <div class="card">
-    <div class="label">Rewards 🚀</div>
-    <div class="value" id="rewards">0.000000</div>
-    <div class="sub" id="rewardsUsd">≈ $0.00</div>
-    <div class="sub" id="dailyRewards">0.0000 INJ / giorno</div>
-    <div class="sub" id="weeklyRewards">0.0000 INJ / settimana</div>
+    <div class="card-label">Rewards 🚀</div>
+    <div class="card-value">
+      <span id="rewards">0.0000</span>
+    </div>
+    <div class="card-sub">
+      <span id="rewardsUsd">≈ $0.00</span>
+    </div>
+    <div class="card-sub horizontal">
+      <span id="dailyRewards">0.0000 INJ / giorno</span>
+      <span id="weeklyRewards">0.0000 INJ / settimana</span>
+    </div>
     <div class="reward-bar-container">
       <div class="reward-bar" id="rewardBar"></div>
     </div>
   </div>
 
-  <!-- APR CARD -->
+  <!-- CARD APR -->
   <div class="card">
-    <div class="label">APR</div>
-    <div class="value" id="apr">0%</div>
+    <div class="card-label">APR</div>
+    <div class="card-value">
+      <span id="apr">0%</span>
+    </div>
   </div>
 
-  <!-- CHART CARD -->
+  <!-- CARD CHART -->
   <div class="card chart-card">
-    <div class="label">Grafico 24h</div>
+    <div class="card-label">Grafico 24h</div>
     <canvas id="priceChart"></canvas>
   </div>
 
+  <!-- LAST UPDATE -->
+  <div id="updated" class="last-update">Last Update: --:--:--</div>
 </div>
 
-<div id="updated">Last Update: --:--:--</div>
-
+<script src="app.js" defer></script>
 </body>
 </html>
