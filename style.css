@@ -31,7 +31,7 @@ h1::after {
 }
 
 .container {
-  max-width: 700px;
+  max-width: 800px;
   margin: auto;
 }
 
@@ -43,6 +43,7 @@ h1::after {
   color: #f9fafb;
   width: 100%;
   margin-bottom: 1rem;
+  box-sizing: border-box;
 }
 
 #addressInput:focus {
@@ -63,37 +64,44 @@ h1::after {
   padding: 0.8rem 1rem;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;  /* mantiene bilanciamento interno */
+  min-height: 120px;              /* tutte le card hanno altezza minima uguale */
+  box-sizing: border-box;
+  overflow: hidden;                /* previene uscita numeri */
 }
 
 .card .label {
   font-size: 1.1rem;
   font-weight: bold;
   color: #9ca3af;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.5rem;
 }
 
 .card .value {
   font-size: 1.5rem;
   font-weight: bold;
   text-align: right;
+  word-wrap: break-word;           /* evita overflow numeri grandi */
 }
 
 .card .sub {
   font-size: 0.9rem;
   color: #9ca3af;
   text-align: right;
+  word-wrap: break-word;
 }
 
 .chart-card canvas {
   margin-top: 0.5rem;
-  height: 160px;
+  width: 100% !important;
+  height: 160px !important;
 }
 
 .up { color: #22c55e; }
 .down { color: #ef4444; }
 
-.digit-up { color: #22c55e; transform: scale(1.15); }
-.digit-down { color: #ef4444; transform: scale(0.9); }
+.digit-up { color: #22c55e; transform: scale(1.15); transition: 0.2s; }
+.digit-down { color: #ef4444; transform: scale(0.9); transition: 0.2s; }
 
 @media (min-width: 600px) {
   .cards {
