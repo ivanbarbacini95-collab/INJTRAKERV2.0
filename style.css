@@ -1,3 +1,8 @@
+/* RESET BASE */
+* {
+  box-sizing: border-box;
+}
+
 body {
   font-family: Inter, sans-serif;
   background: #000;
@@ -6,113 +11,156 @@ body {
   padding: 1rem;
 }
 
-h1.dashboard-title {
+/* TITOLO */
+.dashboard-title {
   text-align: center;
+  font-size: 1.8rem;
+  font-weight: 700;
   margin-bottom: 1rem;
-  font-weight: bold;
+  padding: 0.6rem;
   border: 2px solid #4b5563;
-  padding: 0.5rem;
-  position: relative;
+  border-radius: 0.6rem;
 }
 
-input#addressInput {
+/* INPUT */
+#addressInput {
   width: 100%;
-  padding: 0.6rem;
+  padding: 0.7rem;
   border-radius: 0.5rem;
   border: 2px solid #4b5563;
   background: #000;
   color: #f9fafb;
   margin-bottom: 1rem;
+  font-size: 1rem;
 }
 
-input#addressInput:focus {
+#addressInput:focus {
   outline: none;
   border-color: #38bdf8;
-  box-shadow: 0 0 8px rgba(56,189,248,0.3);
+  box-shadow: 0 0 6px rgba(56, 189, 248, 0.35);
 }
 
+/* GRID CARDS */
 .cards {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1rem;
-  justify-content: center;
+  align-items: start;
 }
 
+/* CARD BASE */
 .card {
-  background: #111;
-  border: 2px solid #4b5563;
-  border-radius: 0.8rem;
-  flex: 1 1 280px;
-  max-width: 300px;
-  padding: 1rem;
+  background: #0b0b0b;
+  border: 2px solid #374151;
+  border-radius: 0.7rem;
+  padding: 0.8rem 1rem;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  min-height: 120px;
-  position: relative;
+  gap: 0.4rem;
 }
 
+/* LABEL */
 .card-label {
-  font-weight: bold;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
+  font-weight: 700;
   color: #9ca3af;
   text-align: left;
-  margin-bottom: 0.5rem;
 }
 
+/* VALORI */
 .card-value {
   text-align: right;
 }
 
 .card-value span {
-  font-size: 1.5rem;
+  font-size: 1.45rem;
+  font-weight: 600;
+  display: block;
+  line-height: 1.2;
 }
 
 .sub {
-  display: block;
   font-size: 0.9rem;
   color: #9ca3af;
+  margin-top: 0.1rem;
 }
 
-.up { color: #22c55e; }
-.down { color: #ef4444; }
+/* COLORI DINAMICI */
+.up {
+  color: #22c55e;
+}
 
-/* Reward bar */
+.down {
+  color: #ef4444;
+}
+
+/* REWARD BAR */
+.reward-bar-wrapper {
+  margin-top: 0.4rem;
+}
+
 .reward-bar-bg {
   position: relative;
-  background: #222;
+  background: #1f2937;
   height: 10px;
-  border-radius: 5px;
-  margin-top: 0.5rem;
+  border-radius: 6px;
   overflow: hidden;
 }
 
 #rewardBar {
-  background: #22c55e;
-  width: 0%;
   height: 100%;
-  transition: width 0.2s linear;
+  width: 0%;
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+  transition: width 0.15s linear;
 }
 
-.reward-target {
+/* TARGET LINE */
+.reward-mark {
   position: absolute;
-  top: -4px;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: #facc15;
+  opacity: 0.55;
+}
+
+/* TARGET LABELS */
+.reward-labels {
+  display: flex;
+  justify-content: space-between;
   font-size: 0.7rem;
-  color: #f9fafb;
+  color: #9ca3af;
+  margin-top: 0.25rem;
 }
 
-/* Chart */
-canvas#priceChart {
+/* GRAFICO */
+.card.chart-card {
+  grid-column: span 2;
+}
+
+#priceChart {
   width: 100%;
-  height: 160px;
+  height: 170px;
 }
 
-/* Responsive */
-@media (max-width: 600px) {
-  .card {
-    flex: 1 1 100%;
+/* FOOTER UPDATE */
+#updated {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  text-align: right;
+}
+
+/* RESPONSIVE */
+@media (max-width: 700px) {
+  .card.chart-card {
+    grid-column: span 1;
   }
+
+  .card-label {
+    font-size: 1.05rem;
+  }
+
   .card-value span {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
   }
 }
