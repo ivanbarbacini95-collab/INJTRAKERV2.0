@@ -1,5 +1,5 @@
 let address = localStorage.getItem("inj_address") || "";
-let livePrice=0,targetPrice=0;
+let livePrice=0, targetPrice=0;
 let available=0, staked=0, rewards=0;
 let displayPrice=0, displayAvailable=0, displayStaked=0, displayRewards=0;
 let apr=0;
@@ -24,8 +24,10 @@ function createDigits(el,value){
 }
 
 function updateDigits(el,value){
+  if(value===undefined || isNaN(value)) return;
   const s=value.toFixed(el.dataset.fixed||4);
   const children=el.querySelectorAll(".digit-inner");
+  if(children.length===0) return createDigits(el,value);
   for(let i=0;i<s.length;i++){
     const oldChar=children[i]?.innerText||"0";
     if(oldChar<s[i]) children[i].className="digit-inner digit-up";
@@ -51,22 +53,41 @@ addrInput.addEventListener("change",async e=>{
 async function loadOnchainData(){
   if(!address) return;
   try{
+    // BALANCE
     const bal=await fetchJSON(`https://lcd.injective.network/cosmos/bank/v1beta1/balances/${address}`);
-    available=(bal.balances||[]).filter(b=>b.denom==="inj").reduce((s,b)=>s+Number(b.amount),0)/1e18;
+    available=(bal.balances||[]).find(b=>b.denom==="inj")?.amount/1e18 || 0;
 
+    // STAKED
     const stakeRes=await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/delegations/${address}`);
     staked=(stakeRes.delegation_responses||[]).reduce((s,d)=>s+Number(d.balance.amount),0)/1e18;
 
+    // REWARDS
     const rewardsRes=await fetchJSON(`https://lcd.injective.network/cosmos/distribution/v1beta1/delegators/${address}/rewards`);
-    rewards=0;
-    rewardsRes.rewards?.forEach(rr=>rr.reward?.forEach(c=>{if(c.denom==="inj") rewards+=Number(c.amount)}));
-    rewards/=1e18;
+    let r=0;
+    rewardsRes.rewards?.forEach(rr=>rr.reward?.forEach(c=>{if(c.denom==="inj") r+=Number(c.amount)}));
+    rewards=r/1e18;
 
+    // APR
     const infl=await fetchJSON("https://lcd.injective.network/cosmos/mint/v1beta1/inflation");
     const pool=await fetchJSON("https://lcd.injective.network/cosmos/staking/v1beta1/pool");
     const bonded=Number(pool.pool.bonded_tokens), total=bonded+Number(pool.pool.not_bonded_tokens);
     apr=(Number(infl.inflation)/(bonded/total))*100;
-  }catch(e){console.error(e);}
+
+    // Aggiorna subito i box con i valori iniziali
+    displayAvailable = available;
+    displayStaked = staked;
+    displayRewards = rewards;
+    updateDigits(document.getElementById("available"), displayAvailable);
+    updateDigits(document.getElementById("stake"), displayStaked);
+    updateDigits(document.getElementById("rewards"), displayRewards);
+    document.getElementById("availableUsd").innerText=formatUSD(displayAvailable*displayPrice);
+    document.getElementById("stakeUsd").innerText=formatUSD(displayStaked*displayPrice);
+    document.getElementById("rewardsUsd").innerText=formatUSD(displayRewards*displayPrice);
+    document.getElementById("apr").innerText=apr.toFixed(2)+"%";
+
+  }catch(e){
+    console.error("Errore dati on-chain:",e);
+  }
 }
 
 // PRICE HISTORY
@@ -98,12 +119,13 @@ async function loadInitialPrice(){
     const res=await fetch("https://api.binance.com/api/v3/ticker/price?symbol=INJUSDT");
     const data=await res.json();
     livePrice=targetPrice=parseFloat(data.price);
-    if(!document.getElementById("price").innerHTML.trim()) createDigits(document.getElementById("price"), targetPrice);
+    displayPrice=targetPrice;
+    createDigits(document.getElementById("price"), displayPrice);
   }catch(e){console.error(e);}
 }
 loadInitialPrice();
 
-const ws=new WebSocket("wss://stream.binance.com:9443/ws/injusdt@trade");
+let ws=new WebSocket("wss://stream.binance.com:9443/ws/injusdt@trade");
 ws.onmessage=msg=>{ targetPrice=parseFloat(JSON.parse(msg.data).p); };
 ws.onclose=()=>setTimeout(()=>{ ws=new WebSocket("wss://stream.binance.com:9443/ws/injusdt@trade"); },2000);
 
@@ -114,10 +136,10 @@ function loop(){
   displayStaked += (staked-displayStaked)*0.2;
   displayRewards += (rewards-displayRewards)*0.2;
 
-  updateDigits(document.getElementById("price"),displayPrice);
-  updateDigits(document.getElementById("available"),displayAvailable);
-  updateDigits(document.getElementById("stake"),displayStaked);
-  updateDigits(document.getElementById("rewards"),displayRewards);
+  updateDigits(document.getElementById("price"), displayPrice);
+  updateDigits(document.getElementById("available"), displayAvailable);
+  updateDigits(document.getElementById("stake"), displayStaked);
+  updateDigits(document.getElementById("rewards"), displayRewards);
 
   // Price delta
   if(price24hOpen>0){
@@ -134,11 +156,12 @@ function loop(){
   document.getElementById("availableUsd").innerText=formatUSD(displayAvailable*displayPrice);
   document.getElementById("stakeUsd").innerText=formatUSD(displayStaked*displayPrice);
   document.getElementById("rewardsUsd").innerText=formatUSD(displayRewards*displayPrice);
-  document.getElementById("apr").innerText=apr.toFixed(2)+"%";
   document.getElementById("updated").innerText="Last Update: "+new Date().toLocaleTimeString();
 
   requestAnimationFrame(loop);
 }
 loop();
+
+// Inizializza dati on-chain se già presente indirizzo
 if(address) loadOnchainData();
 setInterval(loadOnchainData,10000);
