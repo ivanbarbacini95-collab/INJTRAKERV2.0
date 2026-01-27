@@ -1,7 +1,7 @@
 /* ---------- BODY ---------- */
 body {
   font-family: 'Inter', sans-serif;
-  background: #0b0f1d; /* blu scuro */
+  background: #0f172a; /* blu scuro */
   color: #f9fafb;
   margin: 0;
   padding: 1rem;
@@ -16,22 +16,21 @@ body {
   gap: 1rem;
 }
 
-/* ---------- PAGE TITLE ---------- */
+/* ---------- TITOLO ---------- */
 h1 {
   font-family: 'Poppins', sans-serif;
   font-size: 2rem;
-  font-weight: 800;
   text-align: center;
-  color: #3b82f6; /* blu vivo */
+  color: #3b82f6; /* blu acceso */
   margin-bottom: 1rem;
 }
 
-/* ---------- ADDRESS INPUT ---------- */
+/* ---------- INPUT ---------- */
 #addressInput {
   padding: 0.8rem;
   border-radius: 0.5rem;
-  border: 2px solid #4b5563;
-  background: #0b0f1d;
+  border: 2px solid #1e293b;
+  background: #0f172a;
   color: #f9fafb;
   font-size: 1rem;
 }
@@ -41,47 +40,79 @@ h1 {
   border-color: #3b82f6;
 }
 
-/* ---------- CARDS WRAPPER ---------- */
+/* ---------- CARDS ---------- */
 .cards-wrapper {
   display: flex;
-  flex-direction: column; /* verticale */
+  flex-direction: column; /* verticali */
   gap: 1rem;
 }
 
-/* ---------- CARD ---------- */
 .card {
-  background: #111a2b; /* blu scuro */
-  border: 2px solid #1f2937;
+  background: #1e293b; /* blu scuro medio */
+  border: 2px solid #1e293b;
   border-radius: 0.5rem;
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  gap: 0.5rem;
 }
 
-/* ---------- CARD LABEL ---------- */
+/* ---------- LABEL ---------- */
 .card .label {
-  font-weight: 700;
+  font-weight: bold;
   font-size: 1.2rem;
+  color: #3b82f6; /* blu acceso */
   margin-bottom: 0.5rem;
-  color: #3b82f6; /* blu vivo */
 }
 
-/* ---------- VALUE ROW ---------- */
+/* ---------- VALORI ---------- */
 .value-row {
   display: flex;
   justify-content: flex-end;
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: bold;
+  color: #f9fafb;
 }
 
-/* ---------- SUB ROW ---------- */
 .sub-row {
   display: flex;
   justify-content: flex-end;
   font-size: 0.9rem;
   color: #9ca3af;
   margin-top: 0.2rem;
+}
+
+/* ---------- UP/DOWN COLORS ---------- */
+.up { color: #22c55e; }   /* verde */
+.down { color: #ef4444; } /* rosso */
+
+/* ---------- REWARD BAR ---------- */
+.reward-bar-container {
+  background: #111e2b;
+  height: 24px;
+  border-radius: 0.3rem;
+  margin-top: 0.5rem;
+  position: relative;
+}
+
+.reward-bar {
+  background: #3b82f6;
+  height: 100%;
+  width: 0%;
+  border-radius: 0.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: #f9fafb;
+  transition: width 0.3s linear;
+}
+
+/* ---------- CHART ---------- */
+.chart-card canvas {
+  width: 100% !important;
+  height: 250px !important;
 }
 
 /* ---------- LAST UPDATE ---------- */
@@ -92,49 +123,9 @@ h1 {
   color: #9ca3af;
 }
 
-/* ---------- UP / DOWN COLORS ---------- */
-.up { color: #22c55e; }
-.down { color: #ef4444; }
-
-/* ---------- REWARD BAR ---------- */
-.reward-bar-container {
-  background: #111a2b; /* blu scuro */
-  height: 24px;
-  border-radius: 0.3rem;
-  margin-top: 0.5rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.reward-bar {
-  background: #3b82f6; /* blu vivo */
-  height: 100%;
-  width: 0%;
-  border-radius: 0.3rem;
-  transition: width 0.3s linear;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-  font-weight: bold;
-  color: #fff;
-}
-
-.reward-bar span {
-  position: absolute;
-  width: 100%;
-  text-align: center;
-  color: #fff;
-}
-
-/* ---------- CHART ---------- */
-.chart-card canvas {
-  width: 100% !important;
-  height: 200px !important;
-  margin-top: 0.5rem;
-}
-
-/* ---------- MEDIA QUERIES ---------- */
+/* ---------- RESPONSIVE ---------- */
 @media (max-width: 768px) {
-  .cards-wrapper { flex-direction: column; }
+  .cards-wrapper {
+    flex-direction: column;
+  }
 }
