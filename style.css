@@ -136,3 +136,17 @@ body {
     grid-column: span 1;
   }
 }
+
+/* INJ PRICE specifico */
+.price-main {
+  font-size: 1.9rem;      /* 🔥 più grande */
+  font-weight: 700;
+}
+
+.price-change-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;            /* distanza tra % e delta */
+  font-size: 0.95rem;     /* più piccolo del prezzo */
+  margin-top: 0.15rem;
+}
