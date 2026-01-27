@@ -57,45 +57,58 @@ async function loadData() {
   if (!address) return;
 
   try {
-    // Balance
-    const balance = await fetchJSON(
+    // ---------- Balance ----------
+    const balanceResp = await fetchJSON(
       `https://lcd.injective.network/cosmos/bank/v1beta1/balances/${address}`
     );
-    availableInj =
-      (balance.balances?.find(b => b.denom === "uinj")?.amount || 0) / 1e18;
+    console.log("Balances:", balanceResp.balances);
 
-    // Stake
+    availableInj = 0;
+    if (balanceResp.balances && balanceResp.balances.length > 0) {
+      const injToken = balanceResp.balances.find(b => b.denom === "uinj");
+      if (injToken) availableInj = Number(injToken.amount) / 1e18;
+    }
+
+    // ---------- Stake ----------
     const stakeResp = await fetchJSON(
       `https://lcd.injective.network/cosmos/staking/v1beta1/delegations/${address}`
     );
-    stakeInj =
-      stakeResp.delegation_responses?.reduce(
+    console.log("Stake:", stakeResp.delegation_responses);
+
+    stakeInj = 0;
+    if (stakeResp.delegation_responses && stakeResp.delegation_responses.length > 0) {
+      stakeInj = stakeResp.delegation_responses.reduce(
         (s, d) => s + Number(d.balance.amount),
         0
-      ) / 1e18 || 0;
+      ) / 1e18;
+    }
 
-    // Rewards
+    // ---------- Rewards ----------
     const rewardsResp = await fetchJSON(
       `https://lcd.injective.network/cosmos/distribution/v1beta1/delegators/${address}/rewards`
     );
-    rewardsInj =
-      rewardsResp.rewards?.reduce(
+    console.log("Rewards:", rewardsResp.rewards);
+
+    rewardsInj = 0;
+    if (rewardsResp.rewards && rewardsResp.rewards.length > 0) {
+      rewardsInj = rewardsResp.rewards.reduce(
         (s, r) => s + Number(r.reward[0]?.amount || 0),
         0
-      ) / 1e18 || 0;
+      ) / 1e18;
+    }
 
-    // APR
-    const inflation = await fetchJSON(
+    // ---------- APR ----------
+    const inflationResp = await fetchJSON(
       `https://lcd.injective.network/cosmos/mint/v1beta1/inflation`
     );
-    const pool = await fetchJSON(
+    const poolResp = await fetchJSON(
       `https://lcd.injective.network/cosmos/staking/v1beta1/pool`
     );
 
-    const bonded = Number(pool.pool.bonded_tokens);
-    const total = bonded + Number(pool.pool.not_bonded_tokens);
+    const bonded = Number(poolResp.pool.bonded_tokens);
+    const total = bonded + Number(poolResp.pool.not_bonded_tokens);
     apr = bonded > 0
-      ? (Number(inflation.inflation) * total / bonded) * 100
+      ? (Number(inflationResp.inflation) * total / bonded) * 100
       : 0;
 
   } catch (e) {
@@ -172,7 +185,7 @@ function updatePrice24h() {
   const pct = (diff / price24hOpen) * 100;
 
   price24h.innerText =
-    `${pct >= 0 ? "+" : ""}${pct.toFixed(2)}% | ≈ $${diff.toFixed(2)}`;
+    `${diff >= 0 ? "+" : ""}${pct.toFixed(2)}% | ≈ $${diff.toFixed(2)}`;
 
   price.classList.toggle("up", diff >= 0);
   price.classList.toggle("down", diff < 0);
