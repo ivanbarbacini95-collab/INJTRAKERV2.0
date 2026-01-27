@@ -1,4 +1,3 @@
-/* ---------- BODY ---------- */
 body {
   font-family: Inter, sans-serif;
   background: #000;
@@ -12,7 +11,6 @@ h1 {
   margin-bottom: 1rem;
 }
 
-/* ---------- CONTAINER ---------- */
 .container {
   display: flex;
   flex-wrap: wrap;
@@ -20,14 +18,14 @@ h1 {
   gap: 1rem;
 }
 
-/* ---------- CARD ---------- */
+/* CARD */
 .card {
   background: #111;
   border: 2px solid #4b5563;
   border-radius: 0.8rem;
   padding: 1rem;
-  width: 300px;       /* larghezza standard */
-  max-width: 90%;     /* responsive */
+  width: 300px;
+  max-width: 90%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -35,39 +33,39 @@ h1 {
 }
 
 .card.chart-card {
-  width: 320px; /* leggermente più grande per grafico */
+  width: 320px;
 }
 
-/* ---------- LABEL ---------- */
+/* LABEL */
 .label {
   font-weight: bold;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   margin-bottom: 0.5rem;
 }
 
-/* ---------- VALUE ---------- */
+/* VALUE */
 .value {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: bold;
   text-align: right;
 }
 
-/* ---------- SUB ---------- */
+/* SUB */
 .sub, .sub-row {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: #9ca3af;
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
 }
 
-/* ---------- PRICE CHART ---------- */
+/* PRICE CHART */
 #priceChart {
   width: 100%;
   height: 160px;
 }
 
-/* ---------- REWARD BAR ---------- */
+/* REWARD BAR */
 .reward-bar-container {
   background: #222;
   border-radius: 0.3rem;
@@ -83,7 +81,7 @@ h1 {
   transition: width 0.5s linear;
 }
 
-/* ---------- ADDRESS INPUT SOPRA CARD INJ PRICE ---------- */
+/* ADDRESS INPUT */
 .address-container {
   display: flex;
   justify-content: center;
@@ -97,8 +95,8 @@ h1 {
   border: 2px solid #4b5563;
   background: #000;
   color: #f9fafb;
-  width: 300px;      /* uguale alla card */
-  max-width: 90%;    /* responsive */
+  width: 300px;
+  max-width: 90%;
 }
 
 #addressInput:focus {
@@ -107,7 +105,7 @@ h1 {
   box-shadow: 0 0 8px rgba(56,189,248,0.3);
 }
 
-/* ---------- LAST UPDATE ---------- */
+/* LAST UPDATE */
 #updated {
   text-align: center;
   font-size: 0.8rem;
@@ -115,13 +113,12 @@ h1 {
   color: #9ca3af;
 }
 
-/* ---------- COLORI NUMERICI ---------- */
+/* COLORI NUMERICI */
 .up { color: #22c55e; }
 .down { color: #ef4444; }
 
-/* ---------- RESPONSIVE ---------- */
 @media (max-width: 600px) {
-  .value { font-size: 1.2rem; }
+  .value { font-size: 1.3rem; }
   .label { font-size: 1rem; }
   .card { width: 90%; }
   .card.chart-card { width: 95%; }
