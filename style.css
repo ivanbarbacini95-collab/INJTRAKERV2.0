@@ -1,7 +1,6 @@
-/* ===== BODY ===== */
 body {
   font-family: Inter, sans-serif;
-  background: #000;
+  background: #0a0f1f;
   color: #f9fafb;
   margin: 0;
   padding: 1rem;
@@ -15,15 +14,13 @@ body {
   gap: 1rem;
 }
 
-/* ===== INPUT INDIRIZZO ===== */
 #addressInput {
   padding: 0.8rem;
   border-radius: 0.5rem;
-  border: 2px solid #4b5563;
-  background: #000;
+  border: 2px solid #1e293b;
+  background: #0a0f1f;
   color: #f9fafb;
   font-size: 1rem;
-  transition: border-color 0.3s;
 }
 
 #addressInput:focus {
@@ -31,49 +28,31 @@ body {
   border-color: #3b82f6;
 }
 
-/* ===== CARDS WRAPPER VERTICALE ===== */
 .cards-wrapper {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-/* ===== CARD ===== */
 .card {
-  background: #111;
-  border: 2px solid #4b5563;
-  border-radius: 0.7rem;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  border-radius: 0.5rem;
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  width: 100%;
-  transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 0 8px rgba(0,0,0,0.5);
+  gap: 0.5rem;
 }
 
-.card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 20px rgba(59,130,246,0.3);
-}
-
-/* ===== LABEL CARD ===== */
 .card .label {
-  font-weight: 800;
-  font-size: 1.4rem;
-  margin-bottom: 0.8rem;
-  background: linear-gradient(90deg, #1e3a8a, #3b82f6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-weight: bold;
+  font-size: 1.3rem;
+  color: #3b82f6;
 }
 
-/* ===== VALORI ===== */
 .value-row {
   display: flex;
   justify-content: flex-end;
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   font-weight: bold;
 }
 
@@ -81,56 +60,40 @@ body {
   display: flex;
   justify-content: flex-end;
   font-size: 0.9rem;
-  color: #9ca3af;
-  margin-top: 0.2rem;
+  color: #94a3b8;
 }
 
-/* ===== BARRA REWARDS ===== */
 .reward-bar-container {
-  background: #222;
-  height: 24px;
-  border-radius: 12px;
+  background: #1e293b;
+  height: 25px;
+  border-radius: 0.5rem;
   margin-top: 0.5rem;
-  position: relative;
   overflow: hidden;
+  position: relative;
 }
 
 .reward-bar {
-  background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+  background: linear-gradient(90deg, #3b82f6, #0ea5e9);
   height: 100%;
   width: 0%;
-  border-radius: 12px;
-  transition: width 0.2s linear;
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 700;
+  justify-content: flex-end;
+  padding-right: 0.5rem;
+  font-size: 0.8rem;
   color: #f9fafb;
+  transition: width 0.3s linear;
 }
 
-.reward-bar span {
-  position: absolute;
-  width: 100%;
-  text-align: center;
-}
-
-/* ===== ULTIMO AGGIORNAMENTO ===== */
 .last-update {
   font-size: 0.8rem;
   text-align: center;
-  margin-top: 0.5rem;
-  color: #9ca3af;
+  color: #94a3b8;
 }
 
-/* ===== COLORI UP/DOWN ===== */
 .up { color: #22c55e; }
 .down { color: #ef4444; }
 
-/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
-  .cards-wrapper { gap: 0.8rem; }
-  .card { padding: 0.8rem; }
-  .card .label { font-size: 1.3rem; }
-  .reward-bar { font-size: 0.7rem; }
+  .cards-wrapper { flex-direction: column; }
 }
