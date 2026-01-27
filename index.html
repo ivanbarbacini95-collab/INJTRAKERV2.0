@@ -1,78 +1,81 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Injective Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Injective Dashboard</title>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
-<link rel="stylesheet" href="style.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="container">
-  <h1 class="dashboard-title">Injective Dashboard</h1>
+<h1 class="dashboard-title">Injective Dashboard</h1>
 
-  <input type="text" id="addressInput" placeholder="Inserisci indirizzo INJ">
+<input type="text" id="addressInput" placeholder="Inserisci indirizzo INJ">
 
-  <div class="cards-container">
+<div class="cards-container">
 
-    <!-- INJ Price -->
-    <div class="card">
-      <span class="label">INJ Price</span>
+  <div class="card price-card">
+    <span class="label">INJ Price</span>
+    <div class="value-container">
       <span class="value" id="price">0.0000</span>
       <span class="sub" id="price24h">0.00% | ≈ $0.00</span>
     </div>
+  </div>
 
-    <!-- INJ Balance -->
-    <div class="card">
-      <span class="label">INJ Balance 💵</span>
-      <span class="value" id="available">0.000000</span>
+  <div class="card">
+    <span class="label">INJ Balance 💵</span>
+    <div class="value-container">
+      <span class="value" id="available">0.0000000</span>
       <span class="sub" id="availableUsd">≈ $0.00</span>
     </div>
+  </div>
 
-    <!-- Staked -->
-    <div class="card">
-      <span class="label">Staked ⛏️</span>
+  <div class="card">
+    <span class="label">Staked ⛏️</span>
+    <div class="value-container">
       <span class="value" id="stake">0.0000</span>
       <span class="sub" id="stakeUsd">≈ $0.00</span>
     </div>
+  </div>
 
-    <!-- Rewards -->
-    <div class="card reward-card">
-      <span class="label">Rewards 🚀</span>
+  <div class="card reward-card">
+    <span class="label">Rewards 🚀</span>
+    <div class="value-container">
       <span class="value" id="rewards">0.0000000</span>
       <span class="sub" id="rewardsUsd">≈ $0.00</span>
       <span class="sub" id="dailyRewards">0.00000 INJ / giorno</span>
       <span class="sub" id="monthlyRewards">0.00000 INJ / mese</span>
-      <div class="reward-bar-container">
-        <div id="rewardBar" class="reward-bar"></div>
-        <div class="reward-target" style="left:0.5%"></div>
-        <div class="reward-target" style="left:1%"></div>
-        <div class="reward-target" style="left:5%"></div>
-        <div class="reward-target" style="left:10%"></div>
-        <div class="reward-target" style="left:50%"></div>
-        <div class="reward-target" style="left:100%"></div>
-      </div>
     </div>
+    <div class="reward-bar-container">
+      <div id="rewardBar" class="reward-bar"></div>
+      <div class="reward-target" style="left:0.5%"></div>
+      <div class="reward-target" style="left:1%"></div>
+      <div class="reward-target" style="left:5%"></div>
+      <div class="reward-target" style="left:10%"></div>
+      <div class="reward-target" style="left:50%"></div>
+      <div class="reward-target" style="left:100%"></div>
+    </div>
+  </div>
 
-    <!-- APR -->
-    <div class="card">
-      <span class="label">APR</span>
+  <div class="card">
+    <span class="label">APR</span>
+    <div class="value-container">
       <span class="value" id="apr">0%</span>
     </div>
-
-    <!-- Price Chart -->
-    <div class="card chart-card">
-      <span class="label">Grafico 24h</span>
-      <canvas id="priceChart"></canvas>
-    </div>
-
-    <div class="card">
-      <div id="updated">Last Update: --:--:--</div>
-    </div>
-
   </div>
+
+  <div class="card chart-card">
+    <span class="label">Grafico 24h</span>
+    <canvas id="priceChart"></canvas>
+  </div>
+
+  <div class="card">
+    <div id="updated">Last Update: --:--:--</div>
+  </div>
+
 </div>
 
 <script src="app.js" defer></script>
