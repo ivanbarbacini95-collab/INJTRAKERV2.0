@@ -1,3 +1,4 @@
+// ---------- VARIABILI PRINCIPALI ----------
 let address = localStorage.getItem("inj_address") || "";
 
 let displayedPrice = 0;
@@ -10,9 +11,27 @@ let availableInj = 0, displayedAvailable = 0;
 let apr = 0;
 
 let chart, chartData = [];
-const maxReward = 0.05; // valore massimo per la barra
+const maxReward = 0.05; // valore massimo della barra
 
-// ---------- Utils ----------
+// ---------- ELEMENTI HTML ----------
+const price = document.getElementById("price");
+const price24h = document.getElementById("price24h");
+
+const available = document.getElementById("available");
+const availableUsd = document.getElementById("availableUsd");
+
+const stake = document.getElementById("stake");
+const stakeUsd = document.getElementById("stakeUsd");
+
+const rewards = document.getElementById("rewards");
+const rewardsUsd = document.getElementById("rewardsUsd");
+
+const aprEl = document.getElementById("apr");
+const updated = document.getElementById("updated");
+
+const rewardBarEl = document.getElementById("rewardBar");
+
+// ---------- UTILS ----------
 const fetchJSON = url => fetch(url).then(r => r.json());
 const formatUSD = v => "≈ $" + v.toFixed(2);
 
@@ -23,7 +42,7 @@ function updateNumber(el, oldV, newV, fixed) {
   else if (newV < oldV) el.classList.add("down");
 }
 
-// ---------- Address ----------
+// ---------- ADDRESS INPUT ----------
 const addressInput = document.getElementById("addressInput");
 addressInput.value = address;
 addressInput.onchange = e => {
@@ -32,7 +51,7 @@ addressInput.onchange = e => {
   loadData();
 };
 
-// ---------- Load Injective Data ----------
+// ---------- LOAD DATA INJ ----------
 async function loadData() {
   if (!address) return;
 
@@ -40,11 +59,11 @@ async function loadData() {
     const balance = await fetchJSON(`https://lcd.injective.network/cosmos/bank/v1beta1/balances/${address}`);
     availableInj = (balance.balances?.find(b => b.denom === "inj")?.amount || 0) / 1e18;
 
-    const stake = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/delegations/${address}`);
-    stakeInj = stake.delegation_responses?.reduce((s,d)=>s+Number(d.balance.amount),0)/1e18 || 0;
+    const stakeData = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/delegations/${address}`);
+    stakeInj = stakeData.delegation_responses?.reduce((s,d)=>s + Number(d.balance.amount),0)/1e18 || 0;
 
-    const rewards = await fetchJSON(`https://lcd.injective.network/cosmos/distribution/v1beta1/delegators/${address}/rewards`);
-    rewardsInj = rewards.rewards?.reduce((s,r)=>s + Number(r.reward[0]?.amount||0),0)/1e18 || 0;
+    const rewardsData = await fetchJSON(`https://lcd.injective.network/cosmos/distribution/v1beta1/delegators/${address}/rewards`);
+    rewardsInj = rewardsData.rewards?.reduce((s,r)=>s + Number(r.reward[0]?.amount||0),0)/1e18 || 0;
 
     const inflation = await fetchJSON(`https://lcd.injective.network/cosmos/mint/v1beta1/inflation`);
     const pool = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/pool`);
@@ -56,18 +75,20 @@ async function loadData() {
 loadData();
 setInterval(loadData, 60000);
 
-// ---------- Price History ----------
+// ---------- PRICE HISTORY / CHART ----------
 async function fetchHistory() {
-  const r = await fetch("https://api.binance.com/api/v3/klines?symbol=INJUSDT&interval=15m&limit=96"); // 24h / 15min
-  const d = await r.json();
-  chartData = d.map(c => +c[4]);
-  price24hOpen = +d[0][1];
-  targetPrice = chartData.at(-1);
-  drawChart();
+  try {
+    const r = await fetch("https://api.binance.com/api/v3/klines?symbol=INJUSDT&interval=15m&limit=96");
+    const d = await r.json();
+    chartData = d.map(c => +c[4]);
+    price24hOpen = +d[0][1];
+    targetPrice = chartData.at(-1);
+    drawChart();
+  } catch(e){ console.error(e); }
 }
 fetchHistory();
 
-// ---------- Draw Chart ----------
+// ---------- DRAW CHART ----------
 function drawChart() {
   const ctx = document.getElementById("priceChart");
   if (chart) chart.destroy();
@@ -83,11 +104,14 @@ function drawChart() {
         backgroundColor: "rgba(59,130,246,0.2)"
       }]
     },
-    options: { plugins:{legend:{display:false}}, scales:{x:{display:false}} }
+    options: {
+      plugins:{legend:{display:false}},
+      scales:{x:{display:false}}
+    }
   });
 }
 
-// ---------- Binance WS ----------
+// ---------- BINANCE WS PRICE ----------
 function startWS() {
   const ws = new WebSocket("wss://stream.binance.com:9443/ws/injusdt@trade");
   ws.onmessage = e => targetPrice = +JSON.parse(e.data).p;
@@ -95,9 +119,7 @@ function startWS() {
 }
 startWS();
 
-// ---------- Reward Bar ----------
-const rewardBarEl = document.getElementById("rewardBar");
-
+// ---------- REWARD BAR ANIMATA ----------
 function updateRewardBar() {
   displayedRewards += (rewardsInj - displayedRewards) * 0.05; // animazione fluida
   const fillPercent = Math.min(displayedRewards / maxReward * 100, 100);
@@ -105,7 +127,7 @@ function updateRewardBar() {
   rewardBarEl.innerHTML = `<span>${fillPercent.toFixed(1)}%</span>`;
 }
 
-// ---------- Animate Dashboard ----------
+// ---------- ANIMATE DASHBOARD ----------
 function animate() {
   // Price
   displayedPrice += (targetPrice - displayedPrice) * 0.1;
