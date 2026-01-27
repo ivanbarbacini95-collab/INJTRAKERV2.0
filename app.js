@@ -110,14 +110,9 @@ startWS();
 
 // ---------- REWARD BAR ----------
 function updateRewardBar() {
-  // Animazione dei rewards
   displayedRewards += (rewardsInj - displayedRewards) * 0.05;
-
-  // Percentuale
   const fillPercent = Math.min((displayedRewards / maxReward) * 100, 100);
   rewardBarEl.style.width = fillPercent + "%";
-
-  // Percentuale centrata e leggibile
   rewardBarEl.innerHTML = `<span>${fillPercent.toFixed(1)}%</span>`;
 }
 
@@ -140,18 +135,19 @@ function animate(){
   const prevAvailable = displayedAvailable;
   displayedAvailable += (availableInj - displayedAvailable)*0.1;
   updateNumber(available, prevAvailable, displayedAvailable,6);
-  availableUsd.innerText = formatUSD(displayedAvailable*displayedPrice);
+  updateNumber(availableUsd, prevAvailable*displayedPrice, displayedAvailable*displayedPrice, 2);
 
   // Stake
   const prevStake = displayedStake;
   displayedStake += (stakeInj - displayedStake)*0.1;
   updateNumber(stake, prevStake, displayedStake,4);
-  stakeUsd.innerText = formatUSD(displayedStake*displayedPrice);
+  updateNumber(stakeUsd, prevStake*displayedPrice, displayedStake*displayedPrice, 2);
 
   // Rewards
+  const prevRewards = displayedRewards;
   updateRewardBar();
-  updateNumber(rewards, displayedRewards, displayedRewards,6);
-  rewardsUsd.innerText = formatUSD(displayedRewards*displayedPrice);
+  updateNumber(rewards, prevRewards, displayedRewards,6);
+  updateNumber(rewardsUsd, prevRewards*displayedPrice, displayedRewards*displayedPrice, 2);
 
   // APR
   aprEl.innerText = apr.toFixed(2)+"%";
