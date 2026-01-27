@@ -1,22 +1,13 @@
+/* ---------- BODY ---------- */
 body {
-  font-family: Inter, sans-serif;
-  background: #0a0f1f;
+  font-family: 'Inter', sans-serif;
+  background: #0b0f1d; /* blu scuro */
   color: #f9fafb;
   margin: 0;
   padding: 1rem;
 }
 
-.dashboard-title {
-  font-family: 'Poppins', sans-serif; /* font moderno e impattante */
-  font-size: 2.5rem;
-  font-weight: 800;
-  text-align: center;
-  background: linear-gradient(90deg, #3b82f6, #0ea5e9);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 1rem;
-}
-
+/* ---------- CONTAINER ---------- */
 .container {
   max-width: 900px;
   margin: auto;
@@ -25,11 +16,22 @@ body {
   gap: 1rem;
 }
 
+/* ---------- PAGE TITLE ---------- */
+h1 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  text-align: center;
+  color: #3b82f6; /* blu vivo */
+  margin-bottom: 1rem;
+}
+
+/* ---------- ADDRESS INPUT ---------- */
 #addressInput {
   padding: 0.8rem;
   border-radius: 0.5rem;
-  border: 2px solid #1e293b;
-  background: #0a0f1f;
+  border: 2px solid #4b5563;
+  background: #0b0f1d;
   color: #f9fafb;
   font-size: 1rem;
 }
@@ -39,61 +41,83 @@ body {
   border-color: #3b82f6;
 }
 
+/* ---------- CARDS WRAPPER ---------- */
 .cards-wrapper {
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* verticale */
   gap: 1rem;
 }
 
+/* ---------- CARD ---------- */
 .card {
-  background: linear-gradient(135deg, #0f172a, #1e293b);
+  background: #111a2b; /* blu scuro */
+  border: 2px solid #1f2937;
   border-radius: 0.5rem;
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  justify-content: space-between;
 }
 
+/* ---------- CARD LABEL ---------- */
 .card .label {
-  font-weight: bold;
-  font-size: 1.3rem;
-  color: #3b82f6;
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: #3b82f6; /* blu vivo */
 }
 
+/* ---------- VALUE ROW ---------- */
 .value-row {
   display: flex;
   justify-content: flex-end;
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   font-weight: bold;
 }
 
+/* ---------- SUB ROW ---------- */
 .sub-row {
   display: flex;
   justify-content: flex-end;
   font-size: 0.9rem;
-  color: #94a3b8;
+  color: #9ca3af;
+  margin-top: 0.2rem;
 }
 
-.reward-bar-container {
-  background: #1e293b;
-  height: 25px;
-  border-radius: 0.5rem;
+/* ---------- LAST UPDATE ---------- */
+.last-update {
+  font-size: 0.8rem;
+  text-align: center;
   margin-top: 0.5rem;
-  overflow: hidden;
+  color: #9ca3af;
+}
+
+/* ---------- UP / DOWN COLORS ---------- */
+.up { color: #22c55e; }
+.down { color: #ef4444; }
+
+/* ---------- REWARD BAR ---------- */
+.reward-bar-container {
+  background: #111a2b; /* blu scuro */
+  height: 24px;
+  border-radius: 0.3rem;
+  margin-top: 0.5rem;
   position: relative;
+  overflow: hidden;
 }
 
 .reward-bar {
-  background: linear-gradient(90deg, #3b82f6, #0ea5e9);
+  background: #3b82f6; /* blu vivo */
   height: 100%;
   width: 0%;
+  border-radius: 0.3rem;
+  transition: width 0.3s linear;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  padding-right: 0.5rem;
+  justify-content: center;
   font-size: 0.8rem;
-  color: #f9fafb;
-  transition: width 0.3s linear;
+  font-weight: bold;
+  color: #fff;
 }
 
 .reward-bar span {
@@ -103,15 +127,14 @@ body {
   color: #fff;
 }
 
-.last-update {
-  font-size: 0.8rem;
-  text-align: center;
-  color: #94a3b8;
+/* ---------- CHART ---------- */
+.chart-card canvas {
+  width: 100% !important;
+  height: 200px !important;
+  margin-top: 0.5rem;
 }
 
-.up { color: #22c55e; }
-.down { color: #ef4444; }
-
+/* ---------- MEDIA QUERIES ---------- */
 @media (max-width: 768px) {
   .cards-wrapper { flex-direction: column; }
 }
