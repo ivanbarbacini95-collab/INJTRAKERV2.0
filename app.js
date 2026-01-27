@@ -154,7 +154,7 @@ async function loadMarket(){
   }catch(e){ console.error(e); }
 }
 
-function updateMarketTable(){
+function updateMarketTableDigits(){
   const tbody=document.querySelector("#marketTable tbody");
   for(const c of marketData){
     const price = marketPrices[c].usd;
@@ -171,22 +171,22 @@ function updateMarketTable(){
       `;
       tbody.appendChild(tr);
     } else {
-      // Controllo se prezzo cambiato -> lampeggio
       const priceEl = tr.querySelector("td:nth-child(3) .digit-inner");
       if(parseFloat(priceEl.innerText)!==price){
         tr.classList.add("table-flash");
         setTimeout(()=>tr.classList.remove("table-flash"),400);
       }
-      priceEl.innerText = price.toFixed(4);
-      tr.querySelector("td:first-child").innerText = change.toFixed(2)+"%";
-      tr.querySelector("td:first-child").className = "percent "+deltaClass;
+      updateDigits(priceEl, c, price);
+      const deltaEl = tr.querySelector("td:first-child");
+      deltaEl.innerText = change.toFixed(2)+"%";
+      deltaEl.className = "percent "+deltaClass;
     }
   }
 }
 
 async function refreshMarket(){
   await loadMarket();
-  updateMarketTable();
+  updateMarketTableDigits();
 }
 refreshMarket();
 setInterval(refreshMarket,10000);
@@ -195,7 +195,6 @@ setInterval(refreshMarket,10000);
  * MAIN LOOP ANIMATION
  ********************/
 function loop(){
-  // Rewards / Staked / Available
   displayRewards += (rewards-displayRewards)*0.2;
   displayStaked += (staked-displayStaked)*0.2;
 
@@ -203,9 +202,8 @@ function loop(){
   updateDigits(document.getElementById("stake"),"stake",displayStaked);
   updateDigits(document.getElementById("available"),"available",available);
 
-  // Price animation
   if(livePrice>0){
-    displayPrice += (livePrice-displayPrice)*0.5; // più veloce
+    displayPrice += (livePrice-displayPrice)*0.5;
     updateDigits(document.getElementById("price"),"price",displayPrice);
 
     if(price24hOpen>0){
@@ -229,7 +227,5 @@ function loop(){
   requestAnimationFrame(loop);
 }
 loop();
-
-// Load onchain data periodically
 if(address) loadOnchainData();
 setInterval(loadOnchainData,10000);
