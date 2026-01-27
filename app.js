@@ -11,18 +11,22 @@ let apr = 0;
 
 let chart, chartData = [];
 
-// ---- Utils ----
+const rewardTargets = [0.005,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.1];
+const rewardBarEl = document.getElementById("rewardBar");
+let rewardMarkers = [];
+
+// ---------- Utils ----------
 const fetchJSON = url => fetch(url).then(r => r.json());
 const formatUSD = v => "≈ $" + v.toFixed(2);
+const formatDecimal = (v,dec=4) => v.toFixed(dec);
 
 function updateNumber(el, oldV, newV, fixed) {
-  el.classList.remove("up","down");
-  el.innerText = newV.toFixed(fixed);
-  if(newV > oldV) el.classList.add("up");
-  if(newV < oldV) el.classList.add("down");
+  el.innerText = formatDecimal(newV,fixed);
+  if(newV>oldV) el.classList.add("up"), el.classList.remove("down");
+  if(newV<oldV) el.classList.add("down"), el.classList.remove("up");
 }
 
-// ---- Address Input ----
+// ---------- Address ----------
 const addressInput = document.getElementById("addressInput");
 addressInput.value = address;
 addressInput.onchange = e => {
@@ -31,36 +35,32 @@ addressInput.onchange = e => {
   loadData();
 };
 
-// ---- Load Injective Data ----
+// ---------- Load Injective Data ----------
 async function loadData() {
   if(!address) return;
 
   try {
-    // Balance
     const balance = await fetchJSON(`https://lcd.injective.network/cosmos/bank/v1beta1/balances/${address}`);
-    availableInj = (balance.balances?.find(b=>b.denom==="inj")?.amount||0)/1e18;
+    availableInj = (balance.balances?.find(b => b.denom==="inj")?.amount || 0)/1e18;
 
-    // Stake
     const stake = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/delegations/${address}`);
     stakeInj = stake.delegation_responses?.reduce((s,d)=>s+Number(d.balance.amount),0)/1e18 || 0;
 
-    // Rewards
     const rewards = await fetchJSON(`https://lcd.injective.network/cosmos/distribution/v1beta1/delegators/${address}/rewards`);
     rewardsInj = rewards.rewards?.reduce((s,r)=>s + Number(r.reward[0]?.amount||0),0)/1e18 || 0;
 
-    // APR
     const inflation = await fetchJSON(`https://lcd.injective.network/cosmos/mint/v1beta1/inflation`);
     const pool = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/pool`);
     apr = (inflation.inflation * Number(pool.pool.bonded_tokens + pool.pool.not_bonded_tokens) / pool.pool.bonded_tokens) * 100;
 
-  } catch(e) { console.error(e); }
+  } catch(e){ console.error(e); }
 }
 
 loadData();
 setInterval(loadData,60000);
 
-// ---- Price History ----
-async function fetchHistory() {
+// ---------- Price History ----------
+async function fetchHistory(){
   const r = await fetch("https://api.binance.com/api/v3/klines?symbol=INJUSDT&interval=1h&limit=24");
   const d = await r.json();
   chartData = d.map(c=>+c[4]);
@@ -70,7 +70,7 @@ async function fetchHistory() {
 }
 fetchHistory();
 
-// ---- Chart ----
+// ---------- Chart ----------
 function drawChart(){
   const ctx = document.getElementById("priceChart");
   if(chart) chart.destroy();
@@ -92,7 +92,7 @@ function drawChart(){
   });
 }
 
-// ---- Binance WS ----
+// ---------- Binance WS ----------
 function startWS(){
   const ws = new WebSocket("wss://stream.binance.com:9443/ws/injusdt@trade");
   ws.onmessage = e => targetPrice = +JSON.parse(e.data).p;
@@ -100,69 +100,76 @@ function startWS(){
 }
 startWS();
 
-// ---- Reward Bar ----
-const rewardBarEl = document.getElementById("rewardBar");
-const rewardTargets = [0.005,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.1];
-let rewardMarkers = [];
+// ---------- Reward Bar ----------
+function initRewardMarkers(){
+  const container = rewardBarEl.parentElement;
+  if(rewardMarkers.length>0) return;
 
-// ---- Animate Loop ----
-function animate(){
-  // Price
-  let prevP = displayedPrice;
-  displayedPrice += (targetPrice - displayedPrice)*0.1;
-  updateNumber(price,prevP,displayedPrice,4);
+  rewardTargets.forEach(target=>{
+    const marker = document.createElement("div");
+    marker.classList.add("reward-target");
+    marker.style.left = (target/rewardTargets[rewardTargets.length-1]*100)+"%";
+    container.appendChild(marker);
+    rewardMarkers.push({el:marker,value:target,reached:false});
+  });
+}
 
-  // Available
-  let prevA = displayedAvailable;
-  displayedAvailable += (availableInj - displayedAvailable)*0.1;
-  updateNumber(available,prevA,displayedAvailable,6);
-  availableUsd.innerText = formatUSD(displayedAvailable*displayedPrice);
-
-  // Stake
-  let prevS = displayedStake;
-  displayedStake += (stakeInj - displayedStake)*0.1;
-  updateNumber(stake,prevS,displayedStake,4);
-  stakeUsd.innerText = formatUSD(displayedStake*displayedPrice);
-
-  // Rewards
-  let prevR = displayedRewards;
-  displayedRewards += (rewardsInj - displayedRewards)*0.1;
-  updateNumber(rewards,prevR,displayedRewards,4);
-  rewardsUsd.innerText = formatUSD(displayedRewards*displayedPrice);
-
-  // Daily / Weekly
-  dailyRewards.innerText = (displayedStake*apr/100/365).toFixed(4)+" INJ / giorno";
-  weeklyRewards.innerText = (displayedStake*apr/100/52).toFixed(4)+" INJ / settimana";
-
-  // APR
-  apr.innerText = apr.toFixed(2)+"%";
-
-  // ---- Reward Bar ----
-  if(rewardMarkers.length === 0){
-    const container = rewardBarEl.parentElement;
-    rewardTargets.forEach(target=>{
-      const marker = document.createElement("div");
-      marker.classList.add("reward-target");
-      marker.style.left = (target/rewardTargets[rewardTargets.length-1]*100)+"%";
-      container.appendChild(marker);
-      rewardMarkers.push({el:marker,value:target,reached:false});
-    });
-  }
-
+function updateRewardBar(){
+  initRewardMarkers();
   let fillPercent = Math.min(displayedRewards/rewardTargets[rewardTargets.length-1]*100,100);
   rewardBarEl.style.width = fillPercent+"%";
 
   rewardMarkers.forEach(m=>{
     if(displayedRewards >= m.value && !m.reached){
-      m.reached = true;
+      m.reached=true;
       m.el.classList.add("reached");
       setTimeout(()=> m.el.classList.remove("reached"),500);
     }
   });
+}
 
-  // Last Update
-  updated.innerText = "Last Update: "+new Date().toLocaleTimeString();
+// ---------- Animation ----------
+function animate(){
+  // PRICE
+  const prevP = displayedPrice;
+  displayedPrice += (targetPrice - displayedPrice)*0.1;
+  updateNumber(price, prevP, displayedPrice,4);
+  priceDelta.innerText = formatUSD(displayedPrice - price24hOpen);
+  priceChange.innerText = ((displayedPrice - price24hOpen)/price24hOpen*100).toFixed(2) + "%";
+  priceDelta.className = displayedPrice>=price24hOpen?"sub up":"sub down";
+  priceChange.className = displayedPrice>=price24hOpen?"sub up":"sub down";
+
+  // AVAILABLE
+  const prevA = displayedAvailable;
+  displayedAvailable += (availableInj - displayedAvailable)*0.1;
+  updateNumber(available, prevA, displayedAvailable,6);
+  availableUsd.innerText = formatUSD(displayedAvailable*displayedPrice);
+
+  // STAKE
+  const prevS = displayedStake;
+  displayedStake += (stakeInj - displayedStake)*0.1;
+  updateNumber(stake, prevS, displayedStake,4);
+  stakeUsd.innerText = formatUSD(displayedStake*displayedPrice);
+
+  // REWARDS
+  const prevR = displayedRewards;
+  displayedRewards += (rewardsInj - displayedRewards)*0.1;
+  updateNumber(rewards, prevR, displayedRewards,6);
+  rewardsUsd.innerText = formatUSD(displayedRewards*displayedPrice);
+
+  dailyRewards.innerText = (displayedStake*apr/100/365).toFixed(5) + " INJ / giorno";
+  weeklyRewards.innerText = (displayedStake*apr/100/52).toFixed(5) + " INJ / settimana";
+
+  // APR
+  aprEl.innerText = apr.toFixed(2) + "%";
+
+  // REWARD BAR
+  updateRewardBar();
+
+  // LAST UPDATE
+  updated.innerText = "Last Update: " + new Date().toLocaleTimeString();
 
   requestAnimationFrame(animate);
 }
+
 animate();
