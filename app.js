@@ -1,6 +1,9 @@
 let address = localStorage.getItem("inj_address") || "";
 
-let displayedPrice = 0, targetPrice = 0, price24hOpen = 0;
+let displayedPrice = 0;
+let targetPrice = 0;
+let price24hOpen = 0;
+
 let stakeInj = 0, displayedStake = 0;
 let rewardsInj = 0, displayedRewards = 0;
 let availableInj = 0, displayedAvailable = 0;
@@ -8,20 +11,17 @@ let apr = 0;
 
 let chart, chartData = [];
 
-const price = document.getElementById("price");
-const available = document.getElementById("available");
-const stake = document.getElementById("stake");
-const rewards = document.getElementById("rewards");
-const aprEl = document.getElementById("apr");
+// ---------- Utils ----------
+const fetchJSON = url => fetch(url).then(r => r.json());
+const formatUSD = v => "≈ $" + v.toFixed(2);
 
-const availableUsd = document.getElementById("availableUsd");
-const stakeUsd = document.getElementById("stakeUsd");
-const rewardsUsd = document.getElementById("rewardsUsd");
-const dailyRewards = document.getElementById("dailyRewards");
-const monthlyRewards = document.getElementById("monthlyRewards");
-const updated = document.getElementById("updated");
-const rewardBar = document.getElementById("rewardBar");
+function updateNumber(el, oldV, newV, fixed) {
+  el.innerText = newV.toFixed(fixed);
+  if (newV > oldV) el.classList.add("up");
+  if (newV < oldV) el.classList.add("down");
+}
 
+// ---------- Address ----------
 const addressInput = document.getElementById("addressInput");
 addressInput.value = address;
 addressInput.onchange = e => {
@@ -30,140 +30,112 @@ addressInput.onchange = e => {
   loadData();
 };
 
-const fetchJSON = url => fetch(url).then(r => r.json());
-const formatUSD = v => "≈ $" + v.toFixed(2);
-
-function updateNumber(el, oldV, newV, fixed){
-  if(!el) return;
-  el.classList.remove("up","down");
-  el.innerText = (isNaN(newV)?0:newV).toFixed(fixed);
-  if(newV > oldV) el.classList.add("up");
-  if(newV < oldV) el.classList.add("down");
-}
-
-// ---------- Reward Targets ----------
-const rewardTargets = [0.005,0.01,0.05,0.1,0.5,1];
-let notifiedTargets = new Set();
-
-if("Notification" in window){
-  Notification.requestPermission();
-}
-
-function notifyTarget(target){
-  if(Notification.permission === "granted"){
-    new Notification("INJ Dashboard", {
-      body: `Target reward raggiunto: ${target} INJ`,
-      icon: "https://raw.githubusercontent.com/InjectiveLabs/branding/main/logo/inj-icon.png"
-    });
-  }
-}
-
 // ---------- Load Injective Data ----------
-async function loadData(){
-  if(!address) return;
-  try{
+async function loadData() {
+  if (!address) return;
+
+  try {
     const balance = await fetchJSON(`https://lcd.injective.network/cosmos/bank/v1beta1/balances/${address}`);
-    availableInj = Number(balance?.balances?.find(b=>b.denom==="inj")?.amount || 0)/1e18;
+    availableInj = (balance.balances?.find(b => b.denom === "inj")?.amount || 0) / 1e18;
 
-    const stakeResp = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/delegations/${address}`);
-    stakeInj = stakeResp?.delegation_responses?.reduce((s,d)=>s+Number(d.balance?.amount||0),0)/1e18 || 0;
+    const stake = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/delegations/${address}`);
+    stakeInj = stake.delegation_responses?.reduce((s,d)=>s+Number(d.balance.amount),0)/1e18 || 0;
 
-    const rewardsResp = await fetchJSON(`https://lcd.injective.network/cosmos/distribution/v1beta1/delegators/${address}/rewards`);
-    rewardsInj = rewardsResp?.rewards?.reduce((s,r)=>s + Number(r.reward?.[0]?.amount||0),0)/1e18 || 0;
+    const rewards = await fetchJSON(`https://lcd.injective.network/cosmos/distribution/v1beta1/delegators/${address}/rewards`);
+    rewardsInj = rewards.rewards?.reduce((s,r)=>s + Number(r.reward[0]?.amount||0),0)/1e18 || 0;
 
     const inflation = await fetchJSON(`https://lcd.injective.network/cosmos/mint/v1beta1/inflation`);
     const pool = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/pool`);
-    const bonded = Number(pool?.pool?.bonded_tokens || 1);
-    const total = bonded + Number(pool?.pool?.not_bonded_tokens || 0);
-    apr = (Number(inflation?.inflation || 0) * total / bonded) * 100;
+    apr = (inflation.inflation * Number(pool.pool.bonded_tokens + pool.pool.not_bonded_tokens) / pool.pool.bonded_tokens) * 100;
 
-  } catch(e){console.error("Errore caricamento dati:",e);}
+  } catch (e) {
+    console.error(e);
+  }
 }
+
+loadData();
+setInterval(loadData, 60000);
 
 // ---------- Price History ----------
-async function fetchHistory(){
-  try{
-    const r = await fetch("https://api.binance.com/api/v3/klines?symbol=INJUSDT&interval=1h&limit=24");
-    const d = await r.json();
-    chartData = d.map(c=>+c[4]);
-    price24hOpen = +d[0][1];
-    targetPrice = chartData.at(-1);
-    drawChart();
-  } catch(e){console.error("Errore storico prezzi:",e);}
+async function fetchHistory() {
+  const r = await fetch("https://api.binance.com/api/v3/klines?symbol=INJUSDT&interval=1h&limit=24");
+  const d = await r.json();
+  chartData = d.map(c => +c[4]);
+  price24hOpen = +d[0][1];
+  targetPrice = chartData.at(-1);
+  drawChart();
 }
+fetchHistory();
 
 // ---------- Chart ----------
-function drawChart(){
+function drawChart() {
   const ctx = document.getElementById("priceChart");
-  if(chart) chart.destroy();
-  chart = new Chart(ctx,{
-    type:"line",
-    data:{labels: chartData.map((_,i)=>i), datasets:[{data: chartData, borderColor:"#22c55e", tension:0.3, fill:true}]},
-    options:{plugins:{legend:{display:false}}, scales:{x:{display:false}}}
+  if (chart) chart.destroy();
+  chart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: chartData.map((_,i)=>i),
+      datasets: [{
+        data: chartData,
+        borderColor: "#22c55e",
+        tension: 0.3,
+        fill: true
+      }]
+    },
+    options: {
+      plugins:{legend:{display:false}},
+      scales:{x:{display:false}}
+    }
   });
 }
 
 // ---------- Binance WS ----------
-function startWS(){
+function startWS() {
   const ws = new WebSocket("wss://stream.binance.com:9443/ws/injusdt@trade");
-  ws.onmessage = e=> targetPrice = +JSON.parse(e.data).p;
-  ws.onclose = ()=> setTimeout(startWS,3000);
+  ws.onmessage = e => targetPrice = +JSON.parse(e.data).p;
+  ws.onclose = () => setTimeout(startWS, 3000);
 }
 startWS();
 
-// ---------- Animate ----------
-let rewardAnimationOffset = 0;
-
-function animate(){
+// ---------- Animation ----------
+function animate() {
+  // Price
   const prevP = displayedPrice;
-  displayedPrice += (targetPrice-displayedPrice)*0.1;
+  displayedPrice += (targetPrice - displayedPrice) * 0.1;
   updateNumber(price, prevP, displayedPrice, 4);
 
+  // Available
   const prevA = displayedAvailable;
-  displayedAvailable += (availableInj-displayedAvailable)*0.1;
+  displayedAvailable += (availableInj - displayedAvailable) * 0.1;
   updateNumber(available, prevA, displayedAvailable, 6);
-  availableUsd.innerText = formatUSD(displayedAvailable*displayedPrice);
+  availableUsd.innerText = formatUSD(displayedAvailable * displayedPrice);
 
+  // Stake
   const prevS = displayedStake;
-  displayedStake += (stakeInj-displayedStake)*0.1;
+  displayedStake += (stakeInj - displayedStake) * 0.1;
   updateNumber(stake, prevS, displayedStake, 4);
-  stakeUsd.innerText = formatUSD(displayedStake*displayedPrice);
+  stakeUsd.innerText = formatUSD(displayedStake * displayedPrice);
 
-  // ---------- Rewards sempre in movimento ----------
-  displayedRewards = rewardsInj;
-  updateNumber(rewards, displayedRewards, displayedRewards, 7);
-  rewardsUsd.innerText = formatUSD(displayedRewards*displayedPrice);
+  // Rewards sempre in movimento
+  displayedRewards += rewardsInj * 0.00005; // incremento costante
+  updateNumber(rewards, displayedRewards, displayedRewards, 6);
+  rewardsUsd.innerText = formatUSD(displayedRewards * displayedPrice);
 
-  // Barra rewards animata
-  const rewardMax = 1;
-  rewardAnimationOffset += 0.5;
-  const perc = Math.min((displayedRewards/rewardMax)*100,100);
-  rewardBar.style.width = perc+"%";
-  rewardBar.style.backgroundPosition = rewardAnimationOffset+"px 0";
+  // Daily/Monthly
+  dailyRewards.innerText = (displayedStake * apr / 100 / 365).toFixed(5) + " INJ / giorno";
+  monthlyRewards.innerText = (displayedStake * apr / 100 / 12).toFixed(5) + " INJ / mese";
 
-  // Notifiche targets
-  for(let t of rewardTargets){
-    if(displayedRewards >= t && !notifiedTargets.has(t)){
-      notifiedTargets.add(t);
-      notifyTarget(t);
-    }
-  }
+  // APR
+  aprEl.innerText = apr.toFixed(2) + "%";
 
-  dailyRewards.innerText = (displayedStake*apr/100/365).toFixed(5)+" INJ / giorno";
-  monthlyRewards.innerText = (displayedStake*apr/100/12).toFixed(5)+" INJ / mese";
+  // Updated
+  updated.innerText = "Last Update: " + new Date().toLocaleTimeString();
 
-  aprEl.innerText = apr.toFixed(2)+"%";
-  updated.innerText = "Last Update: "+new Date().toLocaleTimeString();
+  // Reward bar
+  const bar = document.getElementById("rewardBar");
+  const percent = Math.min(displayedRewards * 100, 100);
+  bar.style.width = percent + "%";
 
   requestAnimationFrame(animate);
 }
-
-setInterval(loadData,60000);
-
-async function init(){
-  await loadData();
-  fetchHistory();
-  animate();
-}
-
-init();
+animate();
