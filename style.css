@@ -13,7 +13,7 @@ h1 {
 }
 
 .container {
-  max-width: 600px;
+  max-width: 650px;
   margin: auto;
   display: flex;
   flex-direction: column;
@@ -28,8 +28,8 @@ h1 {
   justify-content: space-between;
   align-items: center;
   min-height: 60px;
-  overflow: hidden; /* impedisce ai valori di uscire */
-  flex-wrap: wrap; /* permette a elementi lunghi di andare a capo se necessario */
+  overflow: hidden;          /* impedisce overflow numeri */
+  flex-wrap: wrap;           /* permette ai valori lunghi di andare a capo se necessario */
 }
 
 .reward-box {
@@ -37,12 +37,12 @@ h1 {
 }
 
 .label {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: bold;
   color: #9ca3af;
   text-align: left;
   flex: 1;
-  min-width: 120px;
+  min-width: 150px;
 }
 
 .value {
@@ -50,15 +50,15 @@ h1 {
   font-weight: bold;
   text-align: right;
   flex: 1;
-  min-width: 120px;
-  max-width: 250px; /* evita che escano */
+  min-width: 150px;
+  max-width: 300px;          /* evita che escano dal box */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .sub {
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: #9ca3af;
   text-align: right;
   width: 100%;
@@ -111,6 +111,6 @@ h1 {
 }
 
 @media (max-width: 600px) {
-  .value { font-size: 1.3rem; min-width: 100px; max-width: 200px; }
+  .value { font-size: 1.3rem; min-width: 100px; max-width: 220px; }
   .label { font-size: 1rem; min-width: 80px; }
 }
