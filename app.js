@@ -61,12 +61,20 @@ async function loadData() {
     const balanceResp = await fetchJSON(
       `https://lcd.injective.network/cosmos/bank/v1beta1/balances/${address}`
     );
-    console.log("Balances:", balanceResp.balances);
+    console.log("Balances raw:", balanceResp.balances);
 
     availableInj = 0;
     if (balanceResp.balances && balanceResp.balances.length > 0) {
-      const injToken = balanceResp.balances.find(b => b.denom === "uinj");
+      // Cerca uinj
+      let injToken = balanceResp.balances.find(b => b.denom === "uinj");
+      // fallback: qualsiasi token che contenga "inj"
+      if (!injToken) {
+        injToken = balanceResp.balances.find(b => b.denom.toLowerCase().includes("inj"));
+      }
       if (injToken) availableInj = Number(injToken.amount) / 1e18;
+
+      console.log("Token trovato per INJ:", injToken);
+      console.log("Balance calcolato:", availableInj);
     }
 
     // ---------- Stake ----------
