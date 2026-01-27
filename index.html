@@ -13,50 +13,45 @@
 
   <input type="text" id="addressInput" placeholder="Inserisci indirizzo INJ">
 
-  <div class="row">
-    <span class="label">INJ Price</span>
-    <span class="value" id="price">$0.0000</span>
-  </div>
-  <div class="sub-row">
-    <span class="sub">Live Binance</span>
-    <span class="sub" id="price24h">0.00% | ≈ $0.00</span>
-  </div>
+  <!-- Cards -->
+  <div class="cards">
 
-  <div class="row">
-    <span class="label">INJ Balance 💵</span>
-    <span class="value" id="available">0.000000</span>
-  </div>
-  <div class="sub-row">
-    <span class="sub"></span>
-    <span class="sub" id="availableUsd">≈ $0.00</span>
-  </div>
+    <div class="card">
+      <span class="label">INJ Price</span>
+      <span class="value" id="price">$0.0000</span>
+      <div class="sub" id="price24h">0.00% | ≈ $0.00</div>
+    </div>
 
-  <div class="row">
-    <span class="label">Staked ⛏️</span>
-    <span class="value" id="stake">0.0000</span>
-  </div>
-  <div class="sub-row">
-    <span class="sub"></span>
-    <span class="sub" id="stakeUsd">≈ $0.00</span>
-  </div>
+    <div class="card">
+      <span class="label">INJ Balance 💵</span>
+      <span class="value" id="available">0.000000</span>
+      <div class="sub" id="availableUsd">≈ $0.00</div>
+    </div>
 
-  <div class="row">
-    <span class="label">Rewards 🚀</span>
-    <span class="value" id="rewards">0.000000</span>
-  </div>
-  <div class="sub-row">
-    <span class="sub" id="dailyRewards">0.0000 INJ / giorno</span>
-    <span class="sub" id="monthlyRewards">0.0000 INJ / mese</span>
-    <span class="sub" id="rewardsUsd">≈ $0.00</span>
-  </div>
+    <div class="card">
+      <span class="label">Staked ⛏️</span>
+      <span class="value" id="stake">0.0000</span>
+      <div class="sub" id="stakeUsd">≈ $0.00</div>
+    </div>
 
-  <div class="row">
-    <span class="label">APR</span>
-    <span class="value" id="apr">0%</span>
-  </div>
+    <div class="card">
+      <span class="label">Rewards 🚀</span>
+      <span class="value" id="rewards">0.000000</span>
+      <div class="sub" id="rewardsUsd">≈ $0.00</div>
+      <div class="sub" id="dailyRewards">0.0000 INJ / giorno</div>
+      <div class="sub" id="monthlyRewards">0.0000 INJ / mese</div>
+    </div>
 
-  <div class="chart-container">
-    <canvas id="priceChart"></canvas>
+    <div class="card">
+      <span class="label">APR</span>
+      <span class="value" id="apr">0%</span>
+    </div>
+
+    <div class="card chart-card">
+      <span class="label">Grafico 24h</span>
+      <canvas id="priceChart"></canvas>
+    </div>
+
   </div>
 
   <div id="updated">Last Update: --:--:--</div>
