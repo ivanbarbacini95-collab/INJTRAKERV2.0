@@ -7,137 +7,110 @@ body {
 }
 
 .container {
-  max-width: 1000px;
+  max-width: 900px;
   margin: auto;
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 1rem;
-  justify-content: center;
 }
 
-/* SEARCH BAR */
 #addressInput {
-  width: 100%;
-  max-width: 300px;
-  padding: 0.6rem;
+  padding: 0.8rem;
   border-radius: 0.5rem;
   border: 2px solid #4b5563;
   background: #000;
   color: #f9fafb;
-  margin-bottom: 1rem;
+  font-size: 1rem;
 }
 
 #addressInput:focus {
   outline: none;
   border-color: #38bdf8;
-  box-shadow: 0 0 8px rgba(56,189,248,0.3);
 }
 
-/* CARD STYLING */
+.cards-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
 .card {
-  flex: 1 1 250px;
   background: #111;
   border: 2px solid #4b5563;
   border-radius: 0.5rem;
-  padding: 1rem;
+  padding: 0.8rem;
+  flex: 1 1 220px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   min-width: 200px;
-  max-width: 300px;
 }
 
-.card-chart {
-  flex: 2 1 600px;
-}
-
-/* LABEL */
-.label {
-  font-size: 1rem;
+.card .label {
   font-weight: bold;
-  color: #9ca3af;
+  font-size: 1rem;
   margin-bottom: 0.5rem;
 }
 
-/* VALUE ROW */
 .value-row {
-  text-align: right;
-}
-
-.value {
-  font-size: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  font-size: 1.4rem;
   font-weight: bold;
 }
 
 .sub-row {
   display: flex;
   justify-content: flex-end;
-  gap: 0.5rem;
-}
-
-.sub {
   font-size: 0.9rem;
   color: #9ca3af;
+  margin-top: 0.2rem;
 }
 
-/* UP/DOWN COLORS */
-.up { color: #22c55e; }
-.down { color: #ef4444; }
-
-/* PRICE CHART */
-#priceChart {
-  width: 100%;
-  height: 160px;
-}
-
-/* REWARD BAR */
 .reward-bar-container {
-  position: relative;
   background: #222;
+  height: 20px;
   border-radius: 0.3rem;
-  height: 16px;
   margin-top: 0.5rem;
-  overflow: hidden;
+  position: relative;
 }
 
 .reward-bar {
+  background: #22c55e;
   height: 100%;
   width: 0%;
-  background: #22c55e;
-  transition: width 0.2s linear;
+  border-radius: 0.3rem;
+  transition: width 0.3s linear;
 }
 
-.reward-target {
+.reward-targets {
   position: absolute;
   top: 0;
-  width: 2px;
-  height: 100%;
-  background: #facc15;
-}
-
-.reward-target.reached {
-  animation: flash 0.5s ease-in-out;
-  background: #22c55e;
-}
-
-@keyframes flash {
-  0% { transform: scaleY(1); opacity: 1; }
-  50% { transform: scaleY(1.5); opacity: 0.7; }
-  100% { transform: scaleY(1); opacity: 1; }
-}
-
-/* LAST UPDATE */
-#updated {
+  left: 0;
   width: 100%;
-  text-align: center;
-  font-size: 0.8rem;
-  color: #9ca3af;
-  margin-top: 1rem;
+  height: 100%;
 }
 
-/* RESPONSIVE */
-@media (max-width: 600px) {
-  .value { font-size: 1.2rem; }
-  .card { max-width: 100%; }
-  #addressInput { max-width: 100%; }
+.reward-targets span {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  color: #f9fafb;
+  font-size: 0.7rem;
+}
+
+.last-update {
+  font-size: 0.8rem;
+  text-align: center;
+  margin-top: 0.5rem;
+  color: #9ca3af;
+}
+
+.up { color: #22c55e; }
+.down { color: #ef4444; }
+
+@media (max-width: 768px) {
+  .cards-wrapper { flex-direction: column; }
+  .card { min-width: auto; }
 }
