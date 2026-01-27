@@ -39,7 +39,7 @@ function updateNumberAnimation(el,key,newV){
     const oldChar=lastUI[key][i]||"";
     if(!children[i]) continue;
     if(oldChar<s[i]) children[i].className="digit-inner digit-up";
-    else if(oldChar>s[i]) children[i].className="digit-inner digit-down";
+    else if(oldChar>s[i]) children[i].className="digit-down";
     else children[i].className="digit-inner neutral";
     children[i].innerText=s[i];
   }
@@ -119,7 +119,7 @@ async function loadMarketData(){
   }catch(e){ console.error("Market error:",e); }
 }
 loadMarketData();
-setInterval(loadMarketData,5000);
+setInterval(loadMarketData,3000);
 
 /********************
  * PRICE LIVE
@@ -144,7 +144,7 @@ function loop(){
   lastRewardUpdate=now;
   rewards += rewardRate*dt;
 
-  // PRICE BOX
+  // INJ PRICE BOX
   if(livePrice>0){
     displayPrice += (livePrice-displayPrice)*0.2;
     updateNumberAnimation(document.getElementById("price"),"price",displayPrice);
@@ -170,7 +170,7 @@ function loop(){
   document.getElementById("apr").innerText=apr.toFixed(2)+"%";
   document.getElementById("updated").innerText="Last Update: "+new Date().toLocaleTimeString();
 
-  // MARKET TABLE CON LAMPEGGIO E NUMERI ANIMATI
+  // MARKET TABLE
   const tbody=document.querySelector("#marketTable tbody");
   tbody.innerHTML="";
   for(let symbol of marketList){
@@ -188,7 +188,6 @@ function loop(){
     percCell.innerText=perc.toFixed(2)+"%";
     percCell.className=perc>=0?"digit-up":"digit-down";
 
-    // lampeggio breve se prezzo cambia
     const prevPrice=prevMarketPrices[symbol];
     if(prevPrice && prevPrice!==d.price){
       tr.style.transition="background 0.5s";
