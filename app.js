@@ -58,7 +58,6 @@ function updateNumber(el, oldV, newV, fixed) {
       el.style.transform = "scale(1)";
     }, 300);
   } else {
-    // Se stabile, resta naturale
     el.style.color = "#f9fafb";
     el.style.transform = "scale(1)";
   }
@@ -76,11 +75,10 @@ async function loadData() {
   if (!address) return;
 
   try {
-    // ---------- Balance ----------
+    // Balance
     const balanceResp = await fetchJSON(
       `https://lcd.injective.network/cosmos/bank/v1beta1/balances/${address}`
     );
-
     availableInj = 0;
     if (balanceResp.balances && balanceResp.balances.length > 0) {
       let injToken = balanceResp.balances.find(b => b.denom === "uinj");
@@ -88,7 +86,7 @@ async function loadData() {
       if (injToken) availableInj = Number(injToken.amount) / 1e18;
     }
 
-    // ---------- Stake ----------
+    // Stake
     const stakeResp = await fetchJSON(
       `https://lcd.injective.network/cosmos/staking/v1beta1/delegations/${address}`
     );
@@ -97,7 +95,7 @@ async function loadData() {
       stakeInj = stakeResp.delegation_responses.reduce((s, d) => s + Number(d.balance.amount), 0) / 1e18;
     }
 
-    // ---------- Rewards ----------
+    // Rewards
     const rewardsResp = await fetchJSON(
       `https://lcd.injective.network/cosmos/distribution/v1beta1/delegators/${address}/rewards`
     );
@@ -106,10 +104,9 @@ async function loadData() {
       rewardsInj = rewardsResp.rewards.reduce((s, r) => s + Number(r.reward[0]?.amount || 0), 0) / 1e18;
     }
 
-    // ---------- APR ----------
+    // APR
     const inflationResp = await fetchJSON(`https://lcd.injective.network/cosmos/mint/v1beta1/inflation`);
     const poolResp = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/pool`);
-
     const bonded = Number(poolResp.pool.bonded_tokens);
     const total = bonded + Number(poolResp.pool.not_bonded_tokens);
     apr = bonded > 0 ? (Number(inflationResp.inflation) * total / bonded) * 100 : 0;
@@ -179,10 +176,18 @@ function updatePrice24h() {
   const diff = displayedPrice - price24hOpen;
   const pct = (diff / price24hOpen) * 100;
 
+  // Aggiorna testo
   price24h.innerText = `${diff >= 0 ? "+" : ""}${pct.toFixed(2)}% | ≈ $${diff.toFixed(2)}`;
 
-  price.classList.toggle("up", diff >= 0);
-  price.classList.toggle("down", diff < 0);
+  // Animazione digit-up / digit-down
+  const oldVal = parseFloat(price24h.getAttribute("data-prev")) || 0;
+  updateNumber(price24h, oldVal, diff, 2); // animazione numerica
+  price24h.setAttribute("data-prev", diff);
+
+  // Colore fisso per delta
+  price24h.classList.remove("up", "down");
+  if (diff > 0) price24h.classList.add("up");
+  else if (diff < 0) price24h.classList.add("down");
 }
 
 // ---------- Animate all numbers ----------
