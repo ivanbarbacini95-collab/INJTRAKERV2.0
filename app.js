@@ -90,29 +90,24 @@ function drawChart(){
   });
 }
 
-// WEBSOCKET
-function connectINJ(){
-  const ws=new WebSocket("wss://stream.binance.com:9443/ws/injusdt@trade");
-  ws.onmessage=msg=>{ const data=JSON.parse(msg.data); livePrice=parseFloat(data.p); if(displayPrice===0) displayPrice=livePrice; };
-  ws.onclose=()=>setTimeout(connectINJ,2000);
-}
-connectINJ();
+// SINGLE WS BINANCE
+const allSymbols = ["injusdt", ...marketList.map(s=>s.toLowerCase()+"usdt")];
+const ws = new WebSocket("wss://stream.binance.com:9443/stream?streams=" + allSymbols.map(s=>s+"@trade").join("/"));
+ws.onmessage = e => {
+  const msg = JSON.parse(e.data);
+  const stream = msg.stream;
+  const price = parseFloat(msg.data.p);
 
-function connectMarketWS(){
-  marketList.forEach(sym=>{
-    const ws=new WebSocket(`wss://stream.binance.com:9443/ws/${sym.toLowerCase()}usdt@trade`);
-    ws.onmessage=msg=>{
-      const data=JSON.parse(msg.data);
-      const price=parseFloat(data.p);
-      const d=marketData[sym]||{};
-      d.price=price;
-      if(!d.open) d.open=price;
-      marketData[sym]=d;
-    };
-    ws.onclose=()=>setTimeout(connectMarketWS,2000);
-  });
-}
-connectMarketWS();
+  if(stream.startsWith("injusdt")) livePrice = price;
+  else {
+    const sym = stream.replace("@trade","").replace("usdt","");
+    const marketSym = marketList.find(s=>s.toLowerCase()===sym);
+    if(!marketSym) return;
+    const d=marketData[marketSym]||{};
+    d.price=price; if(!d.open)d.open=price; marketData[marketSym]=d;
+  }
+};
+ws.onclose=()=>setTimeout(()=>location.reload(),2000);
 
 // LOOP
 function loop(){
