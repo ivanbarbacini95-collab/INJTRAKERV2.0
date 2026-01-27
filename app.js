@@ -43,11 +43,8 @@ function updateNumber(el, oldV, newV, fixed) {
   if (newV !== oldV) {
     el.classList.remove("digit-up", "digit-down");
 
-    if (newV > oldV) {
-      el.classList.add("digit-up");
-    } else if (newV < oldV) {
-      el.classList.add("digit-down");
-    }
+    if (newV > oldV) el.classList.add("digit-up");
+    else if (newV < oldV) el.classList.add("digit-down");
 
     el.innerText = newV.toFixed(fixed);
 
@@ -149,12 +146,7 @@ function drawChart() {
         borderWidth: 2,
         tension: 0.35,
         fill: true,
-        backgroundColor: ctx => {
-          const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 200);
-          g.addColorStop(0, "rgba(34,197,94,0.35)");
-          g.addColorStop(1, "rgba(34,197,94,0)");
-          return g;
-        }
+        backgroundColor: "rgba(34,197,94,0.2)"
       }]
     },
     options: { plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
@@ -176,15 +168,10 @@ function updatePrice24h() {
   const diff = displayedPrice - price24hOpen;
   const pct = (diff / price24hOpen) * 100;
 
-  // Aggiorna testo
+  // Testo semplice, piccolo
   price24h.innerText = `${diff >= 0 ? "+" : ""}${pct.toFixed(2)}% | ≈ $${diff.toFixed(2)}`;
 
-  // Animazione digit-up / digit-down
-  const oldVal = parseFloat(price24h.getAttribute("data-prev")) || 0;
-  updateNumber(price24h, oldVal, diff, 2); // animazione numerica
-  price24h.setAttribute("data-prev", diff);
-
-  // Colore fisso per delta
+  // Colore dinamico senza animazione
   price24h.classList.remove("up", "down");
   if (diff > 0) price24h.classList.add("up");
   else if (diff < 0) price24h.classList.add("down");
