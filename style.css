@@ -4,6 +4,7 @@ body {
   color: #f9fafb;
   margin: 0;
   padding: 1rem;
+  box-sizing: border-box;
 }
 
 h1 {
@@ -31,7 +32,7 @@ h1::after {
 }
 
 .container {
-  max-width: 800px;
+  max-width: 1200px;
   margin: auto;
 }
 
@@ -52,16 +53,17 @@ h1::after {
   box-shadow: 0 0 8px rgba(56,189,248,0.3);
 }
 
+/* CARD GRID */
 .cards {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1rem;
 }
 
 .card {
   border: 2px solid #4b5563;
   border-radius: 0.5rem;
-  padding: 0.8rem 1rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -82,6 +84,7 @@ h1::after {
   font-weight: bold;
   text-align: right;
   word-wrap: break-word;
+  overflow-wrap: anywhere; /* evita overflow numeri */
 }
 
 .card .sub {
@@ -89,6 +92,7 @@ h1::after {
   color: #9ca3af;
   text-align: right;
   word-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 
 .chart-card canvas {
@@ -103,16 +107,18 @@ h1::after {
 .digit-up { color: #22c55e; transform: scale(1.15); transition: 0.2s; }
 .digit-down { color: #ef4444; transform: scale(0.9); transition: 0.2s; }
 
-@media (min-width: 600px) {
-  .cards {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .chart-card {
-    grid-column: span 2;
-  }
-}
-
-@media (max-width: 600px) {
+/* RESPONSIVE */
+@media (max-width: 900px) {
   .card .value { font-size: 1.3rem; }
   .card .label { font-size: 1rem; }
 }
+
+@media (max-width: 600px) {
+  .cards {
+    grid-template-columns: 1fr; /* 1 colonna su smartphone */
+  }
+  .card .value { font-size: 1.2rem; }
+  .card .label { font-size: 0.95rem; }
+  .card .sub { font-size: 0.85rem; }
+}
+
