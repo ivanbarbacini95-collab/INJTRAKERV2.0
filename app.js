@@ -10,39 +10,21 @@ let availableInj = 0, displayedAvailable = 0;
 let apr = 0;
 
 let chart, chartData = [];
+const rewardTargets = [0.005,0.01,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1];
+let reachedTargets = new Set();
 
-// DOM
-const priceEl = document.getElementById("price");
-const pricePct = document.getElementById("pricePct");
-const priceDelta = document.getElementById("priceDelta");
-
-const availableEl = document.getElementById("available");
-const stakeEl = document.getElementById("stake");
-const rewardsEl = document.getElementById("rewards");
-const aprEl = document.getElementById("apr");
-
-const availableUsdEl = document.getElementById("availableUsd");
-const stakeUsdEl = document.getElementById("stakeUsd");
-const rewardsUsdEl = document.getElementById("rewardsUsd");
-
-const rewardDaily = document.getElementById("rewardDaily");
-const rewardWeekly = document.getElementById("rewardWeekly");
-
-const rewardBar = document.getElementById("rewardBar");
-const updatedEl = document.getElementById("updated");
-
-// Utils
+// ---------- Utils ----------
 const fetchJSON = url => fetch(url).then(r => r.json());
 const formatUSD = v => "≈ $" + v.toFixed(2);
 
-function updateNumber(el, oldV, newV, decimals) {
-  el.classList.remove("up", "down");
-  if (newV > oldV) el.classList.add("up");
-  if (newV < oldV) el.classList.add("down");
-  el.textContent = newV.toFixed(decimals);
+function updateNumber(el, oldV, newV, fixed) {
+  el.innerText = newV.toFixed(fixed);
+  el.classList.remove("up","down");
+  if(newV > oldV) el.classList.add("up");
+  else if(newV < oldV) el.classList.add("down");
 }
 
-// Address
+// ---------- Address ----------
 const addressInput = document.getElementById("addressInput");
 addressInput.value = address;
 addressInput.onchange = e => {
@@ -51,7 +33,7 @@ addressInput.onchange = e => {
   loadData();
 };
 
-// Load data
+// ---------- Load Injective Data ----------
 async function loadData() {
   if (!address) return;
 
@@ -66,96 +48,102 @@ async function loadData() {
     rewardsInj = rewards.rewards?.reduce((s,r)=>s + Number(r.reward[0]?.amount||0),0)/1e18 || 0;
 
     const inflation = await fetchJSON(`https://lcd.injective.network/cosmos/mint/v1beta1/inflation`);
-    apr = Number(inflation.inflation) * 100;
+    const pool = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/pool`);
+    apr = (inflation.inflation * Number(pool.pool.bonded_tokens + pool.pool.not_bonded_tokens) / pool.pool.bonded_tokens) * 100;
 
-  } catch (e) {
-    console.error("Errore loadData:", e);
-  }
+  } catch (e) { console.error(e); }
 }
 
 loadData();
 setInterval(loadData, 60000);
 
-// Price history
+// ---------- Price History ----------
 async function fetchHistory() {
   const r = await fetch("https://api.binance.com/api/v3/klines?symbol=INJUSDT&interval=1h&limit=24");
   const d = await r.json();
-  chartData = d.map(c => Number(c[4]));
-  price24hOpen = Number(d[0][1]);
+  chartData = d.map(c => +c[4]);
+  price24hOpen = +d[0][1];
   targetPrice = chartData.at(-1);
   drawChart();
 }
 fetchHistory();
 
-// Chart
 function drawChart() {
-  const ctx = document.getElementById("priceChart").getContext("2d");
-  if (chart) chart.destroy();
-  chart = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: chartData.map((_,i)=>i),
-      datasets: [{
-        data: chartData,
-        borderColor: "#22c55e",
-        backgroundColor: "rgba(34,197,94,0.15)",
-        tension: 0.35,
-        pointRadius: 0,
-        fill: true
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins:{legend:{display:false}},
-      scales:{x:{display:false},y:{display:false}}
+  const ctx = document.getElementById("priceChart");
+  if(chart) chart.destroy();
+  chart = new Chart(ctx,{
+    type:"line",
+    data:{labels: chartData.map((_,i)=>i), datasets:[{data: chartData,borderColor:"#22c55e",tension:0.3,fill:true}]},
+    options:{plugins:{legend:{display:false}},scales:{x:{display:false}}}
+  });
+}
+
+// ---------- Binance WS ----------
+function startWS() {
+  const ws = new WebSocket("wss://stream.binance.com:9443/ws/injusdt@trade");
+  ws.onmessage = e => targetPrice = +JSON.parse(e.data).p;
+  ws.onclose = () => setTimeout(startWS,3000);
+}
+startWS();
+
+// ---------- Reward Bar ----------
+const rewardBar = document.getElementById("rewardBar");
+function updateRewardBar() {
+  let pct = Math.min(displayedRewards/1*100,100);
+  rewardBar.style.width = pct+"%";
+
+  rewardTargets.forEach(t=>{
+    if(displayedRewards >= t && !reachedTargets.has(t)) {
+      reachedTargets.add(t);
+      // notifiche
+      if(Notification.permission==="granted") new Notification(`Target ${t} INJ raggiunto!`);
+      // animazione flash
+      const targetEl = document.createElement("div");
+      targetEl.classList.add("reward-target","reached");
+      targetEl.style.left = (t*100)+"%";
+      rewardBar.parentElement.appendChild(targetEl);
+      setTimeout(()=>targetEl.remove(),600);
     }
   });
 }
 
-// Binance WS
-function startWS() {
-  const ws = new WebSocket("wss://stream.binance.com:9443/ws/injusdt@trade");
-  ws.onmessage = e => targetPrice = Number(JSON.parse(e.data).p);
-  ws.onclose = () => setTimeout(startWS, 3000);
-}
-startWS();
-
-// Animate
-function animate() {
+// ---------- Animate ----------
+function animate(){
+  // Price
   const prevP = displayedPrice;
-  displayedPrice += (targetPrice - displayedPrice) * 0.1;
-  updateNumber(priceEl, prevP, displayedPrice, 4);
+  displayedPrice += (targetPrice - displayedPrice)*0.1;
+  updateNumber(price, prevP, displayedPrice, 4);
 
-  const delta = displayedPrice - price24hOpen;
-  const pct = (delta / price24hOpen) * 100 || 0;
-  pricePct.textContent = pct.toFixed(2) + "%";
-  priceDelta.textContent = (delta >= 0 ? "+$" : "-$") + Math.abs(delta).toFixed(2);
-  pricePct.className = pct >= 0 ? "up" : "down";
-  priceDelta.className = pct >= 0 ? "up" : "down";
+  // Available
+  const prevA = displayedAvailable;
+  displayedAvailable += (availableInj - displayedAvailable)*0.1;
+  updateNumber(available, prevA, displayedAvailable, 6);
+  availableUsd.innerText = formatUSD(displayedAvailable*displayedPrice);
 
-  displayedAvailable += (availableInj - displayedAvailable) * 0.1;
-  updateNumber(availableEl, displayedAvailable, displayedAvailable, 6);
-  availableUsdEl.textContent = formatUSD(displayedAvailable * displayedPrice);
+  // Stake
+  const prevS = displayedStake;
+  displayedStake += (stakeInj - displayedStake)*0.1;
+  updateNumber(stake, prevS, displayedStake, 4);
+  stakeUsd.innerText = formatUSD(displayedStake*displayedPrice);
 
-  displayedStake += (stakeInj - displayedStake) * 0.1;
-  updateNumber(stakeEl, displayedStake, displayedStake, 4);
-  stakeUsdEl.textContent = formatUSD(displayedStake * displayedPrice);
+  // Rewards (scorre sempre)
+  displayedRewards += (rewardsInj - displayedRewards)*0.01;
+  updateNumber(rewards, displayedRewards, displayedRewards,6);
+  rewardsUsd.innerText = formatUSD(displayedRewards*displayedPrice);
+  dailyRewards.innerText = (displayedStake*apr/100/365).toFixed(4)+" INJ / giorno";
+  weeklyRewards.innerText = (displayedStake*apr/100/52).toFixed(4)+" INJ / settimana";
+  updateRewardBar();
 
-  const prevR = displayedRewards;
-  displayedRewards += (rewardsInj - displayedRewards) * 0.02 + rewardsInj * 0.000002;
-  updateNumber(rewardsEl, prevR, displayedRewards, 7);
-  rewardsUsdEl.textContent = formatUSD(displayedRewards * displayedPrice);
+  // APR
+  aprEl.innerText = apr.toFixed(2)+"%";
 
-  const daily = displayedStake * apr / 100 / 365;
-  rewardDaily.textContent = daily.toFixed(7) + " INJ / giorno";
-  rewardWeekly.textContent = (daily * 7).toFixed(7) + " INJ / settimana";
+  updated.innerText = "Last Update: "+new Date().toLocaleTimeString();
 
-  aprEl.textContent = apr.toFixed(2) + "%";
-
-  rewardBar.style.width = Math.min(displayedRewards * 100, 100) + "%";
-
-  updatedEl.textContent = "Last update: " + new Date().toLocaleTimeString();
   requestAnimationFrame(animate);
 }
 animate();
+
+// ---------- Notifications Permission ----------
+if("Notification" in window && Notification.permission!=="granted"){
+  Notification.requestPermission();
+}
