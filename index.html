@@ -16,7 +16,6 @@
     <h1>Injective Dashboard</h1>
   </div>
 
-  <!-- Address Input -->
   <input type="text" id="addressInput" placeholder="Inserisci indirizzo INJ">
 
   <div class="cards-wrapper">
@@ -33,8 +32,10 @@
       <div class="price-bar-container">
         <div class="price-bar-left" id="priceBarLeft"></div>
         <div class="price-bar-right" id="priceBarRight"></div>
-        <div class="price-line"></div>
+        <div class="price-line-center"></div>
+        <div class="price-line-current" id="priceLineCurrent"></div>
         <div class="price-label left" id="priceLow">0</div>
+        <div class="price-label center" id="priceOpen">0</div>
         <div class="price-label right" id="priceHigh">0</div>
       </div>
     </div>
@@ -72,6 +73,7 @@
       </div>
       <div class="reward-bar-container">
         <div id="rewardBar" class="reward-bar"></div>
+        <div id="rewardPercent" class="reward-percent">0%</div>
       </div>
     </div>
 
@@ -91,7 +93,6 @@
 
   </div>
 
-  <!-- Last Update -->
   <div id="updated" class="last-update">Last Update: --:--:--</div>
 
 </div>
