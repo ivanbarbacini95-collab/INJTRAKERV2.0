@@ -4,15 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Injective Dashboard</title>
-
   <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
-    <div class="header">
+    <div class="header-row">
       <h1>Injective Dashboard</h1>
-      <button id="themeToggle" title="Cambia tema">🌓</button>
+      <button id="themeToggle" class="theme-btn">🌓</button>
     </div>
 
     <input type="text" id="addressInput" placeholder="Inserisci indirizzo INJ" />
@@ -20,12 +19,10 @@
     <!-- PRICE -->
     <div class="box price-box">
       <span class="label">INJ Price</span>
-      <div class="price-row">
-        <span id="price" class="value neutral" data-fixed="4"></span>
-      </div>
-      <div class="sub-row">
-        <span id="priceDeltaPerc" class="sub neutral"></span>
-        <span id="priceDeltaUSD" class="sub neutral"></span>
+      <span id="price" class="value neutral" data-fixed="4"></span>
+      <div class="price-deltas">
+        <span id="priceDeltaPerc" class="sub neutral">0.00%</span>
+        <span id="priceDeltaUSD" class="sub neutral">≈ $0.00</span>
       </div>
     </div>
 
