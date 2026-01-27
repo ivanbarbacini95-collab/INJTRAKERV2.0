@@ -11,33 +11,8 @@ h1.dashboard-title {
   margin-bottom: 1rem;
   border: 2px solid #22c55e;
   padding: 0.7rem 1rem;
-  position: relative;
-  overflow: hidden;
-  font-size: 2rem; /* Label più grande */
+  font-size: 2rem;
   font-weight: bold;
-}
-
-h1.dashboard-title::after {
-  content: "";
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  border: 2px solid #22c55e;
-  animation: border-slide 2s linear infinite;
-  pointer-events: none;
-}
-
-@keyframes border-slide {
-  0% { clip-path: inset(0 100% 100% 0);}
-  25% { clip-path: inset(0 0 100% 0);}
-  50% { clip-path: inset(0 0 0 0);}
-  75% { clip-path: inset(0 0 0 100%);}
-  100% { clip-path: inset(0 100% 100% 0);}
-}
-
-.container {
-  max-width: 900px;
-  margin: auto;
 }
 
 #addressInput {
@@ -53,7 +28,7 @@ h1.dashboard-title::after {
 
 .cards-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1rem;
 }
 
@@ -63,28 +38,35 @@ h1.dashboard-title::after {
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  min-height: 140px; /* più alto per valori grandi */
+  justify-content: space-between;
+  min-height: 140px;
+  overflow: hidden;
 }
 
 .card .label {
-  font-size: 1.2rem; /* label grande */
+  font-size: 1.3rem;
   font-weight: 700;
   color: #9ca3af;
-  margin-bottom: 0.5rem;
+  text-align: left;
+}
+
+.card .value-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end;
 }
 
 .card .value {
-  font-size: 1.8rem; /* numero grande */
-  font-weight: bold;
-  text-align: right;
+  font-size: 1.8rem;
+  font-weight: 600;
 }
 
 .card .sub {
-  font-size: 1rem; /* sottotitoli leggermente più grandi */
+  font-size: 1rem;
   color: #9ca3af;
-  text-align: right;
   margin-top: 0.1rem;
+  text-align: right;
 }
 
 .reward-card .reward-bar-container {
@@ -100,7 +82,6 @@ h1.dashboard-title::after {
   height: 100%;
   background: linear-gradient(90deg, #22c55e, #84cc16);
   width: 0%;
-  background-size: 40px 14px;
 }
 
 .reward-card .reward-target {
@@ -119,14 +100,14 @@ h1.dashboard-title::after {
 
 .chart-card canvas {
   width: 100%;
-  height: 180px; /* più alto per maggiore leggibilità */
+  height: 180px;
 }
 
 .up { color: #22c55e; }
 .down { color: #ef4444; }
 
 @media(max-width:600px){
+  .card .label { font-size: 1.1rem; }
   .card .value { font-size: 1.5rem; }
-  .card .label { font-size: 1rem; }
   .card .sub { font-size: 0.9rem; }
 }
