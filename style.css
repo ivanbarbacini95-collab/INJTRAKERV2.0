@@ -1,4 +1,4 @@
-/* ---------- Body & Font ---------- */
+/* ---------- Body & Container ---------- */
 body {
   font-family: Inter, sans-serif;
   background: #000;
@@ -8,8 +8,41 @@ body {
 }
 
 h1 {
+  margin-bottom: 1rem;
+}
+
+/* ---------- Glow Border Title ---------- */
+.glow-border {
+  position: relative;
+  display: inline-block;
+  padding: 0.5rem 1.2rem;
+  font-size: 2rem;
+  color: #fff;
   text-align: center;
   margin-bottom: 1rem;
+  background: #111;
+  border: 2px solid #333; /* bordo base discreto */
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+/* Striscia sottile lungo il bordo */
+.glow-border::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  border: 2px solid cyan; /* striscia luminosa */
+  border-radius: 0.5rem;
+  clip-path: inset(0);
+  transform-origin: center;
+  animation: borderRotate 4s linear infinite;
+}
+
+@keyframes borderRotate {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(-360deg); } /* senso antiorario */
 }
 
 /* ---------- Container ---------- */
@@ -21,15 +54,12 @@ h1 {
   gap: 1rem;
 }
 
-/* ---------- Boxes ---------- */
+/* ---------- Box ---------- */
 .box {
   border: 2px solid #4b5563;
   border-radius: 0.5rem;
   padding: 0.6rem 1rem;
   transition: 0.3s;
-  background: #111;
-  display: flex;
-  flex-direction: column;
 }
 
 .reward-box {
@@ -45,8 +75,8 @@ h1 {
 
 /* ---------- Labels ---------- */
 .label {
-  font-size: 1.2rem;  /* più grande */
-  font-weight: 600;   /* leggermente più marcata */
+  font-size: 1.2rem;
+  font-weight: 600;
   color: #9ca3af;
   display: flex;
   align-items: center; /* centrata verticalmente rispetto al valore */
@@ -54,34 +84,24 @@ h1 {
 
 /* ---------- Values ---------- */
 .value {
-  font-size: 1.8rem; /* uguale a prima */
+  font-size: 1.8rem;
   font-weight: bold;
   color: #f9fafb;
   text-align: right;
 }
 
-
-/* ---------- Sub (USD, daily/monthly, etc) ---------- */
+/* ---------- Sub Values ---------- */
 .sub {
   font-size: 0.9rem;
   color: #9ca3af;
-  text-align: right; /* anche sub a destra */
-  margin-top: 0.2rem;
+  display: flex;
+  justify-content: flex-end;
 }
 
-/* ---------- Price %/delta ---------- */
-#price24h {
-  font-size: 0.9rem;
-  font-weight: normal;
-  text-align: right;
-}
-
-#price24h.up {
-  color: #22c55e;
-}
-
-#price24h.down {
-  color: #ef4444;
+/* ---------- Price Chart ---------- */
+#priceChart {
+  width: 100%;
+  height: 160px;
 }
 
 /* ---------- Input ---------- */
@@ -91,7 +111,6 @@ h1 {
   border: 2px solid #4b5563;
   background: #000;
   color: #f9fafb;
-  font-size: 1rem;
 }
 
 #addressInput:focus {
@@ -100,27 +119,24 @@ h1 {
   box-shadow: 0 0 8px rgba(56,189,248,0.3);
 }
 
-/* ---------- Chart ---------- */
-#priceChart {
-  width: 100%;
-  height: 160px;
-}
+/* ---------- Up / Down Animations ---------- */
+.up { color: #22c55e; }
+.down { color: #ef4444; }
 
-/* ---------- Digit Animation ---------- */
 .digit-up {
-  color: #22c55e !important;
+  color: #22c55e;
   transform: scale(1.15);
-  transition: 0.3s;
+  transition: all 0.3s;
 }
 
 .digit-down {
-  color: #ef4444 !important;
+  color: #ef4444;
   transform: scale(0.9);
-  transition: 0.3s;
+  transition: all 0.3s;
 }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 600px) {
   .value { font-size: 1.2rem; }
-  .sub { font-size: 0.8rem; }
+  .label { font-size: 1rem; }
 }
