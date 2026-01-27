@@ -69,7 +69,7 @@ async function loadData() {
     apr = Number(inflation.inflation) * 100;
 
   } catch (e) {
-    console.error(e);
+    console.error("Errore loadData:", e);
   }
 }
 
@@ -128,7 +128,7 @@ function animate() {
   updateNumber(priceEl, prevP, displayedPrice, 4);
 
   const delta = displayedPrice - price24hOpen;
-  const pct = (delta / price24hOpen) * 100;
+  const pct = (delta / price24hOpen) * 100 || 0;
   pricePct.textContent = pct.toFixed(2) + "%";
   priceDelta.textContent = (delta >= 0 ? "+$" : "-$") + Math.abs(delta).toFixed(2);
   pricePct.className = pct >= 0 ? "up" : "down";
@@ -155,7 +155,7 @@ function animate() {
 
   rewardBar.style.width = Math.min(displayedRewards * 100, 100) + "%";
 
-  updatedEl.textContent = "Last Update: " + new Date().toLocaleTimeString();
+  updatedEl.textContent = "Last update: " + new Date().toLocaleTimeString();
   requestAnimationFrame(animate);
 }
 animate();
