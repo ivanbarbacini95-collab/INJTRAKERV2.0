@@ -1,3 +1,4 @@
+/* ---------- Body & Font ---------- */
 body {
   font-family: Inter, sans-serif;
   background: #000;
@@ -6,11 +7,13 @@ body {
   padding: 1rem;
 }
 
+/* ---------- Headings ---------- */
 h1 {
   text-align: center;
   margin-bottom: 1rem;
 }
 
+/* ---------- Container ---------- */
 .container {
   max-width: 600px;
   margin: auto;
@@ -19,17 +22,20 @@ h1 {
   gap: 1rem;
 }
 
+/* ---------- Boxes ---------- */
 .box {
   border: 2px solid #4b5563;
   border-radius: 0.5rem;
   padding: 0.6rem 1rem;
   transition: 0.3s;
+  background: #111;
 }
 
 .reward-box {
   border-color: #22c55e;
 }
 
+/* ---------- Labels & Values ---------- */
 .label {
   font-size: 0.9rem;
   color: #9ca3af;
@@ -38,6 +44,7 @@ h1 {
 .value {
   font-size: 1.5rem;
   font-weight: bold;
+  color: #f9fafb;
 }
 
 .sub {
@@ -45,19 +52,20 @@ h1 {
   color: #9ca3af;
 }
 
-.price-row,
-.sub-row {
+.price-row, .sub-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+/* ---------- Input ---------- */
 #addressInput {
   padding: 0.6rem;
   border-radius: 0.5rem;
   border: 2px solid #4b5563;
   background: #000;
   color: #f9fafb;
+  font-size: 1rem;
 }
 
 #addressInput:focus {
@@ -66,24 +74,30 @@ h1 {
   box-shadow: 0 0 8px rgba(56,189,248,0.3);
 }
 
+/* ---------- Chart ---------- */
 #priceChart {
   width: 100%;
   height: 160px;
 }
 
+/* ---------- Price Up / Down Colors ---------- */
 .up { color: #22c55e; }
 .down { color: #ef4444; }
 
+/* ---------- Digit Animation ---------- */
 .digit-up {
-  color: #22c55e;
-  transform: scale(1.1);
+  color: #22c55e !important; /* verde */
+  transform: scale(1.15);
+  transition: 0.3s;
 }
 
 .digit-down {
-  color: #ef4444;
-  transform: scale(0.95);
+  color: #ef4444 !important; /* rosso */
+  transform: scale(0.9);
+  transition: 0.3s;
 }
 
+/* ---------- Responsive ---------- */
 @media (max-width: 600px) {
   .value { font-size: 1.2rem; }
 }
