@@ -151,3 +151,20 @@ function animate() {
 }
 
 animate();
+
+const rewardBarEl = document.getElementById("rewardBar");
+const rewardMax = 0.05; // massimo della barra 0-0.05 INJ
+
+// Funzione per aggiornare la barra in tempo reale
+function updateRewardBar() {
+  const percent = Math.min(displayedRewards / rewardMax * 100, 100);
+  rewardBarEl.style.width = percent + "%";
+  rewardBarEl.innerHTML = `<span>${percent.toFixed(1)}%</span>`;
+}
+
+// Dentro la funzione animate(), aggiorna la barra:
+displayedRewards += (rewardsInj - displayedRewards) * 0.02; // animazione fluida
+updateNumber(rewardsEl, 0, displayedRewards, 6);
+rewardsUsdEl.innerText = formatUSD(displayedRewards * displayedPrice);
+updateRewardBar();
+
