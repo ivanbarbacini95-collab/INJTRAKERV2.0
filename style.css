@@ -25,11 +25,10 @@ h1 {
   border-radius: 0.5rem;
   padding: 0.8rem 1rem;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; 
   align-items: center;
+  flex-wrap: wrap;           
   min-height: 60px;
-  overflow: hidden;          /* impedisce overflow numeri */
-  flex-wrap: wrap;           /* permette ai valori lunghi di andare a capo se necessario */
 }
 
 .reward-box {
@@ -51,10 +50,10 @@ h1 {
   text-align: right;
   flex: 1;
   min-width: 150px;
-  max-width: 300px;          /* evita che escano dal box */
-  white-space: nowrap;
+  max-width: 250px;        /* blocca valori troppo larghi */
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sub {
@@ -94,7 +93,6 @@ h1 {
   height: 160px;
 }
 
-/* Animazioni numeri */
 .up { color: #22c55e; }
 .down { color: #ef4444; }
 
