@@ -10,14 +10,6 @@ let apr=0;
 let chart, chartData=[];
 let lastUI = { price:"", priceDeltaPerc:"", priceDeltaUSD:"", available:"", stake:"", rewards:"" };
 
-const marketData = [
-  "BTC","ETH","BNB","SOL","KSM","DOT","LINK","AVAX","APT","SUI",
-  "MNT","UNI","ATOM","EGLD","TIA","RUNE","BANANA","ILV","TAO","HYPE",
-  "ASTER","AVNT","CAKE","PENDLE","KIMA","MET","RAY","PYTH","VIRTUAL",
-  "JUP","JTO","KMNO"
-];
-let marketPrices={};
-
 /********************
  * UTILS
  ********************/
@@ -89,7 +81,6 @@ async function loadOnchainData(){
     const pool=await fetchJSON("https://lcd.injective.network/cosmos/staking/v1beta1/pool");
     const bonded=Number(pool.pool.bonded_tokens), total=bonded+Number(pool.pool.not_bonded_tokens);
     apr=(Number(infl.inflation)/(bonded/total))*100;
-
   }catch(e){ console.error("Onchain error:",e); }
 }
 
@@ -139,57 +130,6 @@ function connectWS(){
 }
 loadInitialPrice();
 connectWS();
-
-/********************
- * MARKET TABLE
- ********************/
-async function loadMarket(){
-  try{
-    const ids = marketData.map(c=>c.toLowerCase()).join(",");
-    const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
-    const prices=await res.json();
-    for(const c of marketData){
-      marketPrices[c]=prices[c.toLowerCase()] || {usd:0, usd_24h_change:0};
-    }
-  }catch(e){ console.error(e); }
-}
-
-function updateMarketTableDigits(){
-  const tbody=document.querySelector("#marketTable tbody");
-  for(const c of marketData){
-    const price = marketPrices[c].usd;
-    const change = marketPrices[c].usd_24h_change;
-    let tr = tbody.querySelector(`tr[data-crypto="${c}"]`);
-    const deltaClass = change>=0?'digit-up':'digit-down';
-    if(!tr){
-      tr = document.createElement("tr");
-      tr.dataset.crypto=c;
-      tr.innerHTML=`
-        <td class="percent ${deltaClass}">${change.toFixed(2)}%</td>
-        <td>${c} <img src="https://cryptoicons.org/api/icon/${c.toLowerCase()}/32" alt="${c}"/></td>
-        <td><span class="digit-wrapper"><span class="digit-inner neutral">${price.toFixed(4)}</span></span></td>
-      `;
-      tbody.appendChild(tr);
-    } else {
-      const priceEl = tr.querySelector("td:nth-child(3) .digit-inner");
-      if(parseFloat(priceEl.innerText)!==price){
-        tr.classList.add("table-flash");
-        setTimeout(()=>tr.classList.remove("table-flash"),400);
-      }
-      updateDigits(priceEl, c, price);
-      const deltaEl = tr.querySelector("td:first-child");
-      deltaEl.innerText = change.toFixed(2)+"%";
-      deltaEl.className = "percent "+deltaClass;
-    }
-  }
-}
-
-async function refreshMarket(){
-  await loadMarket();
-  updateMarketTableDigits();
-}
-refreshMarket();
-setInterval(refreshMarket,10000);
 
 /********************
  * MAIN LOOP ANIMATION
