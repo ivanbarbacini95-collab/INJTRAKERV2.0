@@ -11,6 +11,7 @@ const rewardsUsd = document.getElementById("rewardsUsd");
 const dailyRewards = document.getElementById("dailyRewards");
 const monthlyRewards = document.getElementById("monthlyRewards");
 const updated = document.getElementById("updated");
+const price24h = document.getElementById("price24h");
 
 const addressInput = document.getElementById("addressInput");
 
@@ -87,6 +88,7 @@ async function fetchHistory() {
   price24hOpen = +d[0][1];
   targetPrice = chartData.at(-1);
   drawChart();
+  updatePriceChange();
 }
 fetchHistory();
 
@@ -110,6 +112,16 @@ function drawChart() {
       scales:{x:{display:false}}
     }
   });
+}
+
+// ---------------- Aggiorna variazione 24h ----------------
+function updatePriceChange() {
+  const diff = displayedPrice - price24hOpen;
+  const pct = (diff / price24hOpen) * 100;
+  price24h.innerText = `${pct.toFixed(2)}% | ≈ $${diff.toFixed(4)}`;
+  price24h.classList.remove("up","down");
+  if(pct>0) price24h.classList.add("up");
+  if(pct<0) price24h.classList.add("down");
 }
 
 // ---------------- Binance WS ----------------
@@ -151,6 +163,9 @@ function animate() {
 
   // APR
   aprEl.innerText = apr.toFixed(2) + "%";
+
+  // 24h price change
+  updatePriceChange();
 
   // Last update
   updated.innerText = "Last Update: " + new Date().toLocaleTimeString();
