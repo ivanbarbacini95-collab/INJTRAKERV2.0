@@ -39,7 +39,7 @@ function updateDigits(el,key,newV){
     const oldChar=lastUI[key][i]||"";
     if(!children[i]) continue;
     if(oldChar<s[i]) children[i].className="digit-inner digit-up";
-    else if(oldChar>s[i]) children[i].className="digit-inner digit-down";
+    else if(oldChar>s[i]) children[i].className="digit-down";
     else children[i].className="digit-inner neutral";
     children[i].innerText=s[i];
   }
@@ -216,7 +216,7 @@ function loop(){
   document.getElementById("apr").innerText = apr.toFixed(2)+"%";
   document.getElementById("updated").innerText = "Last Update: "+new Date().toLocaleTimeString();
 
-  drawChart(); // aggiorna linea colore
+  drawChart();
 
   requestAnimationFrame(loop);
 }
