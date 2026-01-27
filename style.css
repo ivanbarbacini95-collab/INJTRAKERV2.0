@@ -31,7 +31,7 @@ h1::after {
 }
 
 .container {
-  max-width: 600px;
+  max-width: 700px;
   margin: auto;
 }
 
@@ -51,33 +51,42 @@ h1::after {
   box-shadow: 0 0 8px rgba(56,189,248,0.3);
 }
 
-.row, .sub-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 0;
+.cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
 }
 
-.label {
-  font-size: 1rem;
+.card {
+  border: 2px solid #4b5563;
+  border-radius: 0.5rem;
+  padding: 0.8rem 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.card .label {
+  font-size: 1.1rem;
   font-weight: bold;
   color: #9ca3af;
+  margin-bottom: 0.3rem;
 }
 
-.value {
+.card .value {
   font-size: 1.5rem;
   font-weight: bold;
+  text-align: right;
 }
 
-.sub {
+.card .sub {
   font-size: 0.9rem;
   color: #9ca3af;
+  text-align: right;
 }
 
-#priceChart {
-  width: 100%;
+.chart-card canvas {
+  margin-top: 0.5rem;
   height: 160px;
-  margin-top: 1rem;
 }
 
 .up { color: #22c55e; }
@@ -86,7 +95,16 @@ h1::after {
 .digit-up { color: #22c55e; transform: scale(1.15); }
 .digit-down { color: #ef4444; transform: scale(0.9); }
 
+@media (min-width: 600px) {
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .chart-card {
+    grid-column: span 2;
+  }
+}
+
 @media (max-width: 600px) {
-  .value { font-size: 1.2rem; }
-  .label { font-size: 0.9rem; }
+  .card .value { font-size: 1.3rem; }
+  .card .label { font-size: 1rem; }
 }
