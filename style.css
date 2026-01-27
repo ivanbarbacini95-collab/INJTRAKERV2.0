@@ -30,9 +30,8 @@ body {
 
 .cards-wrapper {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column; /* verticali */
   gap: 1rem;
-  justify-content: space-between;
 }
 
 .card {
@@ -40,11 +39,10 @@ body {
   border: 2px solid #4b5563;
   border-radius: 0.5rem;
   padding: 0.8rem;
-  flex: 1 1 220px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-width: 200px;
+  width: 100%; /* full width */
 }
 
 .card .label {
@@ -70,11 +68,10 @@ body {
 
 .reward-bar-container {
   background: #222;
-  height: 25px;
+  height: 20px;
   border-radius: 0.3rem;
   margin-top: 0.5rem;
   position: relative;
-  overflow: hidden;
 }
 
 .reward-bar {
@@ -86,14 +83,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
+  font-size: 0.7rem;
   color: #f9fafb;
-}
-
-.reward-bar span {
-  position: relative;
-  z-index: 1;
-  font-size: 0.8rem;
 }
 
 .last-update {
@@ -106,7 +97,8 @@ body {
 .up { color: #22c55e; }
 .down { color: #ef4444; }
 
+/* Responsivo: già verticale quindi basta solo padding/margine */
 @media (max-width: 768px) {
-  .cards-wrapper { flex-direction: column; }
-  .card { min-width: auto; }
+  .cards-wrapper { gap: 0.8rem; }
+  .card { padding: 0.6rem; }
 }
