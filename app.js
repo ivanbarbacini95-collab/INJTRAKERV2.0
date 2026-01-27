@@ -1,3 +1,4 @@
+// ---------- Globals ----------
 let address = localStorage.getItem("inj_address") || "";
 
 let displayedPrice = 0;
@@ -11,6 +12,28 @@ let apr = 0;
 
 let chart, chartData = [];
 
+// ---------- DOM ----------
+const price = document.getElementById("price");
+const price24h = document.getElementById("price24h");
+
+const available = document.getElementById("available");
+const availableUsd = document.getElementById("availableUsd");
+
+const stake = document.getElementById("stake");
+const stakeUsd = document.getElementById("stakeUsd");
+
+const rewards = document.getElementById("rewards");
+const rewardsUsd = document.getElementById("rewardsUsd");
+
+const dailyRewards = document.getElementById("dailyRewards");
+const monthlyRewards = document.getElementById("monthlyRewards");
+
+const aprEl = document.getElementById("apr");
+const updated = document.getElementById("updated");
+
+const addressInput = document.getElementById("addressInput");
+addressInput.value = address;
+
 // ---------- Utils ----------
 const fetchJSON = url => fetch(url).then(r => r.json());
 const formatUSD = v => "≈ $" + v.toFixed(2);
@@ -23,9 +46,6 @@ function updateNumber(el, oldV, newV, fixed) {
 }
 
 // ---------- Address ----------
-const addressInput = document.getElementById("addressInput");
-addressInput.value = address;
-
 addressInput.onchange = e => {
   address = e.target.value.trim();
   localStorage.setItem("inj_address", address);
@@ -37,30 +57,34 @@ async function loadData() {
   if (!address) return;
 
   try {
+    // Balance
     const balance = await fetchJSON(
       `https://lcd.injective.network/cosmos/bank/v1beta1/balances/${address}`
     );
     availableInj =
-      (balance.balances?.find(b => b.denom === "inj")?.amount || 0) / 1e18;
+      (balance.balances?.find(b => b.denom === "uinj")?.amount || 0) / 1e18;
 
-    const stake = await fetchJSON(
+    // Stake
+    const stakeResp = await fetchJSON(
       `https://lcd.injective.network/cosmos/staking/v1beta1/delegations/${address}`
     );
     stakeInj =
-      stake.delegation_responses?.reduce(
+      stakeResp.delegation_responses?.reduce(
         (s, d) => s + Number(d.balance.amount),
         0
       ) / 1e18 || 0;
 
-    const rewards = await fetchJSON(
+    // Rewards
+    const rewardsResp = await fetchJSON(
       `https://lcd.injective.network/cosmos/distribution/v1beta1/delegators/${address}/rewards`
     );
     rewardsInj =
-      rewards.rewards?.reduce(
+      rewardsResp.rewards?.reduce(
         (s, r) => s + Number(r.reward[0]?.amount || 0),
         0
       ) / 1e18 || 0;
 
+    // APR
     const inflation = await fetchJSON(
       `https://lcd.injective.network/cosmos/mint/v1beta1/inflation`
     );
@@ -70,13 +94,12 @@ async function loadData() {
 
     const bonded = Number(pool.pool.bonded_tokens);
     const total = bonded + Number(pool.pool.not_bonded_tokens);
-
     apr = bonded > 0
       ? (Number(inflation.inflation) * total / bonded) * 100
       : 0;
 
   } catch (e) {
-    console.error(e);
+    console.error("Errore loadData:", e);
   }
 }
 
@@ -85,23 +108,24 @@ setInterval(loadData, 60000);
 
 // ---------- Price History ----------
 async function fetchHistory() {
-  const r = await fetch(
-    "https://api.binance.com/api/v3/klines?symbol=INJUSDT&interval=1h&limit=24"
-  );
-  const d = await r.json();
-
-  chartData = d.map(c => +c[4]);
-  price24hOpen = +d[0][1];
-  targetPrice = chartData.at(-1);
-
-  drawChart();
+  try {
+    const r = await fetch(
+      "https://api.binance.com/api/v3/klines?symbol=INJUSDT&interval=1h&limit=24"
+    );
+    const d = await r.json();
+    chartData = d.map(c => +c[4]);
+    price24hOpen = +d[0][1];
+    targetPrice = chartData.at(-1);
+    drawChart();
+  } catch (e) {
+    console.error("Errore fetchHistory:", e);
+  }
 }
 fetchHistory();
 
 // ---------- Chart ----------
 function drawChart() {
   const ctx = document.getElementById("priceChart");
-
   if (chart) chart.destroy();
 
   chart = new Chart(ctx, {
@@ -135,10 +159,7 @@ function startWS() {
     "wss://stream.binance.com:9443/ws/injusdt@trade"
   );
 
-  ws.onmessage = e => {
-    targetPrice = +JSON.parse(e.data).p;
-  };
-
+  ws.onmessage = e => targetPrice = +JSON.parse(e.data).p;
   ws.onclose = () => setTimeout(startWS, 3000);
 }
 startWS();
@@ -159,34 +180,43 @@ function updatePrice24h() {
 
 // ---------- Animation ----------
 function animate() {
+  // Price
   const prevP = displayedPrice;
   displayedPrice += (targetPrice - displayedPrice) * 0.1;
   updateNumber(price, prevP, displayedPrice, 4);
 
+  // Available
   const prevA = displayedAvailable;
   displayedAvailable += (availableInj - displayedAvailable) * 0.1;
   updateNumber(available, prevA, displayedAvailable, 6);
   availableUsd.innerText = formatUSD(displayedAvailable * displayedPrice);
 
+  // Stake
   const prevS = displayedStake;
   displayedStake += (stakeInj - displayedStake) * 0.1;
   updateNumber(stake, prevS, displayedStake, 4);
   stakeUsd.innerText = formatUSD(displayedStake * displayedPrice);
 
+  // Rewards
   const prevR = displayedRewards;
   displayedRewards += (rewardsInj - displayedRewards) * 0.1;
   updateNumber(rewards, prevR, displayedRewards, 6);
   rewardsUsd.innerText = formatUSD(displayedRewards * displayedPrice);
 
+  // Daily / Monthly Rewards
   dailyRewards.innerText =
     (displayedStake * apr / 100 / 365).toFixed(4) + " INJ / giorno";
   monthlyRewards.innerText =
     (displayedStake * apr / 100 / 12).toFixed(4) + " INJ / mese";
 
+  // APR
   aprEl.innerText = apr > 0 ? apr.toFixed(2) + "%" : "--";
-  updated.innerText = "Last Update: " + new Date().toLocaleTimeString();
 
+  // Updated + Price24h
+  updated.innerText = "Last Update: " + new Date().toLocaleTimeString();
   updatePrice24h();
+
   requestAnimationFrame(animate);
 }
+
 animate();
