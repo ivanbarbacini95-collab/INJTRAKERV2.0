@@ -10,16 +10,19 @@
 </head>
 <body>
   <div class="container">
-    <h1>Injective Dashboard</h1>
+    <h1>
+      Injective Dashboard
+      <button id="themeToggle" title="Toggle theme" style="margin-left:0.5rem; cursor:pointer;">🌙</button>
+    </h1>
 
     <input type="text" id="addressInput" placeholder="Inserisci indirizzo INJ" />
 
-    <!-- INJ PRICE -->
-    <div class="box">
+    <!-- PRICE -->
+    <div class="box price-box">
       <span class="label">INJ Price</span>
       <div class="price-row">
         <span id="price" class="value neutral" data-fixed="4"></span>
-        <div class="price-delta">
+        <div class="price-right">
           <span id="priceDeltaPerc" class="sub neutral">0.00%</span>
           <span id="priceDeltaUSD" class="sub neutral">≈ $0.00</span>
         </div>
