@@ -13,7 +13,7 @@ h1 { text-align:center; margin-bottom:1rem; position:relative; }
 #themeToggle { cursor:pointer; font-size:1.2rem; margin-left:0.5rem; }
 
 .container {
-  max-width:700px;
+  max-width:600px;
   margin:0 auto;
   display:flex;
   flex-direction:column;
@@ -50,12 +50,4 @@ canvas { max-width:100%; height:150px; }
 .digit-wrapper { display:inline-block; position:relative; overflow:hidden; height:1em; }
 .digit-inner { display:inline-block; transition: transform 0.3s ease, color 0.3s ease; }
 
-@media (max-width:700px){ .value { font-size:1.2rem; } }
-
-/* Tabella Market */
-#marketTable { width:100%; border-collapse: collapse; margin-top:0.5rem; }
-#marketTable th, #marketTable td { padding:0.3rem 0.5rem; text-align:center; border-bottom:1px solid #4b5563; font-size:0.9rem; }
-#marketTable th { color:#9ca3af; font-weight:600; }
-#marketTable td img { width:16px; height:16px; vertical-align:middle; margin-left:4px; }
-.table-flash { animation: flash 0.4s; }
-@keyframes flash { 0%{background:rgba(34,197,94,0.2);} 50%{background:transparent;} 100%{background:rgba(34,197,94,0.2);} }
+@media (max-width:600px){ .value { font-size:1.2rem; } }
