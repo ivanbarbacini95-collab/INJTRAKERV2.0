@@ -45,17 +45,21 @@ h1 {
 
 /* ---------- Labels ---------- */
 .label {
-  font-size: 0.9rem;
+  font-size: 1.2rem;  /* più grande */
+  font-weight: 600;   /* leggermente più marcata */
   color: #9ca3af;
+  display: flex;
+  align-items: center; /* centrata verticalmente rispetto al valore */
 }
 
 /* ---------- Values ---------- */
 .value {
-  font-size: 1.8rem; /* tutti uguali */
+  font-size: 1.8rem; /* uguale a prima */
   font-weight: bold;
   color: #f9fafb;
-  text-align: right; /* valori allineati a destra */
+  text-align: right;
 }
+
 
 /* ---------- Sub (USD, daily/monthly, etc) ---------- */
 .sub {
