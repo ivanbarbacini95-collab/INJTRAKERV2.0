@@ -11,9 +11,8 @@
 
 <div class="container">
 
-  <!-- HEADER -->
   <div class="header">
-    <img src="https://cryptologos.cc/logos/injective-inj-logo.png" alt="Injective" class="logo">
+    <img src="injective-logo.png" class="logo" alt="Injective Logo">
     <h1>Injective Dashboard</h1>
   </div>
 
@@ -29,19 +28,14 @@
         <span id="price">$0.0000</span>
       </div>
       <div class="sub-row">
-        <span id="price24h" class="sub">
-          <span id="priceArrow">▬</span>
-          <span id="priceDelta">0.00%</span> | 
-          <span id="priceDeltaUsd">≈ $0.00</span>
-        </span>
+        <span id="price24h" class="sub">0.00% | ≈ $0.00</span>
       </div>
-
-      <!-- Barra dinamica 24h -->
       <div class="price-bar-container">
-        <div id="priceBar" class="price-bar"></div>
-        <div id="priceLine" class="price-line"></div>
-        <div class="price-label left" id="priceLow">0.00</div>
-        <div class="price-label right" id="priceHigh">0.00</div>
+        <div class="price-bar-left" id="priceBarLeft"></div>
+        <div class="price-bar-right" id="priceBarRight"></div>
+        <div class="price-line"></div>
+        <div class="price-label left" id="priceLow">0</div>
+        <div class="price-label right" id="priceHigh">0</div>
       </div>
     </div>
 
