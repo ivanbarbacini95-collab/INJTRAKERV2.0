@@ -38,10 +38,12 @@ function updateNumber(el, oldV, newV, fixed) {
   el.innerText = newV.toFixed(fixed);
 
   el.classList.remove("up", "down");
+
   if (diff > 0) el.classList.add("up");
   else if (diff < 0) el.classList.add("down");
 
-  if (diff !== 0) setTimeout(() => el.classList.remove("up", "down"), 1000);
+  // Torna al colore naturale dopo 300ms
+  if (diff !== 0) setTimeout(() => el.classList.remove("up", "down"), 300);
 }
 
 // ---------- LOAD DATA INJ ----------
@@ -130,6 +132,7 @@ function animate(){
   price24h.classList.remove("up","down");
   if(delta > 0) price24h.classList.add("up");
   else if(delta < 0) price24h.classList.add("down");
+  if(delta !== 0) setTimeout(()=>price24h.classList.remove("up","down"),300);
 
   // Available
   const prevAvailable = displayedAvailable;
