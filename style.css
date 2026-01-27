@@ -1,0 +1,78 @@
+body {
+  font-family: Inter, sans-serif;
+  background: #000;
+  color: #f9fafb;
+  margin: 0;
+  padding: 1rem;
+}
+
+h1 {
+  text-align: center;
+}
+
+.container {
+  max-width: 600px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.box {
+  border: 2px solid #4b5563;
+  border-radius: 0.6rem;
+  padding: 0.7rem 1rem;
+}
+
+.reward-box {
+  border-color: #22c55e;
+}
+
+.label {
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
+
+.value {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.sub {
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
+
+.neutral { color: #f9fafb; }
+.digit-up { color: #22c55e; }
+.digit-down { color: #ef4444; }
+
+.digit-wrapper {
+  display: inline-block;
+  overflow: hidden;
+}
+
+.digit-inner {
+  transition: color 0.25s ease;
+}
+
+#addressInput {
+  width: 100%;
+  padding: 0.6rem;
+  background: black;
+  color: white;
+  border: 2px solid #4b5563;
+  border-radius: 0.5rem;
+}
+
+#marketTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#marketTable th,
+#marketTable td {
+  text-align: center;
+  padding: 0.4rem;
+  border-bottom: 1px solid #4b5563;
+}

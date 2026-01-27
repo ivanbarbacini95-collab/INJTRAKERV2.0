@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Injective Dashboard</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Injective Dashboard</h1>
+
+    <input type="text" id="addressInput" placeholder="Inserisci indirizzo INJ" />
+
+    <div class="box">
+      <span class="label">INJ Price</span>
+      <div class="price-row">
+        <span id="price" class="value neutral" data-fixed="4"></span>
+      </div>
+      <div class="sub-row">
+        <span id="priceDeltaPerc" class="sub neutral">0.00%</span>
+        <span id="priceDeltaUSD" class="sub neutral">≈ $0.00</span>
+      </div>
+    </div>
+
+    <div class="box">
+      <span class="label">Available 💵</span>
+      <span id="available" class="value neutral" data-fixed="6"></span>
+      <div id="availableUsd" class="sub">≈ $0.00</div>
+    </div>
+
+    <div class="box">
+      <span class="label">Staked ⛏️</span>
+      <span id="stake" class="value neutral" data-fixed="6"></span>
+      <div id="stakeUsd" class="sub">≈ $0.00</div>
+    </div>
+
+    <div class="box reward-box">
+      <span class="label">Rewards 🚀</span>
+      <span id="rewards" class="value neutral" data-fixed="8"></span>
+      <div id="rewardsUsd" class="sub">≈ $0.00</div>
+    </div>
+
+    <div class="box">
+      <span class="label">APR</span>
+      <span id="apr" class="value neutral" data-fixed="2"></span>
+    </div>
+
+    <div class="box">
+      <span class="label">Prezzo ultime 24h</span>
+      <canvas id="priceChart"></canvas>
+    </div>
+
+    <div class="box">
+      <span class="label">Market</span>
+      <table id="marketTable">
+        <thead>
+          <tr>
+            <th>Crypto</th>
+            <th>Price</th>
+            <th>24h</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="box">
+      <div id="updated">Last Update: --:--</div>
+    </div>
+  </div>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
