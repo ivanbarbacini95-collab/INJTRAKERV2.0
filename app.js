@@ -1,3 +1,19 @@
+// ---------- Selettori ----------
+const priceEl = document.getElementById("price");
+const price24hEl = document.getElementById("price24h");
+const availableEl = document.getElementById("available");
+const availableUsdEl = document.getElementById("availableUsd");
+const stakeEl = document.getElementById("stake");
+const stakeUsdEl = document.getElementById("stakeUsd");
+const rewardsEl = document.getElementById("rewards");
+const rewardsUsdEl = document.getElementById("rewardsUsd");
+const dailyRewardsEl = document.getElementById("dailyRewards");
+const monthlyRewardsEl = document.getElementById("monthlyRewards");
+const aprEl = document.getElementById("apr");
+const updatedEl = document.getElementById("updated");
+const rewardBarEl = document.getElementById("rewardBar");
+
+// ---------- Variabili dati ----------
 let address = localStorage.getItem("inj_address") || "";
 
 let displayedPrice = 0;
@@ -16,12 +32,13 @@ const fetchJSON = url => fetch(url).then(r => r.json());
 const formatUSD = v => "≈ $" + v.toFixed(2);
 
 function updateNumber(el, oldV, newV, fixed) {
+  el.classList.remove("up", "down");
   el.innerText = newV.toFixed(fixed);
   if (newV > oldV) el.classList.add("up");
   if (newV < oldV) el.classList.add("down");
 }
 
-// ---------- Address ----------
+// ---------- Input indirizzo ----------
 const addressInput = document.getElementById("addressInput");
 addressInput.value = address;
 addressInput.onchange = e => {
@@ -30,7 +47,7 @@ addressInput.onchange = e => {
   loadData();
 };
 
-// ---------- Load Injective Data ----------
+// ---------- Funzione load dati ----------
 async function loadData() {
   if (!address) return;
 
@@ -49,7 +66,7 @@ async function loadData() {
     apr = (inflation.inflation * Number(pool.pool.bonded_tokens + pool.pool.not_bonded_tokens) / pool.pool.bonded_tokens) * 100;
 
   } catch (e) {
-    console.error(e);
+    console.error("Errore caricamento dati:", e);
   }
 }
 
@@ -97,44 +114,43 @@ function startWS() {
 }
 startWS();
 
-// ---------- Animation ----------
+// ---------- Animazione numeri ----------
 function animate() {
   // Price
   const prevP = displayedPrice;
   displayedPrice += (targetPrice - displayedPrice) * 0.1;
-  updateNumber(price, prevP, displayedPrice, 4);
+  updateNumber(priceEl, prevP, displayedPrice, 4);
 
   // Available
   const prevA = displayedAvailable;
   displayedAvailable += (availableInj - displayedAvailable) * 0.1;
-  updateNumber(available, prevA, displayedAvailable, 6);
-  availableUsd.innerText = formatUSD(displayedAvailable * displayedPrice);
+  updateNumber(availableEl, prevA, displayedAvailable, 6);
+  availableUsdEl.innerText = formatUSD(displayedAvailable * displayedPrice);
 
   // Stake
   const prevS = displayedStake;
   displayedStake += (stakeInj - displayedStake) * 0.1;
-  updateNumber(stake, prevS, displayedStake, 4);
-  stakeUsd.innerText = formatUSD(displayedStake * displayedPrice);
+  updateNumber(stakeEl, prevS, displayedStake, 4);
+  stakeUsdEl.innerText = formatUSD(displayedStake * displayedPrice);
 
-  // Rewards sempre in movimento
-  displayedRewards += rewardsInj * 0.00005; // incremento costante
-  updateNumber(rewards, displayedRewards, displayedRewards, 6);
-  rewardsUsd.innerText = formatUSD(displayedRewards * displayedPrice);
+  // Rewards in continuo movimento
+  displayedRewards += rewardsInj * 0.00005;
+  updateNumber(rewardsEl, displayedRewards, displayedRewards, 7);
+  rewardsUsdEl.innerText = formatUSD(displayedRewards * displayedPrice);
 
-  // Daily/Monthly
-  dailyRewards.innerText = (displayedStake * apr / 100 / 365).toFixed(5) + " INJ / giorno";
-  monthlyRewards.innerText = (displayedStake * apr / 100 / 12).toFixed(5) + " INJ / mese";
+  // Daily / Monthly
+  dailyRewardsEl.innerText = (displayedStake * apr / 100 / 365).toFixed(5) + " INJ / giorno";
+  monthlyRewardsEl.innerText = (displayedStake * apr / 100 / 12).toFixed(5) + " INJ / mese";
 
   // APR
   aprEl.innerText = apr.toFixed(2) + "%";
 
   // Updated
-  updated.innerText = "Last Update: " + new Date().toLocaleTimeString();
+  updatedEl.innerText = "Last Update: " + new Date().toLocaleTimeString();
 
   // Reward bar
-  const bar = document.getElementById("rewardBar");
   const percent = Math.min(displayedRewards * 100, 100);
-  bar.style.width = percent + "%";
+  rewardBarEl.style.width = percent + "%";
 
   requestAnimationFrame(animate);
 }
