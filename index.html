@@ -12,45 +12,40 @@
 <body>
 
 <div class="container">
-  <!-- TITOLO CON SCIA SUL BORDO -->
-  <h1 class="glow-border">Injective Dashboard</h1>
+  <h1>Injective Dashboard</h1>
 
-  <!-- INPUT INDIRIZZO -->
   <input type="text" id="addressInput" placeholder="Inserisci indirizzo INJ">
 
-  <!-- INJ PRICE -->
+  <!-- PRICE -->
   <div class="box">
-    <div class="label-value-row">
-      <span class="label">INJ Price</span>
+    <span class="label">INJ Price</span>
+    <div class="value-row">
       <span class="value" id="price">$0.0000</span>
     </div>
-    <div class="sub" id="price24h">0.00% | ≈ $0.00</div>
+    <div class="sub-row">
+      <span class="sub">Live Binance</span>
+      <span class="sub" id="price24h">0.00% | ≈ $0.00</span>
+    </div>
   </div>
 
-  <!-- AVAILABLE BALANCE -->
+  <!-- AVAILABLE -->
   <div class="box">
-    <div class="label-value-row">
-      <span class="label">INJ Balance 💵</span>
-      <span class="value" id="available">0.000000</span>
-    </div>
+    <span class="label">INJ Balance 💵</span>
+    <span class="value" id="available">0.000000</span>
     <div class="sub" id="availableUsd">≈ $0.00</div>
   </div>
 
-  <!-- STAKED -->
+  <!-- STAKE -->
   <div class="box">
-    <div class="label-value-row">
-      <span class="label">Staked ⛏️</span>
-      <span class="value" id="stake">0.0000</span>
-    </div>
+    <span class="label">Staked ⛏️</span>
+    <span class="value" id="stake">0.0000</span>
     <div class="sub" id="stakeUsd">≈ $0.00</div>
   </div>
 
   <!-- REWARDS -->
   <div class="box reward-box">
-    <div class="label-value-row">
-      <span class="label">Rewards 🚀</span>
-      <span class="value" id="rewards">0.000000</span>
-    </div>
+    <span class="label">Rewards 🚀</span>
+    <span class="value" id="rewards">0.000000</span>
     <div class="sub" id="rewardsUsd">≈ $0.00</div>
     <div class="sub" id="dailyRewards">0.0000 INJ / giorno</div>
     <div class="sub" id="monthlyRewards">0.0000 INJ / mese</div>
@@ -58,10 +53,8 @@
 
   <!-- APR -->
   <div class="box">
-    <div class="label-value-row">
-      <span class="label">APR</span>
-      <span class="value" id="apr">0%</span>
-    </div>
+    <span class="label">APR</span>
+    <span class="value" id="apr">0%</span>
   </div>
 
   <!-- CHART -->
@@ -70,7 +63,6 @@
     <canvas id="priceChart"></canvas>
   </div>
 
-  <!-- LAST UPDATE -->
   <div class="box">
     <div id="updated">Last Update: --:--:--</div>
   </div>
