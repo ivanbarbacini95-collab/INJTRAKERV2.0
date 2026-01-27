@@ -1,27 +1,18 @@
-/********************
- * STATE
- ********************/
-let address = "";
+let address="";
 let livePrice=0, displayPrice=0, price24hOpen=0;
-let available=0, staked=0, rewards=0, apr=0;
-let rewardRate=0, lastRewardUpdate=Date.now();
+let available=0, staked=0, rewards=0, apr=0, rewardRate=0;
+let lastRewardUpdate=Date.now();
 let chart, chartData=[];
+let lastUI={ price:"", priceDeltaPerc:"", priceDeltaUSD:"", available:"", stake:"", rewards:"" };
 
-let lastUI = { price:"", priceDeltaPerc:"", priceDeltaUSD:"", available:"", stake:"", rewards:"" };
-let marketList=["BTC","ETH","BNB","SOL","KSM","DOT","LINK","AVAX","APT","SUI",
-"MNT","UNI","ATOM","EGLD","TIA","RUNE","BANANA","ILV","TAO","HYPE","ASTER","AVNT","CAKE","PENDLE","KIMA","MET","RAY","PYTH","VIRTUAL","JUP","JTO","KMNO"];
-let marketData={};
-let prevMarketPrices={};
+let marketList=["BTC","ETH","BNB","SOL","KSM","DOT","LINK","AVAX","APT","SUI","MNT","UNI","ATOM","EGLD","TIA","RUNE","BANANA","ILV","TAO","HYPE","ASTER","AVNT","CAKE","PENDLE","KIMA","MET","RAY","PYTH","VIRTUAL","JUP","JTO","KMNO"];
+let marketData={}, prevMarketPrices={};
 
-/********************
- * UTILS
- ********************/
-const fetchJSON = (url, timeout=8000) =>
-  Promise.race([fetch(url).then(r=>r.json()), new Promise((_,rej)=>setTimeout(()=>rej("timeout"), timeout))]);
+// UTILS
+const fetchJSON=(url,t=8000)=>Promise.race([fetch(url).then(r=>r.json()), new Promise((_,rej)=>setTimeout(()=>rej("timeout"),t))]);
+const formatUSD=v=>"≈ $"+v.toFixed(2);
 
-const formatUSD = v=>"≈ $"+v.toFixed(2);
-
-function createDigits(el, value){
+function createDigits(el,value){
   el.innerHTML="";
   const s=value.toFixed(el.dataset.fixed||4);
   for(let c of s){
@@ -31,33 +22,28 @@ function createDigits(el, value){
   }
 }
 
-function updateNumberAnimation(el,key,newV){
+function updateNumber(el,key,newV){
   const s=newV.toFixed(el.dataset.fixed||4);
-  if(!lastUI[key]) { createDigits(el,newV); lastUI[key]=s; return; }
+  if(!lastUI[key]){ createDigits(el,newV); lastUI[key]=s; return; }
   const children=el.querySelectorAll(".digit-inner");
   for(let i=0;i<s.length;i++){
-    const oldChar=lastUI[key][i]||"";
+    const old=lastUI[key][i]||"";
     if(!children[i]) continue;
-    if(oldChar<s[i]) children[i].className="digit-inner digit-up";
-    else if(oldChar>s[i]) children[i].className="digit-down";
+    if(old<s[i]) children[i].className="digit-inner digit-up";
+    else if(old>s[i]) children[i].className="digit-down";
     else children[i].className="digit-inner neutral";
     children[i].innerText=s[i];
   }
   lastUI[key]=s;
 }
 
-/********************
- * ADDRESS INPUT
- ********************/
-const addrInput=document.getElementById("addressInput");
-addrInput.addEventListener("change", async e=>{
+// ADDRESS INPUT
+document.getElementById("addressInput").addEventListener("change",async e=>{
   address=e.target.value.trim();
   await loadOnchainData();
 });
 
-/********************
- * ONCHAIN DATA
- ********************/
+// ONCHAIN DATA
 async function loadOnchainData(){
   if(!address) return;
   try{
@@ -81,88 +67,78 @@ async function loadOnchainData(){
   }catch(e){ console.error("Onchain error:",e); }
 }
 
-/********************
- * PRICE HISTORY 24H
- ********************/
+// PRICE HISTORY
 async function loadPriceHistory(){
   try{
     const res=await fetch("https://api.binance.com/api/v3/klines?symbol=INJUSDT&interval=1h&limit=24");
     const data=await res.json();
     chartData=data.map(c=>parseFloat(c[4]));
     price24hOpen=parseFloat(data[0][1]);
-    drawChart();
-  }catch(e){ console.error("Price history error:",e); }
+  }catch(e){ console.error(e); }
 }
+loadPriceHistory();
+setInterval(loadPriceHistory,120000);
+
 function drawChart(){
   const ctx=document.getElementById("priceChart").getContext("2d");
   if(chart) chart.destroy();
   const color=displayPrice>=price24hOpen?"#22c55e":"#ef4444";
   chart=new Chart(ctx,{
     type:'line',
-    data:{labels:chartData.map((_,i)=>i), datasets:[{data:chartData,borderColor:color,borderWidth:2,tension:0.3,fill:true,backgroundColor:color==="#22c55e"?"rgba(34,197,94,0.1)":"rgba(239,68,68,0.1)",pointRadius:0}]},
+    data:{labels:chartData.map((_,i)=>i),datasets:[{data:chartData,borderColor:color,borderWidth:2,tension:0.3,fill:true,backgroundColor:color==="green"?"rgba(34,197,94,0.1)":"rgba(239,68,68,0.1)",pointRadius:0}]},
     options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:true}}}
   });
 }
-loadPriceHistory();
-setInterval(loadPriceHistory,120000);
 
-/********************
- * MARKET DATA
- ********************/
-async function loadMarketData(){
-  try{
-    for(let symbol of marketList){
-      const res=await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}USDT`);
-      const d=await res.json();
-      marketData[symbol]={price:parseFloat(d.lastPrice), open:parseFloat(d.openPrice)};
-    }
-  }catch(e){ console.error("Market error:",e); }
-}
-loadMarketData();
-setInterval(loadMarketData,3000);
-
-/********************
- * PRICE LIVE
- ********************/
-function connectWS(){
+// WEBSOCKET
+function connectINJ(){
   const ws=new WebSocket("wss://stream.binance.com:9443/ws/injusdt@trade");
-  ws.onmessage=msg=>{
-    const data=JSON.parse(msg.data);
-    livePrice=parseFloat(data.p);
-    if(displayPrice===0) displayPrice=livePrice;
-  };
-  ws.onclose=()=>setTimeout(connectWS,2000);
+  ws.onmessage=msg=>{ const data=JSON.parse(msg.data); livePrice=parseFloat(data.p); if(displayPrice===0) displayPrice=livePrice; };
+  ws.onclose=()=>setTimeout(connectINJ,2000);
 }
-connectWS();
+connectINJ();
 
-/********************
- * LOOP ANIMATION
- ********************/
+function connectMarketWS(){
+  marketList.forEach(sym=>{
+    const ws=new WebSocket(`wss://stream.binance.com:9443/ws/${sym.toLowerCase()}usdt@trade`);
+    ws.onmessage=msg=>{
+      const data=JSON.parse(msg.data);
+      const price=parseFloat(data.p);
+      const d=marketData[sym]||{};
+      d.price=price;
+      if(!d.open) d.open=price;
+      marketData[sym]=d;
+    };
+    ws.onclose=()=>setTimeout(connectMarketWS,2000);
+  });
+}
+connectMarketWS();
+
+// LOOP
 function loop(){
   const now=Date.now();
   const dt=(now-lastRewardUpdate)/1000;
   lastRewardUpdate=now;
-  rewards += rewardRate*dt;
+  rewards+=rewardRate*dt;
 
-  // INJ PRICE BOX
+  // INJ
   if(livePrice>0){
     displayPrice += (livePrice-displayPrice)*0.2;
-    updateNumberAnimation(document.getElementById("price"),"price",displayPrice);
+    updateNumber(document.getElementById("price"),"price",displayPrice);
 
-    const deltaPerc = ((displayPrice-price24hOpen)/price24hOpen)*100;
-    const deltaUSD = displayPrice-price24hOpen;
+    const deltaPerc=(displayPrice-price24hOpen)/price24hOpen*100;
+    const deltaUSD=displayPrice-price24hOpen;
     const percEl=document.getElementById("priceDeltaPerc");
-    percEl.innerText = deltaPerc.toFixed(2)+"%";
+    percEl.innerText=deltaPerc.toFixed(2)+"%";
     percEl.className="sub "+(deltaPerc>=0?"digit-up":"digit-down");
     const usdEl=document.getElementById("priceDeltaUSD");
     usdEl.innerText="≈ $"+deltaUSD.toFixed(4);
     usdEl.className="sub "+(deltaUSD>=0?"digit-up":"digit-down");
   }
 
-  // AVAILABLE / STAKED / REWARDS
-  updateNumberAnimation(document.getElementById("available"),"available",available);
-  updateNumberAnimation(document.getElementById("stake"),"stake",staked);
-  updateNumberAnimation(document.getElementById("rewards"),"rewards",rewards);
+  updateNumber(document.getElementById("available"),"available",available);
+  updateNumber(document.getElementById("stake"),"stake",staked);
+  updateNumber(document.getElementById("rewards"),"rewards",rewards);
   document.getElementById("availableUsd").innerText=formatUSD(available*displayPrice);
   document.getElementById("stakeUsd").innerText=formatUSD(staked*displayPrice);
   document.getElementById("rewardsUsd").innerText=formatUSD(rewards*displayPrice);
@@ -173,38 +149,34 @@ function loop(){
   // MARKET TABLE
   const tbody=document.querySelector("#marketTable tbody");
   tbody.innerHTML="";
-  for(let symbol of marketList){
-    const d=marketData[symbol];
-    if(!d) continue;
+  marketList.forEach(sym=>{
+    const d=marketData[sym]; if(!d) return;
     const tr=document.createElement("tr");
-    tr.innerHTML=`<td>${symbol}</td><td class="price-cell"></td><td class="perc-cell"></td>`;
+    tr.innerHTML=`<td>${sym}</td><td class="price-cell"></td><td class="perc-cell"></td>`;
     tbody.appendChild(tr);
-
     const priceCell=tr.querySelector(".price-cell");
     const percCell=tr.querySelector(".perc-cell");
-    updateNumberAnimation(priceCell,"market_"+symbol,d.price);
 
+    updateNumber(priceCell,"market_"+sym,d.price);
     const perc=(d.price-d.open)/d.open*100;
     percCell.innerText=perc.toFixed(2)+"%";
     percCell.className=perc>=0?"digit-up":"digit-down";
 
-    const prevPrice=prevMarketPrices[symbol];
-    if(prevPrice && prevPrice!==d.price){
+    const prev=prevMarketPrices[sym];
+    if(prev && prev!==d.price){
       tr.style.transition="background 0.5s";
-      tr.style.background=d.price>prevPrice?"rgba(34,197,94,0.5)":"rgba(239,68,68,0.5)";
+      tr.style.background=d.price>prev?"rgba(34,197,94,0.5)":"rgba(239,68,68,0.5)";
       setTimeout(()=>{ tr.style.background=""; },500);
     }
-    prevMarketPrices[symbol]=d.price;
-  }
+    prevMarketPrices[sym]=d.price;
+  });
 
   drawChart();
   requestAnimationFrame(loop);
 }
 loop();
 
-/********************
- * THEME TOGGLE
- ********************/
+// THEME
 document.getElementById("themeToggle").addEventListener("click",()=>{
   document.body.classList.toggle("light-theme");
 });
