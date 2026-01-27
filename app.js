@@ -49,11 +49,19 @@ function updateDigits(el,key,newV){
 /********************
  * ADDRESS INPUT
  ********************/
-const addrInput=document.getElementById("addressInput");
-addrInput.addEventListener("change", async e=>{
-  address=e.target.value.trim();
+const addrInput = document.getElementById("addressInput");
+
+// Carica indirizzo salvato se presente
+address = localStorage.getItem("inj_address") || "";
+addrInput.value = address;
+
+// Aggiorna l'indirizzo e salva su dispositivo
+addrInput.addEventListener("change", async e => {
+  address = e.target.value.trim();
+  localStorage.setItem("inj_address", address);
   await loadOnchainData();
 });
+
 
 /********************
  * THEME TOGGLE
