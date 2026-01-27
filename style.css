@@ -1,4 +1,4 @@
-/* ---------- Body & Container ---------- */
+/* ---------- Body e container ---------- */
 body {
   font-family: Inter, sans-serif;
   background: #000;
@@ -8,45 +8,34 @@ body {
 }
 
 h1 {
-  margin-bottom: 1rem;
-}
-
-/* ---------- Glow Border Title (Scia Cornice) ---------- */
-.glow-border {
-  position: relative;
-  display: inline-block;
-  padding: 0.5rem 1.2rem;
-  font-size: 2rem;
-  color: #fff;
   text-align: center;
   margin-bottom: 1rem;
-  background: #111;
+  font-size: 2rem;
+  position: relative;
+  padding: 0.5rem 1rem;
+  border: 2px solid #4b5563;
   border-radius: 0.5rem;
   overflow: hidden;
-  z-index: 0;
 }
 
-/* Cornice con scia luminosa */
-.glow-border::before {
-  content: '';
+h1::after {
+  content: "";
   position: absolute;
-  top: -2px; left: -2px;
-  right: -2px; bottom: -2px;
-  border-radius: 0.5rem;
-  background: conic-gradient(
-    cyan 0deg 30deg,
-    transparent 30deg 360deg
-  );
-  animation: spinBorder 2s linear infinite; /* scia in senso orario */
-  z-index: -1;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  border: 2px solid transparent;
+  border-top-color: #38bdf8;
+  border-right-color: #38bdf8;
+  animation: borderSlide 2s linear infinite;
+  pointer-events: none;
 }
 
-@keyframes spinBorder {
-  0%   { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); } /* senso orario */
+@keyframes borderSlide {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-/* ---------- Container ---------- */
 .container {
   max-width: 600px;
   margin: auto;
@@ -59,7 +48,10 @@ h1 {
 .box {
   border: 2px solid #4b5563;
   border-radius: 0.5rem;
-  padding: 0.6rem 1rem;
+  padding: 0.8rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   transition: 0.3s;
 }
 
@@ -67,51 +59,45 @@ h1 {
   border-color: #22c55e;
 }
 
-/* ---------- Label & Value Row ---------- */
-.label-value-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
 /* ---------- Labels ---------- */
 .label {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #9ca3af;
-  display: flex;
-  align-items: center;
-}
-
-/* ---------- Values ---------- */
-.value {
-  font-size: 1.8rem;
+  font-size: 1.1rem;
   font-weight: bold;
-  color: #f9fafb;
-  text-align: right;
+  color: #9ca3af;
+  text-align: left;
+  flex: 1;
 }
 
-/* ---------- Sub Values ---------- */
+/* ---------- Valori numerici ---------- */
+.value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: right;
+  min-width: 120px;
+}
+
+/* ---------- Sub info ---------- */
 .sub {
   font-size: 0.9rem;
   color: #9ca3af;
+  text-align: right;
+  display: block;
+}
+
+.price-row, .sub-row {
   display: flex;
-  justify-content: flex-end;
-}
-
-/* ---------- Price Chart ---------- */
-#priceChart {
+  justify-content: space-between;
+  align-items: center;
   width: 100%;
-  height: 160px;
 }
 
-/* ---------- Input ---------- */
 #addressInput {
   padding: 0.6rem;
   border-radius: 0.5rem;
   border: 2px solid #4b5563;
   background: #000;
   color: #f9fafb;
+  width: 100%;
 }
 
 #addressInput:focus {
@@ -120,24 +106,30 @@ h1 {
   box-shadow: 0 0 8px rgba(56,189,248,0.3);
 }
 
-/* ---------- Up / Down Animations ---------- */
+#priceChart {
+  width: 100%;
+  height: 160px;
+}
+
+/* ---------- Animazioni numeri ---------- */
 .up { color: #22c55e; }
 .down { color: #ef4444; }
 
 .digit-up {
   color: #22c55e;
   transform: scale(1.15);
-  transition: all 0.3s;
+  transition: 0.2s;
 }
 
 .digit-down {
   color: #ef4444;
   transform: scale(0.9);
-  transition: all 0.3s;
+  transition: 0.2s;
 }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 600px) {
-  .value { font-size: 1.2rem; }
+  .value { font-size: 1.2rem; min-width: 80px; }
   .label { font-size: 1rem; }
+  h1 { font-size: 1.5rem; }
 }
