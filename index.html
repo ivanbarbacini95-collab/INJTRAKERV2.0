@@ -1,31 +1,31 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Injective Dashboard</title>
-  <link rel="stylesheet" href="style.css">
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
-  <script src="app.js" defer></script>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
-    <h1>
-      Injective Dashboard
-      <span id="themeToggle" title="Cambia tema">🌓</span>
-    </h1>
+    <div class="header">
+      <h1>Injective Dashboard</h1>
+      <button id="themeToggle" title="Cambia tema">🌓</button>
+    </div>
 
-    <input type="text" id="addressInput" placeholder="Inserisci indirizzo INJ">
+    <input type="text" id="addressInput" placeholder="Inserisci indirizzo INJ" />
 
     <!-- PRICE -->
     <div class="box price-box">
+      <span class="label">INJ Price</span>
       <div class="price-row">
-        <span class="label">INJ Price</span>
         <span id="price" class="value neutral" data-fixed="4"></span>
       </div>
-      <div class="sub-row right">
-        <span id="priceDeltaPerc" class="sub neutral">0.00%</span>
-        <span id="priceDeltaUSD" class="sub neutral">≈ $0.00</span>
+      <div class="sub-row">
+        <span id="priceDeltaPerc" class="sub neutral"></span>
+        <span id="priceDeltaUSD" class="sub neutral"></span>
       </div>
     </div>
 
@@ -81,5 +81,7 @@
       <div id="updated">Last Update: --:--</div>
     </div>
   </div>
+
+  <script src="app.js" defer></script>
 </body>
 </html>
