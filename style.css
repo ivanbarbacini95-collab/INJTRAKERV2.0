@@ -96,6 +96,13 @@ body {
   transition: width 0.3s linear;
 }
 
+.reward-bar span {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  color: #fff;
+}
+
 .last-update {
   font-size: 0.8rem;
   text-align: center;
