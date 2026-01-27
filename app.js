@@ -5,17 +5,25 @@ let address = localStorage.getItem("inj_address") || "";
 
 let livePrice=0, displayPrice=0, price24hOpen=0;
 let available=0, staked=0, displayStaked=0;
-let rewards=0, displayRewards=0, rewardRate=0;
+let rewards=0, displayRewards=0;
 let apr=0;
 let chart, chartData=[];
 let lastUI = { price:"", priceDeltaPerc:"", priceDeltaUSD:"", available:"", stake:"", rewards:"" };
 
-let marketData = [
-  "BTC","ETH","BNB","SOL","KSM","DOT","LINK","AVAX","APT","SUI",
-  "MNT","UNI","ATOM","EGLD","TIA","RUNE","BANANA","ILV","TAO","HYPE",
-  "ASTER","AVNT","CAKE","PENDLE","KIMA","MET","RAY","PYTH","VIRTUAL",
-  "JUP","JTO","KMNO"
+// MARKET DATA COINGECKO
+const marketData = [
+  {id:"bitcoin", symbol:"BTC", name:"Bitcoin"},
+  {id:"ethereum", symbol:"ETH", name:"Ethereum"},
+  {id:"binancecoin", symbol:"BNB", name:"Binance Coin"},
+  {id:"solana", symbol:"SOL", name:"Solana"},
+  {id:"kusama", symbol:"KSM", name:"Kusama"},
+  {id:"polkadot", symbol:"DOT", name:"Polkadot"},
+  {id:"chainlink", symbol:"LINK", name:"Chainlink"},
+  {id:"avalanche-2", symbol:"AVAX", name:"Avalanche"},
+  {id:"aptos", symbol:"APT", name:"Aptos"},
+  {id:"sui", symbol:"SUI", name:"Sui"}
 ];
+let marketPrices = {};
 
 /********************
  * UTILS
@@ -43,7 +51,7 @@ function updateDigits(el,key,newV){
     const oldChar=lastUI[key][i]||"";
     if(!children[i]) continue;
     if(oldChar<s[i]) children[i].className="digit-inner digit-up";
-    else if(oldChar>s[i]) children[i].className="digit-inner digit-down";
+    else if(oldChar>s[i]) children[i].className="digit-down";
     else children[i].className="digit-inner neutral";
     children[i].innerText=s[i];
   }
@@ -89,8 +97,6 @@ async function loadOnchainData(){
     const bonded=Number(pool.pool.bonded_tokens), total=bonded+Number(pool.pool.not_bonded_tokens);
     apr=(Number(infl.inflation)/(bonded/total))*100;
 
-    rewardRate=(staked*(apr/100))/(365*24*3600);
-
   }catch(e){ console.error("Onchain error:",e); }
 }
 
@@ -106,7 +112,6 @@ async function loadPriceHistory(){
     drawChart();
   }catch(e){ console.error("Price history error:",e); }
 }
-
 function drawChart(){
   const ctx=document.getElementById("priceChart").getContext("2d");
   if(chart) chart.destroy();
@@ -137,51 +142,50 @@ connectWS();
 /********************
  * MARKET TABLE
  ********************/
-let marketPrices={};
-
 async function loadMarket() {
   try {
-    const ids = marketData.map(c => c.toLowerCase()).join(",");
+    const ids = marketData.map(c=>c.id).join(",");
     const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
     const prices = await res.json();
 
-    for (const c of marketData) {
-      const oldPrice = marketPrices[c]?.usd || 0;
-      const newPrice = prices[c.toLowerCase()]?.usd || 0;
-      marketPrices[c] = {
-        usd: newPrice,
-        usd_24h_change: prices[c.toLowerCase()]?.usd_24h_change || 0,
-        oldUsd: oldPrice
-      };
+    for(const c of marketData){
+      const data = prices[c.id];
+      if(!data) continue;
+      marketPrices[c.id] = marketPrices[c.id] || { usd: 0 };
+      marketPrices[c.id].oldUsd = marketPrices[c.id].usd;
+      marketPrices[c.id].usd = data.usd;
+      marketPrices[c.id].change = data.usd_24h_change || 0;
     }
-  } catch (e) { console.error(e); }
+  } catch(e){ console.error(e); }
 }
 
 function updateMarketTable() {
   const tbody = document.querySelector("#marketTable tbody");
   tbody.innerHTML = "";
 
-  for (const c of marketData) {
-    const { usd, usd_24h_change, oldUsd } = marketPrices[c];
+  for(const c of marketData){
+    const p = marketPrices[c.id];
+    if(!p) continue;
+    const priceChanged = p.usd !== p.oldUsd;
+
     const tr = document.createElement("tr");
-    const priceChanged = usd !== oldUsd;
-
     tr.innerHTML = `
-      <td>${c}</td>
-      <td><span class="digit-wrapper"><span class="digit-inner ${usd>=oldUsd?"digit-up":"digit-down"}">${usd.toFixed(4)}</span></span></td>
-      <td class="percent ${usd_24h_change>=0?'digit-up':'digit-down'}">${usd_24h_change.toFixed(2)}%</td>
+      <td>${c.symbol} - ${c.name}</td>
+      <td><span class="digit-wrapper"><span class="digit-inner neutral">${p.usd.toFixed(4)}</span></span></td>
+      <td class="percent ${p.change>=0?'digit-up':'digit-down'}">${p.change.toFixed(2)}%</td>
     `;
-
     tbody.appendChild(tr);
 
     if(priceChanged){
+      const priceEl = tr.querySelector(".digit-inner");
+      priceEl.className = "digit-inner " + (p.usd > p.oldUsd ? "digit-up" : "digit-down");
       tr.classList.add("table-flash");
       setTimeout(()=>tr.classList.remove("table-flash"),400);
     }
   }
 }
 
-async function refreshMarket() {
+async function refreshMarket(){
   await loadMarket();
   updateMarketTable();
 }
@@ -189,44 +193,43 @@ refreshMarket();
 setInterval(refreshMarket,10000);
 
 /********************
- * LOOP ANIMATION REWARDS LIVE
+ * LOOP ANIMATION
  ********************/
-let lastTimestamp = Date.now();
-function loop() {
-  const now = Date.now();
-  const deltaSec = (now - lastTimestamp)/1000;
-  lastTimestamp = now;
-
-  if(rewardRate) rewards += rewardRate*deltaSec;
-
-  displayRewards += (rewards - displayRewards)*0.2;
-  displayStaked += (staked - displayStaked)*0.2;
-  displayPrice += (livePrice - displayPrice)*0.2;
-
+function loop(){
+  // REWARDS
+  displayRewards += (rewards-displayRewards)*0.2;
   updateDigits(document.getElementById("rewards"),"rewards",displayRewards);
+
+  // STAKED / AVAILABLE
+  displayStaked += (staked-displayStaked)*0.2;
   updateDigits(document.getElementById("stake"),"stake",displayStaked);
   updateDigits(document.getElementById("available"),"available",available);
-  updateDigits(document.getElementById("price"),"price",displayPrice);
 
-  if(price24hOpen>0){
-    const deltaPerc = (displayPrice-price24hOpen)/price24hOpen*100;
-    const deltaUSD = displayPrice-price24hOpen;
+  // PRICE
+  if(livePrice>0){
+    displayPrice += (livePrice-displayPrice)*0.2;
+    updateDigits(document.getElementById("price"),"price",displayPrice);
 
-    const percEl=document.getElementById("priceDeltaPerc");
-    percEl.innerText=deltaPerc.toFixed(2)+"%";
-    percEl.className="sub "+(deltaPerc>=0?"digit-up":"digit-down");
+    if(price24hOpen>0){
+      const deltaPerc = (displayPrice-price24hOpen)/price24hOpen*100;
+      const deltaUSD = displayPrice-price24hOpen;
 
-    const usdEl=document.getElementById("priceDeltaUSD");
-    usdEl.innerText="≈ $"+deltaUSD.toFixed(4);
-    usdEl.className="sub "+(deltaUSD>=0?"digit-up":"digit-down");
+      const percEl = document.getElementById("priceDeltaPerc");
+      percEl.innerText = deltaPerc.toFixed(2) + "%";
+      percEl.className = "sub " + (deltaPerc>=0?"digit-up":"digit-down");
+
+      const usdEl = document.getElementById("priceDeltaUSD");
+      usdEl.innerText = "≈ $" + deltaUSD.toFixed(4);
+      usdEl.className = "sub " + (deltaUSD>=0?"digit-up":"digit-down");
+    }
   }
 
-  document.getElementById("availableUsd").innerText = formatUSD(available*displayPrice);
-  document.getElementById("stakeUsd").innerText = formatUSD(displayStaked*displayPrice);
-  document.getElementById("rewardsUsd").innerText = formatUSD(displayRewards*displayPrice);
+  document.getElementById("availableUsd").innerText=formatUSD(available*displayPrice);
+  document.getElementById("stakeUsd").innerText=formatUSD(displayStaked*displayPrice);
+  document.getElementById("rewardsUsd").innerText=formatUSD(displayRewards*displayPrice);
 
-  document.getElementById("apr").innerText = apr.toFixed(2)+"%";
-  document.getElementById("updated").innerText = "Last Update: "+new Date().toLocaleTimeString();
+  document.getElementById("apr").innerText=apr.toFixed(2)+"%";
+  document.getElementById("updated").innerText="Last Update: "+new Date().toLocaleTimeString();
 
   requestAnimationFrame(loop);
 }
@@ -237,4 +240,3 @@ loop();
  ********************/
 if(address) loadOnchainData();
 setInterval(loadOnchainData,10000);
-
