@@ -44,6 +44,9 @@ h1.dashboard-title {
   color: #f9fafb;
 }
 
+.value.up { color: #22c55e; }
+.value.down { color: #ef4444; }
+
 .sub {
   font-size: 0.9rem;
   color: #9ca3af;
@@ -73,15 +76,12 @@ h1.dashboard-title {
   height: 160px;
 }
 
-.up { color: #22c55e; }
-.down { color: #ef4444; }
-
 .reward-bar-bg {
   position: relative;
   width: 100%;
-  height: 6px;
+  height: 8px;
   background: #4b5563;
-  border-radius: 3px;
+  border-radius: 4px;
   overflow: hidden;
 }
 
@@ -90,7 +90,8 @@ h1.dashboard-title {
   height: 100%;
   background: #22c55e;
   transition: width 0.2s linear;
-  border-radius: 3px;
+  border-radius: 4px;
+  background-size: 20px 100%;
 }
 
 .reward-target {
