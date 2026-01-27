@@ -110,22 +110,15 @@ startWS();
 
 // ---------- REWARD BAR ----------
 function updateRewardBar() {
-  // Animazione continua dei rewards
+  // Animazione dei rewards
   displayedRewards += (rewardsInj - displayedRewards) * 0.05;
 
-  // Calcola percentuale di riempimento (maxReward = 0.05)
-  const fillPercent = Math.min(displayedRewards / maxReward * 100, 100);
+  // Percentuale
+  const fillPercent = Math.min((displayedRewards / maxReward) * 100, 100);
   rewardBarEl.style.width = fillPercent + "%";
 
-  // Percentuale testuale sempre leggibile
-  rewardBarEl.innerHTML = `<span>${(fillPercent).toFixed(1)}%</span>`;
-
-  // Cambia colore del testo se barra troppo bassa
-  if (fillPercent < 10) {
-    rewardBarEl.querySelector("span").style.color = "#fff"; // bianco sopra sfondo blu scuro
-  } else {
-    rewardBarEl.querySelector("span").style.color = "#fff"; // rimane bianco
-  }
+  // Percentuale centrata e leggibile
+  rewardBarEl.innerHTML = `<span>${fillPercent.toFixed(1)}%</span>`;
 }
 
 // ---------- ANIMATE DASHBOARD ----------
