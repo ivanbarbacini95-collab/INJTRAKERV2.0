@@ -20,40 +20,33 @@ h1 {
   gap: 1rem;
 }
 
-/* Box principale */
 .box {
   border: 2px solid #4b5563;
   border-radius: 0.5rem;
   padding: 0.8rem 1rem;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  min-height: 60px; /* Più spazio verticale */
+  flex-direction: column;
 }
 
 .reward-box {
   border-color: #22c55e;
 }
 
-/* Etichette (a sinistra) */
 .label {
   font-size: 1.1rem;
   font-weight: bold;
   color: #9ca3af;
-  text-align: left;
-  flex: 1; /* Occupa tutto lo spazio a sinistra */
+  margin-bottom: 0.3rem;
 }
 
-/* Valori numerici principali (a destra) */
 .value {
   font-size: 1.5rem;
   font-weight: bold;
   text-align: right;
-  min-width: 150px; /* Più spazio per numeri grandi */
+  min-width: 150px;
   white-space: nowrap;
 }
 
-/* Sub-valori (USD, daily/monthly, % ecc) */
 .sub {
   font-size: 0.9rem;
   color: #9ca3af;
@@ -61,7 +54,6 @@ h1 {
   display: block;
 }
 
-/* Riga interna per eventuali sub valori */
 .price-row, .sub-row {
   display: flex;
   justify-content: space-between;
@@ -69,7 +61,6 @@ h1 {
   width: 100%;
 }
 
-/* Input indirizzo */
 #addressInput {
   padding: 0.6rem;
   border-radius: 0.5rem;
@@ -85,7 +76,6 @@ h1 {
   box-shadow: 0 0 8px rgba(56,189,248,0.3);
 }
 
-/* Chart */
 #priceChart {
   width: 100%;
   height: 160px;
@@ -107,7 +97,6 @@ h1 {
   transition: 0.2s;
 }
 
-/* Responsive */
 @media (max-width: 600px) {
   .value { font-size: 1.3rem; min-width: 120px; }
   .label { font-size: 1rem; }
