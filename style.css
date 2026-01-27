@@ -70,10 +70,11 @@ body {
 
 .reward-bar-container {
   background: #222;
-  height: 20px;
+  height: 25px;
   border-radius: 0.3rem;
   margin-top: 0.5rem;
   position: relative;
+  overflow: hidden;
 }
 
 .reward-bar {
@@ -82,22 +83,17 @@ body {
   width: 0%;
   border-radius: 0.3rem;
   transition: width 0.3s linear;
-}
-
-.reward-targets {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.reward-targets span {
-  position: absolute;
-  top: 0;
-  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
   color: #f9fafb;
-  font-size: 0.7rem;
+}
+
+.reward-bar span {
+  position: relative;
+  z-index: 1;
+  font-size: 0.8rem;
 }
 
 .last-update {
