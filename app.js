@@ -3,11 +3,15 @@
  ********************/
 let address = "";
 let livePrice=0, displayPrice=0, price24hOpen=0;
-let available=0, staked=0, displayStaked=0;
-let rewards=0, rewardRate=0, lastRewardUpdate=Date.now();
-let apr=0;
+let available=0, staked=0, rewards=0, apr=0;
+let rewardRate=0, lastRewardUpdate=Date.now();
 let chart, chartData=[];
-let lastUI = {};
+
+let lastUI = { price:"", priceDeltaPerc:"", priceDeltaUSD:"", available:"", stake:"", rewards:"" };
+let marketList=["BTC","ETH","BNB","SOL","KSM","DOT","LINK","AVAX","APT","SUI",
+"MNT","UNI","ATOM","EGLD","TIA","RUNE","BANANA","ILV","TAO","HYPE","ASTER","AVNT","CAKE","PENDLE","KIMA","MET","RAY","PYTH","VIRTUAL","JUP","JTO","KMNO"];
+let marketData={};
+let prevMarketPrices={};
 
 /********************
  * UTILS
@@ -27,29 +31,20 @@ function createDigits(el, value){
   }
 }
 
-function updateNumberAnimation(el, key, newV){
+function updateNumberAnimation(el,key,newV){
   const s=newV.toFixed(el.dataset.fixed||4);
   if(!lastUI[key]) { createDigits(el,newV); lastUI[key]=s; return; }
   const children=el.querySelectorAll(".digit-inner");
   for(let i=0;i<s.length;i++){
     const oldChar=lastUI[key][i]||"";
     if(!children[i]) continue;
-    children[i].className="digit-inner neutral";
-    if(!isNaN(oldChar) && !isNaN(s[i])){
-      if(Number(s[i])>Number(oldChar)) children[i].className="digit-inner digit-up";
-      else if(Number(s[i])<Number(oldChar)) children[i].className="digit-inner digit-down";
-    }
+    if(oldChar<s[i]) children[i].className="digit-inner digit-up";
+    else if(oldChar>s[i]) children[i].className="digit-inner digit-down";
+    else children[i].className="digit-inner neutral";
     children[i].innerText=s[i];
   }
   lastUI[key]=s;
 }
-
-/********************
- * THEME TOGGLE
- ********************/
-document.getElementById("themeToggle").addEventListener("click", ()=>{
-  document.body.classList.toggle("light");
-});
 
 /********************
  * ADDRESS INPUT
@@ -82,15 +77,13 @@ async function loadOnchainData(){
     apr=(Number(infl.inflation)/(bonded/total))*100;
 
     rewardRate=(staked*(apr/100))/(365*24*3600);
+
   }catch(e){ console.error("Onchain error:",e); }
 }
 
 /********************
- * PRICE HISTORY 24H + CHART
+ * PRICE HISTORY 24H
  ********************/
-const marketList=["BTC","ETH","BNB","SOL","KSM","DOT","LINK","AVAX","APT","SUI","MNT","UNI","ATOM","EGLD","TIA","RUNE","BANANA","ILV","TAO","HYPE","ASTER","AVNT","CAKE","PENDLE","KIMA","MET","RAY","PYTH","VIRTUAL","JUP","JTO","KMNO"];
-let marketData={};
-
 async function loadPriceHistory(){
   try{
     const res=await fetch("https://api.binance.com/api/v3/klines?symbol=INJUSDT&interval=1h&limit=24");
@@ -103,16 +96,33 @@ async function loadPriceHistory(){
 function drawChart(){
   const ctx=document.getElementById("priceChart").getContext("2d");
   if(chart) chart.destroy();
-  const color = displayPrice>=price24hOpen ? "#22c55e":"#ef4444";
+  const color=displayPrice>=price24hOpen?"#22c55e":"#ef4444";
   chart=new Chart(ctx,{
     type:'line',
     data:{labels:chartData.map((_,i)=>i), datasets:[{data:chartData,borderColor:color,borderWidth:2,tension:0.3,fill:true,backgroundColor:color==="#22c55e"?"rgba(34,197,94,0.1)":"rgba(239,68,68,0.1)",pointRadius:0}]},
     options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:true}}}
   });
 }
+loadPriceHistory();
+setInterval(loadPriceHistory,120000);
 
 /********************
- * PRICE LIVE + MARKET LIVE
+ * MARKET DATA
+ ********************/
+async function loadMarketData(){
+  try{
+    for(let symbol of marketList){
+      const res=await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}USDT`);
+      const d=await res.json();
+      marketData[symbol]={price:parseFloat(d.lastPrice), open:parseFloat(d.openPrice)};
+    }
+  }catch(e){ console.error("Market error:",e); }
+}
+loadMarketData();
+setInterval(loadMarketData,5000);
+
+/********************
+ * PRICE LIVE
  ********************/
 function connectWS(){
   const ws=new WebSocket("wss://stream.binance.com:9443/ws/injusdt@trade");
@@ -124,16 +134,6 @@ function connectWS(){
   ws.onclose=()=>setTimeout(connectWS,2000);
 }
 connectWS();
-
-async function updateMarketPrices(){
-  for(let symbol of marketList){
-    try{
-      const res=await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}USDT`);
-      const data=await res.json();
-      marketData[symbol]={price:parseFloat(data.lastPrice), open:parseFloat(data.openPrice)};
-    }catch(e){ console.error(symbol,e); }
-  }
-}
 
 /********************
  * LOOP ANIMATION
@@ -149,7 +149,7 @@ function loop(){
     displayPrice += (livePrice-displayPrice)*0.2;
     updateNumberAnimation(document.getElementById("price"),"price",displayPrice);
 
-    const deltaPerc = (displayPrice-price24hOpen)/price24hOpen*100;
+    const deltaPerc = ((displayPrice-price24hOpen)/price24hOpen)*100;
     const deltaUSD = displayPrice-price24hOpen;
     const percEl=document.getElementById("priceDeltaPerc");
     percEl.innerText = deltaPerc.toFixed(2)+"%";
@@ -170,7 +170,7 @@ function loop(){
   document.getElementById("apr").innerText=apr.toFixed(2)+"%";
   document.getElementById("updated").innerText="Last Update: "+new Date().toLocaleTimeString();
 
-  // MARKET TABLE
+  // MARKET TABLE CON LAMPEGGIO E NUMERI ANIMATI
   const tbody=document.querySelector("#marketTable tbody");
   tbody.innerHTML="";
   for(let symbol of marketList){
@@ -183,25 +183,29 @@ function loop(){
     const priceCell=tr.querySelector(".price-cell");
     const percCell=tr.querySelector(".perc-cell");
     updateNumberAnimation(priceCell,"market_"+symbol,d.price);
+
     const perc=(d.price-d.open)/d.open*100;
     percCell.innerText=perc.toFixed(2)+"%";
     percCell.className=perc>=0?"digit-up":"digit-down";
 
-    // Lampeggio riga
-    tr.style.background="";
-    if(d.price>=(d.open)){ tr.style.background="rgba(34,197,94,0.2)"; }
-    else tr.style.background="rgba(239,68,68,0.2)";
+    // lampeggio breve se prezzo cambia
+    const prevPrice=prevMarketPrices[symbol];
+    if(prevPrice && prevPrice!==d.price){
+      tr.style.transition="background 0.5s";
+      tr.style.background=d.price>prevPrice?"rgba(34,197,94,0.5)":"rgba(239,68,68,0.5)";
+      setTimeout(()=>{ tr.style.background=""; },500);
+    }
+    prevMarketPrices[symbol]=d.price;
   }
 
   drawChart();
   requestAnimationFrame(loop);
 }
+loop();
 
 /********************
- * INTERVALS
+ * THEME TOGGLE
  ********************/
-loadPriceHistory();
-setInterval(loadPriceHistory,120000);
-updateMarketPrices();
-setInterval(updateMarketPrices,5000); // aggiornamento tabella ogni 5 secondi
-loop();
+document.getElementById("themeToggle").addEventListener("click",()=>{
+  document.body.classList.toggle("light-theme");
+});
