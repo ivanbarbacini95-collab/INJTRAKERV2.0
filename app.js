@@ -13,6 +13,7 @@ let chart, chartData = [];
 const fetchJSON = url => fetch(url).then(r => r.json());
 const formatUSD = v => "≈ $" + v.toFixed(2);
 
+// ---------- Aggiorna numeri con animazione colore ----------
 function updateNumber(el, oldV, newV, fixed) {
   el.classList.remove("digit-up", "digit-down");
   el.innerText = newV.toFixed(fixed);
@@ -34,40 +35,44 @@ async function loadData() {
   if (!address) return;
 
   try {
-    // Balance
+    // AVAILABLE BALANCE
     const balance = await fetchJSON(`https://lcd.injective.network/cosmos/bank/v1beta1/balances/${address}`);
     availableInj = (balance.balances?.find(b => b.denom === "inj")?.amount || 0) / 1e18;
 
-    // Stake
+    // STAKE
     const stake = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/delegations/${address}`);
     stakeInj = stake.delegation_responses?.reduce((s,d)=>s+Number(d.balance.amount),0)/1e18 || 0;
 
-    // Rewards
+    // REWARDS
     const rewards = await fetchJSON(`https://lcd.injective.network/cosmos/distribution/v1beta1/delegators/${address}/rewards`);
     rewardsInj = rewards.rewards?.reduce((s,r)=>s + Number(r.reward[0]?.amount||0),0)/1e18 || 0;
 
-    // APR
-    const inflation = await fetchJSON(`https://lcd.injective.network/cosmos/mint/v1beta1/inflation`);
-    const pool = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/pool`);
-    apr = (inflation.inflation * Number(pool.pool.bonded_tokens + pool.pool.not_bonded_tokens) / pool.pool.bonded_tokens) * 100;
+    // APR CORRETTO
+    const inflationData = await fetchJSON(`https://lcd.injective.network/cosmos/mint/v1beta1/inflation`);
+    const inflationRate = Number(inflationData.inflation) || 0;
+    apr = inflationRate * 100; // percentuale annua
 
   } catch (e) {
     console.error(e);
   }
 }
 
-// Carica dati ogni minuto
+// Carica dati ogni 60 secondi
 loadData();
 setInterval(loadData, 60000);
 
 // ---------- Price History ----------
 async function fetchHistory() {
-  const r = await fetch("https://api.binance.com/api/v3/klines?symbol=INJUSDT&interval=1h&limit=24");
-  const d = await r.json();
-  chartData = d.map(c => +c[4]);
-  price24hOpen = +d[0][1];
-  targetPrice = chartData.at(-1);
-  drawChart();
+  try {
+    const r = await fetch("https://api.binance.com/api/v3/klines?symbol=INJUSDT&interval=1h&limit=24");
+    const d = await r.json();
+    chartData = d.map(c => +c[4]);
+    price24hOpen = +d[0][1];
+    targetPrice = chartData.at(-1);
+    drawChart();
+  } catch (e) {
+    console.error("Errore fetch price history:", e);
+  }
 }
 fetchHistory();
 
@@ -101,7 +106,7 @@ function startWS() {
 }
 startWS();
 
-// ---------- Animation dei numeri ----------
+// ---------- Animazione numeri ----------
 const priceEl = document.getElementById("price");
 const availableEl = document.getElementById("available");
 const availableUsd = document.getElementById("availableUsd");
@@ -115,24 +120,24 @@ const aprEl = document.getElementById("apr");
 const updated = document.getElementById("updated");
 
 function animate() {
-  // Price
+  // PRICE
   const prevP = displayedPrice;
   displayedPrice += (targetPrice - displayedPrice) * 0.1;
   updateNumber(priceEl, prevP, displayedPrice, 4);
 
-  // Available
+  // AVAILABLE
   const prevA = displayedAvailable;
   displayedAvailable += (availableInj - displayedAvailable) * 0.1;
   updateNumber(availableEl, prevA, displayedAvailable, 6);
   availableUsd.innerText = formatUSD(displayedAvailable * displayedPrice);
 
-  // Stake
+  // STAKE
   const prevS = displayedStake;
   displayedStake += (stakeInj - displayedStake) * 0.1;
   updateNumber(stakeEl, prevS, displayedStake, 4);
   stakeUsd.innerText = formatUSD(displayedStake * displayedPrice);
 
-  // Rewards
+  // REWARDS
   const prevR = displayedRewards;
   displayedRewards += (rewardsInj - displayedRewards) * 0.1;
   updateNumber(rewardsEl, prevR, displayedRewards, 6);
@@ -141,11 +146,11 @@ function animate() {
   // APR
   aprEl.innerText = apr.toFixed(2) + "%";
 
-  // Daily / Monthly Rewards
+  // DAILY / MONTHLY REWARDS
   dailyRewards.innerText = (displayedStake * apr / 100 / 365).toFixed(4) + " INJ / giorno";
   monthlyRewards.innerText = (displayedStake * apr / 100 / 12).toFixed(4) + " INJ / mese";
 
-  // Last Update
+  // LAST UPDATE
   updated.innerText = "Last Update: " + new Date().toLocaleTimeString();
 
   requestAnimationFrame(animate);
