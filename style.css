@@ -6,90 +6,96 @@ body {
   padding: 1rem;
 }
 
-h1.dashboard-title {
-  text-align: center;
-  margin-bottom: 1rem;
-  border: 2px solid #4b5563;
-  padding: 0.5rem;
-  position: relative;
-  overflow: hidden;
-}
-
 .container {
-  max-width: 900px;
+  max-width: 1000px;
   margin: auto;
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 1rem;
+  justify-content: center;
 }
 
-input#addressInput {
-  padding: 0.8rem;
+/* SEARCH BAR */
+#addressInput {
+  width: 100%;
+  max-width: 300px;
+  padding: 0.6rem;
   border-radius: 0.5rem;
   border: 2px solid #4b5563;
   background: #000;
   color: #f9fafb;
-  font-size: 1rem;
+  margin-bottom: 1rem;
 }
 
-input#addressInput:focus {
+#addressInput:focus {
   outline: none;
   border-color: #38bdf8;
   box-shadow: 0 0 8px rgba(56,189,248,0.3);
 }
 
-/* CARD STYLES */
+/* CARD STYLING */
 .card {
+  flex: 1 1 250px;
   background: #111;
   border: 2px solid #4b5563;
   border-radius: 0.5rem;
-  padding: 0.8rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  justify-content: space-between;
+  min-width: 200px;
+  max-width: 300px;
 }
 
-.card-label {
+.card-chart {
+  flex: 2 1 600px;
+}
+
+/* LABEL */
+.label {
+  font-size: 1rem;
   font-weight: bold;
-  font-size: 1.1rem;
   color: #9ca3af;
+  margin-bottom: 0.5rem;
 }
 
-.card-value {
+/* VALUE ROW */
+.value-row {
+  text-align: right;
+}
+
+.value {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #f9fafb;
-  text-align: right;
 }
 
-.card-sub {
-  font-size: 0.95rem;
-  color: #9ca3af;
-  text-align: right;
-}
-
-.card-sub.horizontal {
+.sub-row {
   display: flex;
   justify-content: flex-end;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 
-/* CHART */
-.chart-card canvas {
-  width: 100% !important;
-  height: 160px;
+.sub {
+  font-size: 0.9rem;
+  color: #9ca3af;
 }
 
-/* COLORS */
+/* UP/DOWN COLORS */
 .up { color: #22c55e; }
 .down { color: #ef4444; }
+
+/* PRICE CHART */
+#priceChart {
+  width: 100%;
+  height: 160px;
+}
 
 /* REWARD BAR */
 .reward-bar-container {
   position: relative;
   background: #222;
   border-radius: 0.3rem;
-  height: 12px;
+  height: 16px;
   margin-top: 0.5rem;
   overflow: hidden;
 }
@@ -101,12 +107,11 @@ input#addressInput:focus {
   transition: width 0.2s linear;
 }
 
-/* TARGET MARKERS */
 .reward-target {
   position: absolute;
-  top: -4px;
+  top: 0;
   width: 2px;
-  height: 20px;
+  height: 100%;
   background: #facc15;
 }
 
@@ -122,15 +127,17 @@ input#addressInput:focus {
 }
 
 /* LAST UPDATE */
-.last-update {
+#updated {
+  width: 100%;
   text-align: center;
   font-size: 0.8rem;
-  color: #6b7280;
-  margin-top: 0.5rem;
+  color: #9ca3af;
+  margin-top: 1rem;
 }
 
 /* RESPONSIVE */
-@media (max-width: 768px) {
-  .card-value { font-size: 1.3rem; }
-  .card-sub { font-size: 0.85rem; }
+@media (max-width: 600px) {
+  .value { font-size: 1.2rem; }
+  .card { max-width: 100%; }
+  #addressInput { max-width: 100%; }
 }
