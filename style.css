@@ -105,3 +105,30 @@ body {
   font-size: 0.85rem;
   color: #9ca3af;
 }
+
+/* ---------- TITLE + LOGO ---------- */
+.title-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.title-wrapper img {
+  height: 2.6rem; /* stessa altezza del testo */
+  width: auto;
+}
+
+.title-wrapper h1 {
+  font-size: 2.6rem;
+  font-weight: 900;
+  margin: 0;
+
+  /* gradient come le card */
+  background: linear-gradient(135deg, #000 0%, #0f172a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
