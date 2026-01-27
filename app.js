@@ -110,7 +110,7 @@ function startWS() {
 }
 startWS();
 
-// ---------- Animazione numeri ----------
+// ---------- Elementi DOM ----------
 const priceEl = document.getElementById("price");
 const availableEl = document.getElementById("available");
 const availableUsd = document.getElementById("availableUsd");
@@ -126,43 +126,48 @@ const updated = document.getElementById("updated");
 // Variabile per il tempo trascorso
 let lastTime = Date.now() / 1000;
 
+// ---------- Animazione numeri con effetto caricamento ----------
 function animate() {
   const now = Date.now() / 1000;
   const delta = now - lastTime;
   lastTime = now;
 
-  // AGGIORNA PRICE
+  // ---------- PRICE ----------
   const prevP = displayedPrice;
   displayedPrice += (targetPrice - displayedPrice) * 0.1;
   updateNumber(priceEl, prevP, displayedPrice, 4);
 
-  // AGGIORNA AVAILABLE
+  // ---------- AVAILABLE ----------
   const prevA = displayedAvailable;
   displayedAvailable += (availableInj - displayedAvailable) * 0.1;
   updateNumber(availableEl, prevA, displayedAvailable, 6);
   availableUsd.innerText = formatUSD(displayedAvailable * displayedPrice);
 
-  // AGGIORNA STAKE
+  // ---------- STAKE ----------
   const prevS = displayedStake;
   displayedStake += (stakeInj - displayedStake) * 0.1;
   updateNumber(stakeEl, prevS, displayedStake, 4);
   stakeUsd.innerText = formatUSD(displayedStake * displayedPrice);
 
-  // AGGIORNA REWARDS in tempo reale
+  // ---------- REWARDS (scorre in tempo reale) ----------
   rewardsInj += rewardsPerSecond * delta; // incremento continuo
   const prevR = displayedRewards;
   displayedRewards += (rewardsInj - displayedRewards) * 0.1;
   updateNumber(rewardsEl, prevR, displayedRewards, 6);
   rewardsUsd.innerText = formatUSD(displayedRewards * displayedPrice);
 
-  // APR
+  // ---------- APR ----------
+  aprEl.classList.remove("digit-up","digit-down");
+  const prevAPR = Number(aprEl.innerText) || 0;
   aprEl.innerText = apr.toFixed(2) + "%";
+  if (apr > prevAPR) aprEl.classList.add("digit-up");
+  if (apr < prevAPR) aprEl.classList.add("digit-down");
 
-  // Daily / Monthly Rewards
+  // ---------- DAILY / MONTHLY ----------
   dailyRewardsEl.innerText = (displayedStake * apr / 100 / 365).toFixed(4) + " INJ / giorno";
   monthlyRewardsEl.innerText = (displayedStake * apr / 100 / 12).toFixed(4) + " INJ / mese";
 
-  // Last Update
+  // ---------- LAST UPDATE ----------
   updated.innerText = "Last Update: " + new Date().toLocaleTimeString();
 
   requestAnimationFrame(animate);
