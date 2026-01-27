@@ -1,89 +1,80 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Injective Dashboard</title>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Injective Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <div class="header-row">
-      <h1>Injective Dashboard</h1>
-      <button id="themeToggle" title="Cambia tema">🌓</button>
-    </div>
+<div class="container">
+  <div class="header-row">
+    <h1>Injective Dashboard</h1>
+    <button id="themeToggle" title="Cambia tema">🌓</button>
+  </div>
 
-    <input type="text" id="addressInput" placeholder="Inserisci indirizzo INJ" />
+  <input type="text" id="addressInput" placeholder="Inserisci indirizzo INJ" />
 
-    <!-- PRICE -->
-    <div class="box price-box">
-      <span class="label">INJ Price</span>
-      <div class="price-row">
-        <span id="price" class="value neutral" data-fixed="4"></span>
-        <div class="price-delta">
-          <span id="priceDeltaPerc" class="sub neutral">0.00%</span>
-          <span id="priceDeltaUSD" class="sub neutral">≈ $0.00</span>
-        </div>
-      </div>
-      <div class="usd-row">
-        <span id="availableUsd" class="sub">≈ $0.00</span>
-        <span id="stakeUsd" class="sub">≈ $0.00</span>
-        <span id="rewardsUsd" class="sub">≈ $0.00</span>
+  <div class="box price-box">
+    <span class="label">INJ Price</span>
+    <div class="price-row">
+      <span id="price" class="value neutral" data-fixed="4"></span>
+      <div class="price-delta">
+        <span id="priceDeltaPerc" class="sub neutral">0.00%</span>
+        <span id="priceDeltaUSD" class="sub neutral">≈ $0.00</span>
       </div>
     </div>
-
-    <!-- AVAILABLE -->
-    <div class="box">
-      <span class="label">Available 💵</span>
-      <span id="available" class="value neutral" data-fixed="6"></span>
-    </div>
-
-    <!-- STAKED -->
-    <div class="box">
-      <span class="label">Staked ⛏️</span>
-      <span id="stake" class="value neutral" data-fixed="6"></span>
-    </div>
-
-    <!-- REWARDS -->
-    <div class="box reward-box">
-      <span class="label">Rewards 🚀</span>
-      <span id="rewards" class="value neutral" data-fixed="8"></span>
-    </div>
-
-    <!-- APR -->
-    <div class="box">
-      <span class="label">APR</span>
-      <span id="apr" class="value neutral" data-fixed="2"></span>
-    </div>
-
-    <!-- CHART -->
-    <div class="box">
-      <span class="label">Prezzo ultime 24h</span>
-      <canvas id="priceChart"></canvas>
-    </div>
-
-    <!-- MARKET TABLE -->
-    <div class="box">
-      <span class="label">Market</span>
-      <table id="marketTable">
-        <thead>
-          <tr>
-            <th>Crypto</th>
-            <th>Price</th>
-            <th>24h</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-
-    <div class="box">
-      <div id="updated">Last Update: --:--</div>
+    <div class="usd-row">
+      <span id="availableUsd" class="sub">≈ $0.00</span>
+      <span id="stakeUsd" class="sub">≈ $0.00</span>
+      <span id="rewardsUsd" class="sub">≈ $0.00</span>
     </div>
   </div>
 
-  <script src="app.js" defer></script>
+  <div class="box">
+    <span class="label">Available</span>
+    <span id="available" class="value neutral" data-fixed="6"></span>
+  </div>
+
+  <div class="box">
+    <span class="label">Staked</span>
+    <span id="stake" class="value neutral" data-fixed="6"></span>
+  </div>
+
+  <div class="box reward-box">
+    <span class="label">Rewards</span>
+    <span id="rewards" class="value neutral" data-fixed="8"></span>
+  </div>
+
+  <div class="box">
+    <span class="label">APR</span>
+    <span id="apr" class="value neutral" data-fixed="2"></span>
+  </div>
+
+  <div class="box">
+    <span class="label">Prezzo ultime 24h</span>
+    <canvas id="priceChart"></canvas>
+  </div>
+
+  <div class="box">
+    <span class="label">Market</span>
+    <table id="marketTable">
+      <thead>
+        <tr>
+          <th>Crypto</th>
+          <th>Price</th>
+          <th>24h</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="box">
+    <div id="updated">Last Update: --:--</div>
+  </div>
+</div>
+<script src="app.js" defer></script>
 </body>
 </html>
