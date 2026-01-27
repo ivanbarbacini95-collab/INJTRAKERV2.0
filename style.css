@@ -84,7 +84,7 @@ h1::after {
   font-weight: bold;
   text-align: right;
   word-wrap: break-word;
-  overflow-wrap: anywhere; /* evita overflow numeri */
+  overflow-wrap: anywhere;
 }
 
 .card .sub {
@@ -121,4 +121,3 @@ h1::after {
   .card .label { font-size: 0.95rem; }
   .card .sub { font-size: 0.85rem; }
 }
-
