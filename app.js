@@ -144,7 +144,7 @@ function connectWS(){
 connectWS();
 
 /********************
- * WEBSOCKET MARKET
+ * WEBSOCKET MARKET CON TOOLTIP 24H $
  ********************/
 const wsMarket = new WebSocket("wss://stream.binance.com:9443/ws/!miniTicker@arr");
 wsMarket.onmessage = e => {
@@ -156,18 +156,25 @@ wsMarket.onmessage = e => {
     let row = document.getElementById(rowId);
     if(!row){
       row = document.createElement("tr"); row.id=rowId;
-      row.innerHTML=`<td>${sym}</td><td class="price"></td><td class="delta"></td>`;
+      row.innerHTML=`<td>${sym}</td><td class="price"></td><td class="delta" title=""></td>`;
       tableBody.appendChild(row);
     }
 
-    const oldPrice = marketData[sym] || 0;
+    const oldPrice = marketData[sym]?.price || 0;
+    const oldOpen = marketData[sym]?.open || parseFloat(t.o); // apertura 24h
     const newPrice = parseFloat(t.c);
-    marketData[sym] = newPrice;
+    const openPrice = parseFloat(t.o);
+    marketData[sym] = {price:newPrice, open:openPrice};
 
     row.querySelector(".price").innerText = newPrice.toFixed(4);
     const perc = parseFloat(t.P); 
     row.querySelector(".delta").innerText = perc.toFixed(2)+"%";
 
+    // tooltip con variazione $ nelle 24h
+    const deltaUSD = newPrice - openPrice;
+    row.querySelector(".delta").title = `Δ $: ${deltaUSD.toFixed(4)}`;
+
+    // lampeggio riga
     if(oldPrice){
       row.classList.remove("flash-up","flash-down");
       void row.offsetWidth;
@@ -175,6 +182,7 @@ wsMarket.onmessage = e => {
     }
   });
 };
+
 
 /********************
  * LOOP ANIMATION
