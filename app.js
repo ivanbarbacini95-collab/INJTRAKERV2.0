@@ -8,9 +8,9 @@ let available=0, staked=0, displayStaked=0;
 let rewards=0, rewardRate=0, lastRewardUpdate=Date.now();
 let apr=0;
 let chart, chartData=[];
-
+let marketData = {};
 let lastUI = { price:"", priceDeltaPerc:"", priceDeltaUSD:"", available:"", stake:"", rewards:"" };
-let marketData = {}; // per tracciare prezzo precedente
+const marketList = ["BTC","ETH","BNB","SOL","KSM","DOT","LINK","AVAX","APT","SUI","MNT","UNI","ATOM","EGLD","TIA","RUNE","BANANA","ILV","TAO","HYPE","ASTER","AVNT","CAKE","PENDLE","KIMA","MET","RAY","PYTH","VIRTUAL","JUP","JTO","KMNO"];
 
 /********************
  * UTILS
@@ -50,24 +50,18 @@ function updateDigits(el,key,newV){
  ********************/
 const addrInput=document.getElementById("addressInput");
 addrInput.value=address;
-
-function isValidInjAddress(addr) {
-  return /^inj1[a-z0-9]{38}$/.test(addr);
-}
-
 addrInput.addEventListener("change", async e=>{
-  const value = e.target.value.trim();
-  if(!isValidInjAddress(value)){
-    alert("Indirizzo INJ non valido");
-    addrInput.value = address;
-    return;
-  }
-  address = value;
+  address=e.target.value.trim();
   localStorage.setItem("inj_address", address);
   await loadOnchainData();
 });
 
-if(address) loadOnchainData();
+/********************
+ * THEME TOGGLE
+ ********************/
+document.getElementById("themeToggle").addEventListener("click", ()=>{
+  document.body.classList.toggle("light");
+});
 
 /********************
  * ONCHAIN DATA
@@ -94,6 +88,8 @@ async function loadOnchainData(){
 
   }catch(e){ console.error("Onchain error:",e); }
 }
+
+loadOnchainData();
 setInterval(loadOnchainData,60000);
 
 /********************
@@ -108,29 +104,23 @@ async function loadPriceHistory(){
     drawChart();
   }catch(e){ console.error("Price history error:",e); }
 }
+
 function drawChart(){
   const ctx=document.getElementById("priceChart").getContext("2d");
   if(chart) chart.destroy();
   const color = displayPrice>=price24hOpen?"#22c55e":"#ef4444";
   chart=new Chart(ctx,{
     type:'line',
-    data:{labels:chartData.map((_,i)=>i), datasets:[{data:chartData,borderColor:color,borderWidth:2,tension:0.3,fill:true,backgroundColor:color+"20",pointRadius:0}]},
+    data:{labels:chartData.map((_,i)=>i), datasets:[{data:chartData,borderColor:color,borderWidth:2,tension:0.3,fill:true,backgroundColor:color+"22",pointRadius:0}]},
     options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:true}}}
   });
 }
+
 loadPriceHistory();
 setInterval(loadPriceHistory,120000);
 
 /********************
- * MARKET LIST
- ********************/
-const cryptos = ["BTC","ETH","BNB","SOL","KSM","DOT","LINK","AVAX","APT","SUI",
-"MNT","UNI","ATOM","EGLD","TIA","RUNE","BANANA","ILV","TAO","HYPE","ASTER","AVNT","CAKE","PENDLE","KIMA","MET","RAY","PYTH","VIRTUAL","JUP","JTO","KMNO"];
-
-const tableBody = document.querySelector("#marketTable tbody");
-
-/********************
- * WEBSOCKET INJ
+ * PRICE LIVE
  ********************/
 function connectWS(){
   const ws=new WebSocket("wss://stream.binance.com:9443/ws/injusdt@trade");
@@ -144,45 +134,54 @@ function connectWS(){
 connectWS();
 
 /********************
- * WEBSOCKET MARKET CON TOOLTIP 24H $
+ * MARKET TABLE WS
  ********************/
-const wsMarket = new WebSocket("wss://stream.binance.com:9443/ws/!miniTicker@arr");
-wsMarket.onmessage = e => {
-  const data = JSON.parse(e.data);
-  data.forEach(t=>{
-    const sym = t.s.replace("USDT","");
-    if(!cryptos.includes(sym)) return;
-    const rowId = `row-${sym}`;
-    let row = document.getElementById(rowId);
-    if(!row){
-      row = document.createElement("tr"); row.id=rowId;
-      row.innerHTML=`<td>${sym}</td><td class="price"></td><td class="delta" title=""></td>`;
-      tableBody.appendChild(row);
+marketList.forEach(sym=>{
+  marketData[sym]={price:0, prev:0};
+  const ws=new WebSocket(`wss://stream.binance.com:9443/ws/${sym.toLowerCase()}usdt@trade`);
+  ws.onmessage=msg=>{
+    const data=JSON.parse(msg.data);
+    const p=parseFloat(data.p);
+    const row = document.querySelector(`#marketTable tbody tr[data-sym="${sym}"]`);
+    if(!row) return;
+    marketData[sym].prev = marketData[sym].price;
+    marketData[sym].price = p;
+    // update price
+    const priceCell=row.querySelector(".price");
+    const deltaCell=row.querySelector(".delta");
+    priceCell.innerHTML="";
+    const s=p.toFixed(4);
+    for(let c of s){
+      const w=document.createElement("span"); w.className="digit-wrapper";
+      const inner=document.createElement("span"); inner.className="digit-inner neutral"; inner.innerText=c;
+      w.appendChild(inner); priceCell.appendChild(w);
     }
+    // delta %
+    const deltaPerc = marketData[sym].prev>0?(p-marketData[sym].prev)/marketData[sym].prev*100:0;
+    deltaCell.innerText = deltaPerc.toFixed(2)+"%";
+    deltaCell.className = "delta sub "+(deltaPerc>=0?"digit-up":"digit-down");
+    // row flash
+    row.classList.remove("row-up","row-down");
+    if(deltaPerc>0) row.classList.add("row-up");
+    else if(deltaPerc<0) row.classList.add("row-down");
+  };
+  ws.onclose=()=>setTimeout(()=>connectWS(sym),2000);
+});
 
-    const oldPrice = marketData[sym]?.price || 0;
-    const oldOpen = marketData[sym]?.open || parseFloat(t.o); // apertura 24h
-    const newPrice = parseFloat(t.c);
-    const openPrice = parseFloat(t.o);
-    marketData[sym] = {price:newPrice, open:openPrice};
-
-    row.querySelector(".price").innerText = newPrice.toFixed(4);
-    const perc = parseFloat(t.P); 
-    row.querySelector(".delta").innerText = perc.toFixed(2)+"%";
-
-    // tooltip con variazione $ nelle 24h
-    const deltaUSD = newPrice - openPrice;
-    row.querySelector(".delta").title = `Δ $: ${deltaUSD.toFixed(4)}`;
-
-    // lampeggio riga
-    if(oldPrice){
-      row.classList.remove("flash-up","flash-down");
-      void row.offsetWidth;
-      row.classList.add(newPrice>oldPrice?"flash-up":"flash-down");
-    }
+/********************
+ * INIT TABLE
+ ********************/
+function initMarketTable(){
+  const tbody=document.querySelector("#marketTable tbody");
+  tbody.innerHTML="";
+  marketList.forEach(sym=>{
+    const tr=document.createElement("tr");
+    tr.dataset.sym=sym;
+    tr.innerHTML=`<td>${sym}</td><td class="price"></td><td class="delta"></td>`;
+    tbody.appendChild(tr);
   });
-};
-
+}
+initMarketTable();
 
 /********************
  * LOOP ANIMATION
@@ -202,16 +201,19 @@ function loop(){
       const deltaPerc = (displayPrice-price24hOpen)/price24hOpen*100;
       const deltaUSD = displayPrice-price24hOpen;
 
+      // Percentuale
       const percEl = document.getElementById("priceDeltaPerc");
       percEl.innerText = deltaPerc.toFixed(2) + "%";
       percEl.className = "sub " + (deltaPerc>=0?"digit-up":"digit-down");
 
+      // Delta USD
       const usdEl = document.getElementById("priceDeltaUSD");
       usdEl.innerText = "≈ $" + deltaUSD.toFixed(4);
       usdEl.className = "sub " + (deltaUSD>=0?"digit-up":"digit-down");
     }
   }
 
+  // STAKED / AVAILABLE / REWARDS
   displayStaked += (staked-displayStaked)*0.2;
   updateDigits(document.getElementById("stake"),"stake",displayStaked);
   updateDigits(document.getElementById("available"),"available",available);
@@ -227,26 +229,3 @@ function loop(){
   requestAnimationFrame(loop);
 }
 loop();
-
-/********************
- * THEME TOGGLE
- ********************/
-let theme = localStorage.getItem("dashboard_theme") || "dark";
-document.body.classList.toggle("light", theme==="light");
-
-const themeToggle = document.getElementById("themeToggle");
-themeToggle.innerText = theme==="light"?"☀️":"🌙";
-
-themeToggle.addEventListener("click", ()=>{
-  if(document.body.classList.contains("light")){
-    document.body.classList.remove("light");
-    localStorage.setItem("dashboard_theme","dark");
-    themeToggle.innerText = "🌙";
-  } else {
-    document.body.classList.add("light");
-    localStorage.setItem("dashboard_theme","light");
-    themeToggle.innerText = "☀️";
-  }
-});
-
-
