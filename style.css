@@ -3,12 +3,20 @@ body {
   background: #000;
   color: #f9fafb;
   margin:0; padding:1rem;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.light {
+  background:#f9fafb;
+  color:#111;
 }
 
 h1 { text-align:center; margin-bottom:1rem; }
 
+.header { display:flex; justify-content:space-between; align-items:center; }
+
 .container {
-  max-width:600px;
+  max-width:700px;
   margin:0 auto;
   display:flex;
   flex-direction:column;
@@ -20,7 +28,6 @@ h1 { text-align:center; margin-bottom:1rem; }
   border-radius:0.6rem;
   padding:0.7rem 1rem;
   transition: all 0.25s ease;
-  position: relative;
 }
 
 .reward-box { border-color: #22c55e; }
@@ -29,9 +36,8 @@ h1 { text-align:center; margin-bottom:1rem; }
 .value { font-size:1.5rem; font-weight:bold; display:inline-block; }
 .sub { font-size:0.9rem; color:#9ca3af; }
 
-.price-row { display:flex; justify-content:flex-start; align-items:center; gap:1rem; }
-.price-delta { margin-left:auto; text-align:right; }
-.sub-row { display:flex; justify-content:space-between; margin-top:0.2rem; }
+.price-row { display:flex; justify-content:space-between; align-items:center; }
+.price-deltas { display:flex; flex-direction:column; text-align:right; gap:0.1rem; }
 
 #addressInput {
   width:100%; padding:0.6rem 0.8rem; border-radius:0.5rem;
@@ -39,27 +45,26 @@ h1 { text-align:center; margin-bottom:1rem; }
 }
 #addressInput:focus { outline:none; border-color:#38bdf8; box-shadow:0 0 10px rgba(56,189,248,0.3); }
 
-canvas { max-width:100%; height:150px; }
+canvas { max-width:100%; height:180px; }
 
 .neutral { color:#f9fafb; }
-.digit-up { color:#22c55e; }
-.digit-down { color:#ef4444; }
+.digit-up { color:#22c55e; transition: color 0.3s; }
+.digit-down { color:#ef4444; transition: color 0.3s; }
 
 .digit-wrapper { display:inline-block; position:relative; overflow:hidden; height:1em; }
 .digit-inner { display:inline-block; transition: transform 0.3s ease, color 0.3s ease; }
 
-@media (max-width:600px){ .value { font-size:1.2rem; } }
-
-/* Tabella Market */
 #marketTable { width:100%; border-collapse: collapse; margin-top:0.5rem; }
 #marketTable th, #marketTable td { padding:0.3rem 0.5rem; text-align:center; border-bottom:1px solid #4b5563; font-size:0.9rem; }
 #marketTable th { color:#9ca3af; font-weight:600; }
-#marketTable td .digit-wrapper { display:inline-block; }
-#marketTable td .digit-inner { transition: transform 0.2s, color 0.2s; }
 
-/* Lampeggio riga */
-@keyframes flashGreen { 0%{background:#000} 50%{background:#22c55e33} 100%{background:#000} }
-@keyframes flashRed { 0%{background:#000} 50%{background:#ef444433} 100%{background:#000} }
+.flash-up { background-color: rgba(34,197,94,0.3); transition: background-color 0.3s; }
+.flash-down { background-color: rgba(239,68,68,0.3); transition: background-color 0.3s; }
 
-.flash-green { animation: flashGreen 0.5s; }
-.flash-red { animation: flashRed 0.5s; }
+#themeToggle {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
