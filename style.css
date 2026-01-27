@@ -15,6 +15,7 @@ body {
   margin: auto;
 }
 
+/* TITLE */
 .dashboard-title {
   text-align: center;
   font-size: 1.8rem;
@@ -25,6 +26,7 @@ body {
   border-radius: 0.6rem;
 }
 
+/* INPUT */
 #addressInput {
   width: 100%;
   padding: 0.7rem;
@@ -35,6 +37,7 @@ body {
   margin-bottom: 1rem;
 }
 
+/* GRID */
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -42,6 +45,7 @@ body {
   align-items: start;
 }
 
+/* CARD */
 .card {
   background: #0b0b0b;
   border: 2px solid #374151;
@@ -50,14 +54,17 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  overflow: hidden;
 }
 
+/* LABEL */
 .card-label {
   font-size: 1.15rem;
   font-weight: 700;
   color: #9ca3af;
 }
 
+/* VALUE */
 .card-value {
   text-align: right;
 }
@@ -73,10 +80,25 @@ body {
   color: #9ca3af;
 }
 
+/* PRICE SPECIAL */
+.price-main {
+  font-size: 1.9rem;
+  font-weight: 700;
+}
+
+.price-change-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  font-size: 0.95rem;
+  margin-top: 0.15rem;
+}
+
+/* COLORS */
 .up { color: #22c55e; }
 .down { color: #ef4444; }
 
-/* Reward bar */
+/* REWARD BAR */
 .reward-bar-wrapper {
   margin-top: 0.4rem;
 }
@@ -112,7 +134,7 @@ body {
   margin-top: 0.25rem;
 }
 
-/* Chart */
+/* CHART */
 .card.chart-card {
   grid-column: span 2;
   min-height: 220px;
@@ -124,29 +146,17 @@ body {
   display: block;
 }
 
+/* FOOTER UPDATE */
 #updated {
-  margin-top: 0.6rem;
-  font-size: 0.85rem;
-  color: #9ca3af;
-  text-align: right;
+  margin-top: 1rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-align: center;
 }
 
+/* RESPONSIVE */
 @media (max-width: 700px) {
   .card.chart-card {
     grid-column: span 1;
   }
-}
-
-/* INJ PRICE specifico */
-.price-main {
-  font-size: 1.9rem;      /* 🔥 più grande */
-  font-weight: 700;
-}
-
-.price-change-row {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.6rem;            /* distanza tra % e delta */
-  font-size: 0.95rem;     /* più piccolo del prezzo */
-  margin-top: 0.15rem;
 }
