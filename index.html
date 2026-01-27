@@ -10,10 +10,10 @@
 </head>
 <body>
   <div class="container">
-    <h1>
-      Injective Dashboard
-      <span id="themeToggle" title="Cambia tema">🌓</span>
-    </h1>
+    <div class="header-row">
+      <h1>Injective Dashboard</h1>
+      <button id="themeToggle" title="Cambia tema">🌓</button>
+    </div>
 
     <input type="text" id="addressInput" placeholder="Inserisci indirizzo INJ" />
 
@@ -27,25 +27,29 @@
           <span id="priceDeltaUSD" class="sub neutral">≈ $0.00</span>
         </div>
       </div>
+      <div class="usd-row">
+        <span id="availableUsd" class="sub">≈ $0.00</span>
+        <span id="stakeUsd" class="sub">≈ $0.00</span>
+        <span id="rewardsUsd" class="sub">≈ $0.00</span>
+      </div>
     </div>
 
-    <!-- AVAILABLE / STAKED / REWARDS -->
+    <!-- AVAILABLE -->
     <div class="box">
       <span class="label">Available 💵</span>
       <span id="available" class="value neutral" data-fixed="6"></span>
-      <div id="availableUsd" class="sub">≈ $0.00</div>
     </div>
 
+    <!-- STAKED -->
     <div class="box">
       <span class="label">Staked ⛏️</span>
       <span id="stake" class="value neutral" data-fixed="6"></span>
-      <div id="stakeUsd" class="sub">≈ $0.00</div>
     </div>
 
+    <!-- REWARDS -->
     <div class="box reward-box">
       <span class="label">Rewards 🚀</span>
       <span id="rewards" class="value neutral" data-fixed="8"></span>
-      <div id="rewardsUsd" class="sub">≈ $0.00</div>
     </div>
 
     <!-- APR -->
