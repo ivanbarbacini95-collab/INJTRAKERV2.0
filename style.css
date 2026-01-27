@@ -1,6 +1,6 @@
 body {
   font-family: Inter, sans-serif;
-  background: #000814;
+  background: linear-gradient(to left, #000814, #0a0f1f);
   color: #f9fafb;
   margin: 0;
   padding: 1rem;
@@ -23,7 +23,8 @@ body {
 
 .header h1 {
   font-size: 2rem;
-  background: linear-gradient(135deg, #3b82f6, #0ea5e9, #1e40af);
+  font-weight: bold;
+  background: linear-gradient(90deg, #0f172a, #3b82f6, #0ea5e9);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -53,7 +54,7 @@ body {
 }
 
 .card {
-  background: linear-gradient(135deg, #0f172a, #1e293b, #0f172a);
+  background: linear-gradient(to left, #0a0f1f, #111827);
   border-radius: 0.7rem;
   padding: 1rem;
   display: flex;
@@ -94,42 +95,52 @@ body {
 }
 
 .reward-bar {
-  background: linear-gradient(90deg, #3b82f6, #0ea5e9);
+  background: linear-gradient(90deg, #0f172a, #3b82f6, #0ea5e9);
   height: 100%;
   width: 0%;
   border-radius: 0.3rem;
   transition: width 0.3s linear;
-  text-align: right;
-  padding-right: 4px;
-  color: #f9fafb;
-  font-size: 0.7rem;
 }
 
+/* ---- Price bar ---- */
 .price-bar-container {
   position: relative;
   height: 20px;
   background: #1e293b;
   border-radius: 10px;
   margin-top: 0.5rem;
+  overflow: hidden;
 }
 
-.price-bar {
+.price-bar-left {
   position: absolute;
   top: 0;
-  left: 0;
+  left: 50%;
   height: 100%;
-  width: 100%;
-  background: linear-gradient(to right, #0f172a, #3b82f6, #0f172a);
-  border-radius: 10px;
+  width: 0%;
+  background: linear-gradient(to left, #ef4444, transparent);
+  transform-origin: right;
+  transition: width 0.2s;
+}
+
+.price-bar-right {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(to right, #22c55e, transparent);
+  transform-origin: left;
+  transition: width 0.2s;
 }
 
 .price-line {
   position: absolute;
   top: -2px;
+  left: 50%;
   width: 2px;
   height: 24px;
   background: #f9fafb;
-  transition: left 0.2s, background 0.2s;
 }
 
 .price-label {
