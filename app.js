@@ -8,6 +8,20 @@ let apr = 0;
 
 let chart, chartData = [];
 
+// ---------- DOM Elements ----------
+const price = document.getElementById("price");
+const available = document.getElementById("available");
+const stake = document.getElementById("stake");
+const rewards = document.getElementById("rewards");
+const aprEl = document.getElementById("apr");
+
+const availableUsd = document.getElementById("availableUsd");
+const stakeUsd = document.getElementById("stakeUsd");
+const rewardsUsd = document.getElementById("rewardsUsd");
+const dailyRewards = document.getElementById("dailyRewards");
+const monthlyRewards = document.getElementById("monthlyRewards");
+const updated = document.getElementById("updated");
+
 // ---------- Utils ----------
 const fetchJSON = url => fetch(url).then(r => r.json());
 const formatUSD = v => "≈ $" + v.toFixed(2);
@@ -46,34 +60,34 @@ async function loadData() {
     const balance = await fetchJSON(`https://lcd.injective.network/cosmos/bank/v1beta1/balances/${address}`);
     availableInj = (balance.balances?.find(b => b.denom === "inj")?.amount || 0) / 1e18;
 
-    const stake = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/delegations/${address}`);
-    stakeInj = stake.delegation_responses?.reduce((s,d)=>s+Number(d.balance.amount),0)/1e18 || 0;
+    const stakeResp = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/delegations/${address}`);
+    stakeInj = stakeResp.delegation_responses?.reduce((s,d)=>s+Number(d.balance.amount),0)/1e18 || 0;
 
-    const rewards = await fetchJSON(`https://lcd.injective.network/cosmos/distribution/v1beta1/delegators/${address}/rewards`);
-    rewardsInj = rewards.rewards?.reduce((s,r)=>s + Number(r.reward[0]?.amount||0),0)/1e18 || 0;
+    const rewardsResp = await fetchJSON(`https://lcd.injective.network/cosmos/distribution/v1beta1/delegators/${address}/rewards`);
+    rewardsInj = rewardsResp.rewards?.reduce((s,r)=>s + Number(r.reward[0]?.amount||0),0)/1e18 || 0;
 
     const inflation = await fetchJSON(`https://lcd.injective.network/cosmos/mint/v1beta1/inflation`);
     const pool = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/pool`);
-    apr = (inflation.inflation * Number(pool.pool.bonded_tokens + pool.pool.not_bonded_tokens) / pool.pool.bonded_tokens) * 100;
+    apr = (inflation.inflation * (Number(pool.pool.bonded_tokens) + Number(pool.pool.not_bonded_tokens)) / Number(pool.pool.bonded_tokens)) * 100;
 
   } catch (e) {
-    console.error(e);
+    console.error("Errore caricamento dati:", e);
   }
 }
 
-loadData();
-setInterval(loadData, 60000);
-
 // ---------- Price History ----------
 async function fetchHistory() {
-  const r = await fetch("https://api.binance.com/api/v3/klines?symbol=INJUSDT&interval=1h&limit=24");
-  const d = await r.json();
-  chartData = d.map(c => +c[4]);
-  price24hOpen = +d[0][1];
-  targetPrice = chartData.at(-1);
-  drawChart();
+  try {
+    const r = await fetch("https://api.binance.com/api/v3/klines?symbol=INJUSDT&interval=1h&limit=24");
+    const d = await r.json();
+    chartData = d.map(c => +c[4]);
+    price24hOpen = +d[0][1];
+    targetPrice = chartData.at(-1);
+    drawChart();
+  } catch(e) {
+    console.error("Errore caricamento storico prezzi:", e);
+  }
 }
-fetchHistory();
 
 // ---------- Chart ----------
 function drawChart() {
@@ -106,32 +120,48 @@ function startWS() {
 startWS();
 
 // ---------- Animation ----------
+async function init() {
+  await loadData();
+  fetchHistory();
+  animate();
+}
+
 function animate() {
+  // ---------- Price ----------
   const prevP = displayedPrice;
   displayedPrice += (targetPrice - displayedPrice) * 0.1;
   updateNumber(price, prevP, displayedPrice, 4);
 
+  // ---------- Available ----------
   const prevA = displayedAvailable;
   displayedAvailable += (availableInj - displayedAvailable) * 0.1;
   updateNumber(available, prevA, displayedAvailable, 6);
   availableUsd.innerText = formatUSD(displayedAvailable * displayedPrice);
 
+  // ---------- Stake ----------
   const prevS = displayedStake;
   displayedStake += (stakeInj - displayedStake) * 0.1;
   updateNumber(stake, prevS, displayedStake, 4);
   stakeUsd.innerText = formatUSD(displayedStake * displayedPrice);
 
-  const prevR = displayedRewards;
-  displayedRewards += (rewardsInj - displayedRewards) * 0.1;
-  updateNumber(rewards, prevR, displayedRewards, 6);
+  // ---------- Rewards sempre scorrevoli ----------
+  const rewardSpeed = rewardsInj / 3600; // piccolo incremento costante
+  displayedRewards += rewardSpeed / 60;   // frame rate
+  updateNumber(rewards, 0, displayedRewards, 7); // 1 decimale in più
   rewardsUsd.innerText = formatUSD(displayedRewards * displayedPrice);
 
-  dailyRewards.innerText = (displayedStake * apr / 100 / 365).toFixed(4) + " INJ / giorno";
-  monthlyRewards.innerText = (displayedStake * apr / 100 / 12).toFixed(4) + " INJ / mese";
+  dailyRewards.innerText = (displayedStake * apr / 100 / 365).toFixed(5) + " INJ / giorno";
+  monthlyRewards.innerText = (displayedStake * apr / 100 / 12).toFixed(5) + " INJ / mese";
 
   aprEl.innerText = apr.toFixed(2) + "%";
+
   updated.innerText = "Last Update: " + new Date().toLocaleTimeString();
 
   requestAnimationFrame(animate);
 }
-animate();
+
+// ---------- Refresh dati ogni minuto ----------
+setInterval(loadData, 60000);
+
+// ---------- Start ----------
+init();
