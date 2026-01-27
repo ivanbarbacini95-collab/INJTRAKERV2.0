@@ -1,4 +1,4 @@
-/* ---------- GENERALE ---------- */
+/* ---------- BODY ---------- */
 body {
   font-family: Inter, sans-serif;
   background: #000;
@@ -10,111 +10,101 @@ body {
 h1 {
   text-align: center;
   margin-bottom: 1rem;
-  font-size: 2rem;
-  font-weight: bold;
 }
 
-/* ---------- CONTAINER CARD ---------- */
+/* ---------- CONTAINER ---------- */
 .container {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 1rem;
-  max-width: 1200px;
-  margin: auto;
 }
 
 /* ---------- CARD ---------- */
 .card {
   background: #111;
   border: 2px solid #4b5563;
-  border-radius: 0.75rem;
+  border-radius: 0.8rem;
   padding: 1rem;
-  flex: 1 1 250px;
-  max-width: 300px;
+  width: 300px;       /* larghezza standard */
+  max-width: 90%;     /* responsive */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 140px;
-  position: relative;
+  box-sizing: border-box;
 }
 
-.card .label {
-  font-size: 1rem;
+.card.chart-card {
+  width: 320px; /* leggermente più grande per grafico */
+}
+
+/* ---------- LABEL ---------- */
+.label {
   font-weight: bold;
-  color: #9ca3af;
-  text-align: left;
+  font-size: 1.1rem;
   margin-bottom: 0.5rem;
 }
 
-.card .value {
-  font-size: 1.8rem;
+/* ---------- VALUE ---------- */
+.value {
+  font-size: 1.5rem;
   font-weight: bold;
   text-align: right;
 }
 
-.card .sub {
+/* ---------- SUB ---------- */
+.sub, .sub-row {
   font-size: 0.9rem;
   color: #9ca3af;
-  text-align: right;
-}
-
-.sub-row {
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
 }
 
-/* ---------- INPUT INJ ADDRESS ---------- */
+/* ---------- PRICE CHART ---------- */
+#priceChart {
+  width: 100%;
+  height: 160px;
+}
+
+/* ---------- REWARD BAR ---------- */
+.reward-bar-container {
+  background: #222;
+  border-radius: 0.3rem;
+  height: 12px;
+  margin-top: 0.5rem;
+  overflow: hidden;
+}
+
+.reward-bar {
+  height: 100%;
+  width: 0%;
+  background: #22c55e;
+  transition: width 0.5s linear;
+}
+
+/* ---------- ADDRESS INPUT SOPRA CARD INJ PRICE ---------- */
+.address-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
 #addressInput {
-  margin-bottom: 0.5rem;
   padding: 0.6rem;
   border-radius: 0.5rem;
   border: 2px solid #4b5563;
   background: #000;
   color: #f9fafb;
-  width: 100%;
+  width: 300px;      /* uguale alla card */
+  max-width: 90%;    /* responsive */
 }
 
 #addressInput:focus {
   outline: none;
   border-color: #38bdf8;
   box-shadow: 0 0 8px rgba(56,189,248,0.3);
-}
-
-/* ---------- COLORAZIONE ---------- */
-.up { color: #22c55e; }
-.down { color: #ef4444; }
-
-/* ---------- REWARD BAR ---------- */
-.reward-bar-container {
-  position: relative;
-  background: #222;
-  border-radius: 0.5rem;
-  height: 20px;
-  margin-top: 0.5rem;
-  overflow: hidden;
-}
-
-.reward-bar {
-  background: #22c55e;
-  height: 100%;
-  width: 0%;
-  transition: width 0.2s;
-}
-
-.reward-target {
-  position: absolute;
-  top: 0;
-  width: 2px;
-  height: 100%;
-  background: #facc15;
-}
-
-/* ---------- CHART ---------- */
-.chart-card canvas {
-  width: 100%;
-  height: 160px;
 }
 
 /* ---------- LAST UPDATE ---------- */
@@ -125,15 +115,14 @@ h1 {
   color: #9ca3af;
 }
 
-/* ---------- RESPONSIVE ---------- */
-@media (max-width: 768px) {
-  .card { flex: 1 1 45%; max-width: 45%; min-height: 130px; }
-}
+/* ---------- COLORI NUMERICI ---------- */
+.up { color: #22c55e; }
+.down { color: #ef4444; }
 
-@media (max-width: 480px) {
-  .card { flex: 1 1 90%; max-width: 90%; min-height: 120px; }
-  h1 { font-size: 1.5rem; }
-  .card .value { font-size: 1.6rem; }
-  .card .sub { font-size: 0.8rem; }
-  #addressInput { font-size: 0.9rem; }
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 600px) {
+  .value { font-size: 1.2rem; }
+  .label { font-size: 1rem; }
+  .card { width: 90%; }
+  .card.chart-card { width: 95%; }
 }
