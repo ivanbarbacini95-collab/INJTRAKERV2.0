@@ -1,3 +1,16 @@
+let address = localStorage.getItem("inj_address") || "";
+
+let displayedPrice = 0;
+let targetPrice = 0;
+let price24hOpen = 0;
+
+let stakeInj = 0, displayedStake = 0;
+let rewardsInj = 0, displayedRewards = 0;
+let availableInj = 0, displayedAvailable = 0;
+let apr = 0;
+
+let chart, chartData = [];
+
 // ---------- Selettori ----------
 const priceEl = document.getElementById("price");
 const price24hEl = document.getElementById("price24h");
@@ -13,19 +26,13 @@ const aprEl = document.getElementById("apr");
 const updatedEl = document.getElementById("updated");
 const rewardBarEl = document.getElementById("rewardBar");
 
-// ---------- Variabili dati ----------
-let address = localStorage.getItem("inj_address") || "";
-
-let displayedPrice = 0;
-let targetPrice = 0;
-let price24hOpen = 0;
-
-let stakeInj = 0, displayedStake = 0;
-let rewardsInj = 0, displayedRewards = 0;
-let availableInj = 0, displayedAvailable = 0;
-let apr = 0;
-
-let chart, chartData = [];
+const addressInput = document.getElementById("addressInput");
+addressInput.value = address;
+addressInput.onchange = e => {
+  address = e.target.value.trim();
+  localStorage.setItem("inj_address", address);
+  loadData();
+};
 
 // ---------- Utils ----------
 const fetchJSON = url => fetch(url).then(r => r.json());
@@ -38,19 +45,9 @@ function updateNumber(el, oldV, newV, fixed) {
   if (newV < oldV) el.classList.add("down");
 }
 
-// ---------- Input indirizzo ----------
-const addressInput = document.getElementById("addressInput");
-addressInput.value = address;
-addressInput.onchange = e => {
-  address = e.target.value.trim();
-  localStorage.setItem("inj_address", address);
-  loadData();
-};
-
-// ---------- Funzione load dati ----------
+// ---------- Load Injective Data ----------
 async function loadData() {
   if (!address) return;
-
   try {
     const balance = await fetchJSON(`https://lcd.injective.network/cosmos/bank/v1beta1/balances/${address}`);
     availableInj = (balance.balances?.find(b => b.denom === "inj")?.amount || 0) / 1e18;
@@ -63,13 +60,12 @@ async function loadData() {
 
     const inflation = await fetchJSON(`https://lcd.injective.network/cosmos/mint/v1beta1/inflation`);
     const pool = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/pool`);
-    apr = (inflation.inflation * Number(pool.pool.bonded_tokens + pool.pool.not_bonded_tokens) / pool.pool.bonded_tokens) * 100;
-
-  } catch (e) {
-    console.error("Errore caricamento dati:", e);
+    const bonded = Number(pool.pool.bonded_tokens)/1e18;
+    apr = (Number(inflation.inflation) / bonded) * 100;
+  } catch(e) {
+    console.error(e);
   }
 }
-
 loadData();
 setInterval(loadData, 60000);
 
@@ -84,25 +80,13 @@ async function fetchHistory() {
 }
 fetchHistory();
 
-// ---------- Chart ----------
 function drawChart() {
   const ctx = document.getElementById("priceChart");
   if (chart) chart.destroy();
   chart = new Chart(ctx, {
     type: "line",
-    data: {
-      labels: chartData.map((_,i)=>i),
-      datasets: [{
-        data: chartData,
-        borderColor: "#22c55e",
-        tension: 0.3,
-        fill: true
-      }]
-    },
-    options: {
-      plugins:{legend:{display:false}},
-      scales:{x:{display:false}}
-    }
+    data: { labels: chartData.map((_,i)=>i), datasets:[{ data: chartData, borderColor:"#22c55e", tension:0.3, fill:true }] },
+    options: { plugins:{legend:{display:false}}, scales:{x:{display:false}} }
   });
 }
 
@@ -114,7 +98,7 @@ function startWS() {
 }
 startWS();
 
-// ---------- Animazione numeri ----------
+// ---------- Animazione ----------
 function animate() {
   // Price
   const prevP = displayedPrice;
@@ -133,14 +117,15 @@ function animate() {
   updateNumber(stakeEl, prevS, displayedStake, 4);
   stakeUsdEl.innerText = formatUSD(displayedStake * displayedPrice);
 
-  // Rewards in continuo movimento
-  displayedRewards += rewardsInj * 0.00005;
-  updateNumber(rewardsEl, displayedRewards, displayedRewards, 7);
+  // Rewards
+  const prevR = displayedRewards;
+  displayedRewards += (rewardsInj - displayedRewards) * 0.05; // scorri fino al totale
+  updateNumber(rewardsEl, prevR, displayedRewards, 7);
   rewardsUsdEl.innerText = formatUSD(displayedRewards * displayedPrice);
 
   // Daily / Monthly
-  dailyRewardsEl.innerText = (displayedStake * apr / 100 / 365).toFixed(5) + " INJ / giorno";
-  monthlyRewardsEl.innerText = (displayedStake * apr / 100 / 12).toFixed(5) + " INJ / mese";
+  dailyRewardsEl?.innerText = (displayedStake * apr / 100 / 365).toFixed(5) + " INJ / giorno";
+  monthlyRewardsEl?.innerText = (displayedStake * apr / 100 / 12).toFixed(5) + " INJ / mese";
 
   // APR
   aprEl.innerText = apr.toFixed(2) + "%";
