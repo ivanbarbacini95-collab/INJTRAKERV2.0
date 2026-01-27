@@ -12,11 +12,13 @@
 <body>
 
 <div class="container">
-  <h1>Injective Dashboard</h1>
+  <!-- TITOLO CON BORDO ANIMATO -->
+  <h1 class="glow-border">Injective Dashboard</h1>
 
+  <!-- INPUT INDIRIZZO -->
   <input type="text" id="addressInput" placeholder="Inserisci indirizzo INJ">
 
-  <!-- INJ Price -->
+  <!-- INJ PRICE -->
   <div class="box">
     <div class="label-value-row">
       <span class="label">INJ Price</span>
@@ -25,7 +27,7 @@
     <div class="sub" id="price24h">0.00% | ≈ $0.00</div>
   </div>
 
-  <!-- Available -->
+  <!-- AVAILABLE BALANCE -->
   <div class="box">
     <div class="label-value-row">
       <span class="label">INJ Balance 💵</span>
@@ -34,7 +36,7 @@
     <div class="sub" id="availableUsd">≈ $0.00</div>
   </div>
 
-  <!-- Staked -->
+  <!-- STAKED -->
   <div class="box">
     <div class="label-value-row">
       <span class="label">Staked ⛏️</span>
@@ -43,7 +45,7 @@
     <div class="sub" id="stakeUsd">≈ $0.00</div>
   </div>
 
-  <!-- Rewards -->
+  <!-- REWARDS -->
   <div class="box reward-box">
     <div class="label-value-row">
       <span class="label">Rewards 🚀</span>
@@ -62,12 +64,13 @@
     </div>
   </div>
 
-  <!-- Chart -->
+  <!-- CHART -->
   <div class="box">
     <span class="label">Grafico 24h</span>
     <canvas id="priceChart"></canvas>
   </div>
 
+  <!-- LAST UPDATE -->
   <div class="box">
     <div id="updated">Last Update: --:--:--</div>
   </div>
