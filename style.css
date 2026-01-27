@@ -5,7 +5,6 @@ body {
   margin:0; padding:1rem;
   transition: background 0.3s, color 0.3s;
 }
-
 body.light { background:#f9fafb; color:#111; }
 body.light .box { border-color:#ccc; }
 body.light .sub { color:#555; }
@@ -27,7 +26,6 @@ h1 { text-align:center; margin-bottom:1rem; position:relative; }
   padding:0.7rem 1rem;
   transition: all 0.25s ease;
 }
-
 .reward-box { border-color: #22c55e; }
 
 .label { display:block; font-size:0.9rem; color:#9ca3af; margin-bottom:0.3rem; }
