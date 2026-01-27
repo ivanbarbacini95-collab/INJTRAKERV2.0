@@ -87,22 +87,32 @@ body {
 .neutral { color: #f9fafb; }
 
 .reward-bar-container {
+  position: relative;
   background: #111827;
   height: 20px;
   border-radius: 0.3rem;
   margin-top: 0.5rem;
-  position: relative;
+  overflow: hidden;
 }
 
 .reward-bar {
-  background: linear-gradient(90deg, #0f172a, #3b82f6, #0ea5e9);
   height: 100%;
   width: 0%;
-  border-radius: 0.3rem;
-  transition: width 0.3s linear;
+  background: linear-gradient(90deg, #0f172a, #3b82f6, #0ea5e9);
+  transition: width 0.2s linear;
 }
 
-/* ---- Price bar ---- */
+.reward-percent {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.8rem;
+  color: #f9fafb;
+  font-weight: bold;
+}
+
+/* ---- Price Bar ---- */
 .price-bar-container {
   position: relative;
   height: 20px;
@@ -134,13 +144,22 @@ body {
   transition: width 0.2s;
 }
 
-.price-line {
+.price-line-center {
   position: absolute;
   top: -2px;
   left: 50%;
   width: 2px;
   height: 24px;
   background: #f9fafb;
+}
+
+.price-line-current {
+  position: absolute;
+  top: -2px;
+  width: 2px;
+  height: 24px;
+  background: #facc15;
+  transition: left 0.2s;
 }
 
 .price-label {
@@ -151,6 +170,7 @@ body {
 }
 
 .price-label.left { left: 0; }
+.price-label.center { left: 50%; transform: translateX(-50%); }
 .price-label.right { right: 0; }
 
 .last-update {
