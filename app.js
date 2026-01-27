@@ -6,7 +6,7 @@ let rewardsInj = 0, displayedRewards = 0;
 let availableInj = 0, displayedAvailable = 0;
 let apr = 0;
 let chart, chartData = [];
-const maxReward = 0.05; // barra fino a 0.05 INJ
+const maxReward = 0.05;
 
 // ---------- ELEMENTI HTML ----------
 const price = document.getElementById("price");
@@ -37,16 +37,11 @@ function updateNumber(el, oldV, newV, fixed) {
   const diff = newV - oldV;
   el.innerText = newV.toFixed(fixed);
 
-  // Rimuovo eventuali classi
   el.classList.remove("up", "down");
-
   if (diff > 0) el.classList.add("up");
   else if (diff < 0) el.classList.add("down");
 
-  // Resetta colore dopo 1s
-  if (diff !== 0) {
-    setTimeout(() => el.classList.remove("up", "down"), 1000);
-  }
+  if (diff !== 0) setTimeout(() => el.classList.remove("up", "down"), 1000);
 }
 
 // ---------- LOAD DATA INJ ----------
@@ -123,25 +118,40 @@ function updateRewardBar(){
 
 // ---------- ANIMATE DASHBOARD ----------
 function animate(){
+  // Price
   const prevPrice = displayedPrice;
-  displayedPrice += (targetPrice-displayedPrice)*0.1;
+  displayedPrice += (targetPrice - displayedPrice)*0.1;
   updateNumber(price, prevPrice, displayedPrice,4);
 
+  // Delta 24h sotto al prezzo
+  const delta = displayedPrice - price24hOpen;
+  const deltaPercent = price24hOpen ? (delta / price24hOpen * 100) : 0;
+  price24h.innerText = `${deltaPercent.toFixed(2)}% | ${formatUSD(delta)}`;
+  price24h.classList.remove("up","down");
+  if(delta > 0) price24h.classList.add("up");
+  else if(delta < 0) price24h.classList.add("down");
+
+  // Available
   const prevAvailable = displayedAvailable;
-  displayedAvailable += (availableInj-displayedAvailable)*0.1;
+  displayedAvailable += (availableInj - displayedAvailable)*0.1;
   updateNumber(available, prevAvailable, displayedAvailable,6);
   availableUsd.innerText = formatUSD(displayedAvailable*displayedPrice);
 
+  // Stake
   const prevStake = displayedStake;
-  displayedStake += (stakeInj-displayedStake)*0.1;
+  displayedStake += (stakeInj - displayedStake)*0.1;
   updateNumber(stake, prevStake, displayedStake,4);
   stakeUsd.innerText = formatUSD(displayedStake*displayedPrice);
 
+  // Rewards
   updateRewardBar();
   updateNumber(rewards, displayedRewards, displayedRewards,6);
   rewardsUsd.innerText = formatUSD(displayedRewards*displayedPrice);
 
+  // APR
   aprEl.innerText = apr.toFixed(2)+"%";
+
+  // Last update
   updated.innerText = "Last Update: "+new Date().toLocaleTimeString();
 
   requestAnimationFrame(animate);
