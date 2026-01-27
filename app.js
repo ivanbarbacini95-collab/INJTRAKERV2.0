@@ -48,7 +48,6 @@ function updateNumber(el, oldV, newV, fixed) {
 
     el.innerText = newV.toFixed(fixed);
 
-    // Torna al colore naturale dopo animazione
     setTimeout(() => {
       el.classList.remove("digit-up", "digit-down");
       el.style.color = "#f9fafb";
@@ -72,36 +71,22 @@ async function loadData() {
   if (!address) return;
 
   try {
-    // Balance
-    const balanceResp = await fetchJSON(
-      `https://lcd.injective.network/cosmos/bank/v1beta1/balances/${address}`
-    );
+    const balanceResp = await fetchJSON(`https://lcd.injective.network/cosmos/bank/v1beta1/balances/${address}`);
     availableInj = 0;
     if (balanceResp.balances && balanceResp.balances.length > 0) {
-      let injToken = balanceResp.balances.find(b => b.denom === "uinj");
-      if (!injToken) injToken = balanceResp.balances.find(b => b.denom.toLowerCase().includes("inj"));
+      let injToken = balanceResp.balances.find(b => b.denom === "uinj") ||
+                     balanceResp.balances.find(b => b.denom.toLowerCase().includes("inj"));
       if (injToken) availableInj = Number(injToken.amount) / 1e18;
     }
 
-    // Stake
-    const stakeResp = await fetchJSON(
-      `https://lcd.injective.network/cosmos/staking/v1beta1/delegations/${address}`
-    );
+    const stakeResp = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/delegations/${address}`);
     stakeInj = 0;
-    if (stakeResp.delegation_responses) {
-      stakeInj = stakeResp.delegation_responses.reduce((s, d) => s + Number(d.balance.amount), 0) / 1e18;
-    }
+    if (stakeResp.delegation_responses) stakeInj = stakeResp.delegation_responses.reduce((s, d) => s + Number(d.balance.amount), 0) / 1e18;
 
-    // Rewards
-    const rewardsResp = await fetchJSON(
-      `https://lcd.injective.network/cosmos/distribution/v1beta1/delegators/${address}/rewards`
-    );
+    const rewardsResp = await fetchJSON(`https://lcd.injective.network/cosmos/distribution/v1beta1/delegators/${address}/rewards`);
     rewardsInj = 0;
-    if (rewardsResp.rewards) {
-      rewardsInj = rewardsResp.rewards.reduce((s, r) => s + Number(r.reward[0]?.amount || 0), 0) / 1e18;
-    }
+    if (rewardsResp.rewards) rewardsInj = rewardsResp.rewards.reduce((s, r) => s + Number(r.reward[0]?.amount || 0), 0) / 1e18;
 
-    // APR
     const inflationResp = await fetchJSON(`https://lcd.injective.network/cosmos/mint/v1beta1/inflation`);
     const poolResp = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/pool`);
     const bonded = Number(poolResp.pool.bonded_tokens);
@@ -168,10 +153,8 @@ function updatePrice24h() {
   const diff = displayedPrice - price24hOpen;
   const pct = (diff / price24hOpen) * 100;
 
-  // Testo semplice, piccolo
   price24h.innerText = `${diff >= 0 ? "+" : ""}${pct.toFixed(2)}% | ≈ $${diff.toFixed(2)}`;
 
-  // Colore dinamico senza animazione
   price24h.classList.remove("up", "down");
   if (diff > 0) price24h.classList.add("up");
   else if (diff < 0) price24h.classList.add("down");
@@ -179,37 +162,30 @@ function updatePrice24h() {
 
 // ---------- Animate all numbers ----------
 function animate() {
-  // Price
   const prevP = displayedPrice;
   displayedPrice += (targetPrice - displayedPrice) * 0.1;
   updateNumber(price, prevP, displayedPrice, 4);
 
-  // Available
   const prevA = displayedAvailable;
   displayedAvailable += (availableInj - displayedAvailable) * 0.1;
   updateNumber(available, prevA, displayedAvailable, 6);
   availableUsd.innerText = formatUSD(displayedAvailable * displayedPrice);
 
-  // Stake
   const prevS = displayedStake;
   displayedStake += (stakeInj - displayedStake) * 0.1;
   updateNumber(stake, prevS, displayedStake, 4);
   stakeUsd.innerText = formatUSD(displayedStake * displayedPrice);
 
-  // Rewards
   const prevR = displayedRewards;
   displayedRewards += (rewardsInj - displayedRewards) * 0.1;
   updateNumber(rewards, prevR, displayedRewards, 6);
   rewardsUsd.innerText = formatUSD(displayedRewards * displayedPrice);
 
-  // Daily / Monthly Rewards
   dailyRewards.innerText = (displayedStake * apr / 100 / 365).toFixed(4) + " INJ / giorno";
   monthlyRewards.innerText = (displayedStake * apr / 100 / 12).toFixed(4) + " INJ / mese";
 
-  // APR
   aprEl.innerText = apr > 0 ? apr.toFixed(2) + "%" : "--";
 
-  // Updated + Price24h
   updated.innerText = "Last Update: " + new Date().toLocaleTimeString();
   updatePrice24h();
 
