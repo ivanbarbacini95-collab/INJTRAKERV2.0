@@ -6,67 +6,87 @@ body {
   padding: 1rem;
 }
 
-h1 {
+h1.dashboard-title {
   text-align: center;
   margin-bottom: 1rem;
+  border: 2px solid #4b5563;
+  padding: 0.5rem;
+  position: relative;
+  overflow: hidden;
 }
 
 .container {
+  max-width: 900px;
+  margin: auto;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-direction: column;
   gap: 1rem;
 }
 
-/* CARD */
+input#addressInput {
+  padding: 0.8rem;
+  border-radius: 0.5rem;
+  border: 2px solid #4b5563;
+  background: #000;
+  color: #f9fafb;
+  font-size: 1rem;
+}
+
+input#addressInput:focus {
+  outline: none;
+  border-color: #38bdf8;
+  box-shadow: 0 0 8px rgba(56,189,248,0.3);
+}
+
+/* CARD STYLES */
 .card {
   background: #111;
   border: 2px solid #4b5563;
-  border-radius: 0.8rem;
-  padding: 1rem;
-  width: 300px;
-  max-width: 90%;
+  border-radius: 0.5rem;
+  padding: 0.8rem;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  box-sizing: border-box;
+  gap: 0.4rem;
 }
 
-.card.chart-card {
-  width: 320px;
-}
-
-/* LABEL */
-.label {
+.card-label {
   font-weight: bold;
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  color: #9ca3af;
 }
 
-/* VALUE */
-.value {
-  font-size: 1.6rem;
+.card-value {
+  font-size: 1.5rem;
   font-weight: bold;
+  color: #f9fafb;
   text-align: right;
 }
 
-/* SUB */
-.sub, .sub-row {
+.card-sub {
   font-size: 0.95rem;
   color: #9ca3af;
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
+  text-align: right;
 }
 
-/* PRICE CHART */
-#priceChart {
-  width: 100%;
+.card-sub.horizontal {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+/* CHART */
+.chart-card canvas {
+  width: 100% !important;
   height: 160px;
 }
 
+/* COLORS */
+.up { color: #22c55e; }
+.down { color: #ef4444; }
+
 /* REWARD BAR */
 .reward-bar-container {
+  position: relative;
   background: #222;
   border-radius: 0.3rem;
   height: 12px;
@@ -78,48 +98,39 @@ h1 {
   height: 100%;
   width: 0%;
   background: #22c55e;
-  transition: width 0.5s linear;
+  transition: width 0.2s linear;
 }
 
-/* ADDRESS INPUT */
-.address-container {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1rem;
-  width: 100%;
+/* TARGET MARKERS */
+.reward-target {
+  position: absolute;
+  top: -4px;
+  width: 2px;
+  height: 20px;
+  background: #facc15;
 }
 
-#addressInput {
-  padding: 0.6rem;
-  border-radius: 0.5rem;
-  border: 2px solid #4b5563;
-  background: #000;
-  color: #f9fafb;
-  width: 300px;
-  max-width: 90%;
+.reward-target.reached {
+  animation: flash 0.5s ease-in-out;
+  background: #22c55e;
 }
 
-#addressInput:focus {
-  outline: none;
-  border-color: #38bdf8;
-  box-shadow: 0 0 8px rgba(56,189,248,0.3);
+@keyframes flash {
+  0% { transform: scaleY(1); opacity: 1; }
+  50% { transform: scaleY(1.5); opacity: 0.7; }
+  100% { transform: scaleY(1); opacity: 1; }
 }
 
 /* LAST UPDATE */
-#updated {
+.last-update {
   text-align: center;
   font-size: 0.8rem;
-  margin-top: 1rem;
-  color: #9ca3af;
+  color: #6b7280;
+  margin-top: 0.5rem;
 }
 
-/* COLORI NUMERICI */
-.up { color: #22c55e; }
-.down { color: #ef4444; }
-
-@media (max-width: 600px) {
-  .value { font-size: 1.3rem; }
-  .label { font-size: 1rem; }
-  .card { width: 90%; }
-  .card.chart-card { width: 95%; }
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .card-value { font-size: 1.3rem; }
+  .card-sub { font-size: 0.85rem; }
 }
