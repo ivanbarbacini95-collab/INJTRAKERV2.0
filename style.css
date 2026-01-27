@@ -25,7 +25,7 @@ body {
 .header h1 {
   font-size: 2rem;
   font-weight: bold;
-  background: linear-gradient(90deg, #0f172a, #3b82f6, #0ea5e9);
+  background: linear-gradient(90deg, #0f172a, #1e293b, #3b82f6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
