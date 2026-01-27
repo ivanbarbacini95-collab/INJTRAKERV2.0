@@ -1,112 +1,107 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Injective Dashboard</title>
-
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
 </head>
-
 <body>
-  <div class="container">
 
-    <!-- TITLE -->
-    <div class="title-wrapper">
-      <img
-        src="https://cryptologos.cc/logos/injective-inj-logo.svg?v=029"
-        alt="Injective Logo"
-      />
-      <h1>INJECTIVE DASHBOARD</h1>
-    </div>
+<div class="container">
 
-    <!-- ADDRESS -->
-    <input id="addressInput" placeholder="Inserisci indirizzo INJ" />
-
-    <!-- CARDS -->
-    <div class="cards-wrapper">
-
-      <!-- PRICE -->
-      <div class="card">
-        <div class="label">INJ Price</div>
-        <div class="value-row">
-          <span id="price">0.0000</span>
-        </div>
-
-        <div class="sub-row">
-          <span id="price24h">
-            <span id="priceArrow">▬</span>
-            <span id="priceDelta">0.00%</span>
-            |
-            <span id="priceDeltaUsd">≈ $0.00</span>
-          </span>
-        </div>
-
-        <div class="sub-row small">
-          <span id="highLow">H: -- | L: --</span>
-        </div>
-      </div>
-
-      <!-- AVAILABLE -->
-      <div class="card">
-        <div class="label">INJ Balance</div>
-        <div class="value-row">
-          <span id="available">0.000000</span>
-        </div>
-        <div class="sub-row">
-          <span id="availableUsd">≈ $0.00</span>
-        </div>
-      </div>
-
-      <!-- STAKED -->
-      <div class="card">
-        <div class="label">Staked</div>
-        <div class="value-row">
-          <span id="stake">0.0000</span>
-        </div>
-        <div class="sub-row">
-          <span id="stakeUsd">≈ $0.00</span>
-        </div>
-      </div>
-
-      <!-- REWARDS -->
-      <div class="card">
-        <div class="label">Rewards</div>
-        <div class="value-row">
-          <span id="rewards">0.000000</span>
-        </div>
-        <div class="sub-row">
-          <span id="rewardsUsd">≈ $0.00</span>
-        </div>
-
-        <div class="reward-bar-container">
-          <div id="rewardBar" class="reward-bar">0%</div>
-        </div>
-      </div>
-
-      <!-- APR -->
-      <div class="card">
-        <div class="label">APR</div>
-        <div class="value-row">
-          <span id="apr">0.00%</span>
-        </div>
-      </div>
-
-      <!-- CHART -->
-      <div class="card chart-card">
-        <div class="label">Price Chart (15m)</div>
-        <canvas id="priceChart"></canvas>
-      </div>
-
-    </div>
-
-    <div id="updated" class="last-update">
-      Last Update: --:--:--
-    </div>
+  <!-- HEADER -->
+  <div class="header">
+    <img src="https://cryptologos.cc/logos/injective-inj-logo.png" alt="Injective" class="logo">
+    <h1>Injective Dashboard</h1>
   </div>
 
-  <script src="app.js" defer></script>
+  <!-- Address Input -->
+  <input type="text" id="addressInput" placeholder="Inserisci indirizzo INJ">
+
+  <div class="cards-wrapper">
+
+    <!-- INJ Price Card -->
+    <div class="card price-card">
+      <div class="label">INJ Price</div>
+      <div class="value-row">
+        <span id="price">$0.0000</span>
+      </div>
+      <div class="sub-row">
+        <span id="price24h" class="sub">
+          <span id="priceArrow">▬</span>
+          <span id="priceDelta">0.00%</span> | 
+          <span id="priceDeltaUsd">≈ $0.00</span>
+        </span>
+      </div>
+
+      <!-- Barra dinamica 24h -->
+      <div class="price-bar-container">
+        <div id="priceBar" class="price-bar"></div>
+        <div id="priceLine" class="price-line"></div>
+        <div class="price-label left" id="priceLow">0.00</div>
+        <div class="price-label right" id="priceHigh">0.00</div>
+      </div>
+    </div>
+
+    <!-- Available Card -->
+    <div class="card available-card">
+      <div class="label">INJ Balance</div>
+      <div class="value-row">
+        <span id="available">0.000000</span>
+      </div>
+      <div class="sub-row">
+        <span id="availableUsd" class="sub">≈ $0.00</span>
+      </div>
+    </div>
+
+    <!-- Staked Card -->
+    <div class="card stake-card">
+      <div class="label">Staked</div>
+      <div class="value-row">
+        <span id="stake">0.0000</span>
+      </div>
+      <div class="sub-row">
+        <span id="stakeUsd" class="sub">≈ $0.00</span>
+      </div>
+    </div>
+
+    <!-- Rewards Card -->
+    <div class="card reward-card">
+      <div class="label">Rewards</div>
+      <div class="value-row">
+        <span id="rewards">0.000000</span>
+      </div>
+      <div class="sub-row">
+        <span id="rewardsUsd" class="sub">≈ $0.00</span>
+      </div>
+      <div class="reward-bar-container">
+        <div id="rewardBar" class="reward-bar"></div>
+      </div>
+    </div>
+
+    <!-- APR Card -->
+    <div class="card apr-card">
+      <div class="label">APR</div>
+      <div class="value-row">
+        <span id="apr">0%</span>
+      </div>
+    </div>
+
+    <!-- Chart Card -->
+    <div class="card chart-card">
+      <div class="label">Grafico 24h</div>
+      <canvas id="priceChart"></canvas>
+    </div>
+
+  </div>
+
+  <!-- Last Update -->
+  <div id="updated" class="last-update">Last Update: --:--:--</div>
+
+</div>
+
+<script src="app.js" defer></script>
 </body>
 </html>
-
