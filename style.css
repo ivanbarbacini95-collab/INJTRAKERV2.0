@@ -25,7 +25,11 @@ h1 {
   border-radius: 0.5rem;
   padding: 0.8rem 1rem;
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 60px;
+  overflow: hidden; /* impedisce ai valori di uscire */
+  flex-wrap: wrap; /* permette a elementi lunghi di andare a capo se necessario */
 }
 
 .reward-box {
@@ -36,22 +40,31 @@ h1 {
   font-size: 1.1rem;
   font-weight: bold;
   color: #9ca3af;
-  margin-bottom: 0.3rem;
+  text-align: left;
+  flex: 1;
+  min-width: 120px;
 }
 
 .value {
   font-size: 1.5rem;
   font-weight: bold;
   text-align: right;
-  min-width: 150px;
+  flex: 1;
+  min-width: 120px;
+  max-width: 250px; /* evita che escano */
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sub {
   font-size: 0.9rem;
   color: #9ca3af;
   text-align: right;
-  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .price-row, .sub-row {
@@ -98,6 +111,6 @@ h1 {
 }
 
 @media (max-width: 600px) {
-  .value { font-size: 1.3rem; min-width: 120px; }
-  .label { font-size: 1rem; }
+  .value { font-size: 1.3rem; min-width: 100px; max-width: 200px; }
+  .label { font-size: 1rem; min-width: 80px; }
 }
