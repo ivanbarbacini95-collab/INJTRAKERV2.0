@@ -9,6 +9,20 @@ let rewardsInj = 0, displayedRewards = 0;
 let availableInj = 0, displayedAvailable = 0;
 let apr = 0;
 
+// Elementi DOM
+const priceEl = document.getElementById("price");
+const availableEl = document.getElementById("available");
+const stakeEl = document.getElementById("stake");
+const rewardsEl = document.getElementById("rewards");
+const aprEl = document.getElementById("apr");
+
+const availableUsd = document.getElementById("availableUsd");
+const stakeUsd = document.getElementById("stakeUsd");
+const rewardsUsd = document.getElementById("rewardsUsd");
+const dailyRewards = document.getElementById("dailyRewards");
+const monthlyRewards = document.getElementById("monthlyRewards");
+const updated = document.getElementById("updated");
+
 let chart, chartData = [];
 
 // ---------- Utils ----------
@@ -36,21 +50,30 @@ async function loadData() {
   if (!address) return;
 
   try {
+    // Balance
     const balance = await fetchJSON(`https://lcd.injective.network/cosmos/bank/v1beta1/balances/${address}`);
-    availableInj = (balance.balances?.find(b => b.denom === "inj")?.amount || 0) / 1e18;
+    availableInj = parseFloat(balance.balances?.find(b => b.denom === "inj")?.amount || 0) / 1e18;
 
+    // Stake
     const stake = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/delegations/${address}`);
-    stakeInj = stake.delegation_responses?.reduce((s,d)=>s+Number(d.balance.amount),0)/1e18 || 0;
+    stakeInj = stake.delegation_responses?.reduce((s,d)=>s + parseFloat(d.balance.amount)/1e18,0) || 0;
 
+    // Rewards
     const rewards = await fetchJSON(`https://lcd.injective.network/cosmos/distribution/v1beta1/delegators/${address}/rewards`);
-    rewardsInj = rewards.rewards?.reduce((s,r)=>s + Number(r.reward[0]?.amount||0),0)/1e18 || 0;
+    rewardsInj = rewards.rewards?.reduce((s,r)=>s + parseFloat(r.reward[0]?.amount || 0)/1e18,0) || 0;
 
+    // APR
     const inflation = await fetchJSON(`https://lcd.injective.network/cosmos/mint/v1beta1/inflation`);
     const pool = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/pool`);
-    apr = (inflation.inflation * Number(pool.pool.bonded_tokens + pool.pool.not_bonded_tokens) / pool.pool.bonded_tokens) * 100;
 
-  } catch (e) {
-    console.error(e);
+    const totalBonded = parseFloat(pool.pool.bonded_tokens) / 1e18;
+    const totalNotBonded = parseFloat(pool.pool.not_bonded_tokens) / 1e18;
+    const inflationRate = parseFloat(inflation.inflation);
+
+    apr = (inflationRate * (totalBonded + totalNotBonded) / totalBonded) * 100;
+
+  } catch(e) {
+    console.error("Errore caricamento dati:", e);
   }
 }
 
@@ -100,29 +123,37 @@ startWS();
 
 // ---------- Animation ----------
 function animate() {
+  // Price
   const prevP = displayedPrice;
   displayedPrice += (targetPrice - displayedPrice) * 0.1;
-  updateNumber(price, prevP, displayedPrice, 4);
+  updateNumber(priceEl, prevP, displayedPrice, 4);
 
+  // Available
   const prevA = displayedAvailable;
   displayedAvailable += (availableInj - displayedAvailable) * 0.1;
-  updateNumber(available, prevA, displayedAvailable, 6);
+  updateNumber(availableEl, prevA, displayedAvailable, 6);
   availableUsd.innerText = formatUSD(displayedAvailable * displayedPrice);
 
+  // Stake
   const prevS = displayedStake;
   displayedStake += (stakeInj - displayedStake) * 0.1;
-  updateNumber(stake, prevS, displayedStake, 4);
+  updateNumber(stakeEl, prevS, displayedStake, 4);
   stakeUsd.innerText = formatUSD(displayedStake * displayedPrice);
 
+  // Rewards
   const prevR = displayedRewards;
   displayedRewards += (rewardsInj - displayedRewards) * 0.1;
-  updateNumber(rewards, prevR, displayedRewards, 6);
+  updateNumber(rewardsEl, prevR, displayedRewards, 6);
   rewardsUsd.innerText = formatUSD(displayedRewards * displayedPrice);
 
+  // Rewards giornaliere/mensili
   dailyRewards.innerText = (displayedStake * apr / 100 / 365).toFixed(4) + " INJ / giorno";
   monthlyRewards.innerText = (displayedStake * apr / 100 / 12).toFixed(4) + " INJ / mese";
 
-  apr.innerText = apr.toFixed(2) + "%";
+  // APR
+  aprEl.innerText = apr.toFixed(2) + "%";
+
+  // Last update
   updated.innerText = "Last Update: " + new Date().toLocaleTimeString();
 
   requestAnimationFrame(animate);
