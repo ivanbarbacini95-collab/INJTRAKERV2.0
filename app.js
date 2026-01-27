@@ -47,8 +47,9 @@ function updateDigits(el,key,newV){
 /********************
  * THEME TOGGLE
  ********************/
-const themeBtn=document.getElementById("themeToggle");
-themeBtn.addEventListener("click",()=>{ document.body.classList.toggle("light"); });
+document.getElementById("themeToggle").addEventListener("click",()=>{
+  document.body.classList.toggle("light");
+});
 
 /********************
  * ADDRESS INPUT
@@ -58,7 +59,7 @@ addrInput.value=address;
 addrInput.addEventListener("change", async e=>{
   address=e.target.value.trim();
   localStorage.setItem("inj_address", address);
-  await loadOnchainData(true); // forza aggiornamento istantaneo
+  await loadOnchainData(true);
 });
 
 /********************
@@ -67,31 +68,35 @@ addrInput.addEventListener("change", async e=>{
 async function loadOnchainData(force=false){
   if(!address) return;
   try{
-    // AVAILABLE
     const bal=await fetchJSON(`https://lcd.injective.network/cosmos/bank/v1beta1/balances/${address}`);
-    const newAvailable=(bal.balances?.find(b=>b.denom==="inj")?.amount || 0)/1e18;
+    const newAvailable=(bal.balances||[]).filter(b=>b.denom==="inj").reduce((s,b)=>s+Number(b.amount),0)/1e18;
 
-    // STAKED
     const stakeRes=await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/delegations/${address}`);
-    const newStaked=(stakeRes.delegation_responses?.reduce((s,d)=>s+Number(d.balance.amount),0) || 0)/1e18;
+    const newStaked=(stakeRes.delegation_responses||[]).reduce((s,d)=>s+Number(d.balance.amount),0)/1e18;
 
-    // REWARDS
     const rewardsRes=await fetchJSON(`https://lcd.injective.network/cosmos/distribution/v1beta1/delegators/${address}/rewards`);
-    let r=0;
-    rewardsRes.rewards?.forEach(rr=>rr.reward?.forEach(c=>{ if(c.denom==="inj") r+=Number(c.amount); }));
+    let r=0; rewardsRes.rewards?.forEach(rr=>rr.reward?.forEach(c=>{if(c.denom==="inj") r+=Number(c.amount);}));
     const newRewards=r/1e18;
 
-    // APR
     const infl=await fetchJSON("https://lcd.injective.network/cosmos/mint/v1beta1/inflation");
     const pool=await fetchJSON("https://lcd.injective.network/cosmos/staking/v1beta1/pool");
     const bonded=Number(pool.pool.bonded_tokens), total=bonded+Number(pool.pool.not_bonded_tokens);
     const newApr=(Number(infl.inflation)/(bonded/total))*100;
 
-    // SOLO SE CAMBIA, aggiorna i box
-    if(force || available!==newAvailable){ available=newAvailable; updateDigits(document.getElementById("available"),"available",available); }
-    if(force || staked!==newStaked){ staked=newStaked; updateDigits(document.getElementById("stake"),"stake",staked); }
-    if(force || apr!==newApr){ apr=newApr; document.getElementById("apr").innerText=apr.toFixed(2)+"%"; }
-    rewards=newRewards; // rewards scorrerà sempre
+    // update immediately on first load
+    if(force){
+      available=newAvailable;
+      staked=newStaked;
+      rewards=newRewards;
+      apr=newApr;
+      displayRewards=rewards;
+      displayPrice=livePrice;
+    } else {
+      available=newAvailable;
+      staked=newStaked;
+      rewards=newRewards;
+      apr=newApr;
+    }
 
   }catch(e){ console.error("Onchain error:",e); }
 }
@@ -108,9 +113,14 @@ async function loadPriceHistory(){
     drawChart();
   }catch(e){ console.error("Price history error:",e); }
 }
+
 function drawChart(){
   const ctx=document.getElementById("priceChart").getContext("2d");
-  if(chart) chart.destroy();
+  if(chart){
+    chart.data.datasets[0].data = chartData;
+    chart.update();
+    return;
+  }
   const color=displayPrice>=price24hOpen?"#22c55e":"#ef4444";
   chart=new Chart(ctx,{
     type:'line',
@@ -118,8 +128,8 @@ function drawChart(){
     options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:true}}}
   });
 }
+
 loadPriceHistory();
-setInterval(loadPriceHistory,10000);
 
 /********************
  * PRICE LIVE
@@ -139,33 +149,41 @@ connectWS();
  * LOOP ANIMATION
  ********************/
 function loop(){
-  // PRICE
-  if(livePrice>0){
-    displayPrice += (livePrice-displayPrice)*0.3; // animazione fluida
-    updateDigits(document.getElementById("price"),"price",displayPrice);
+  const now=Date.now();
 
-    if(price24hOpen>0){
-      const deltaPerc=(displayPrice-price24hOpen)/price24hOpen*100;
-      const deltaUSD=displayPrice-price24hOpen;
-      const percEl=document.getElementById("priceDeltaPerc");
-      percEl.innerText=deltaPerc.toFixed(2)+"%";
-      percEl.className="sub "+(deltaPerc>=0?"digit-up":"digit-down");
-      const usdEl=document.getElementById("priceDeltaUSD");
-      usdEl.innerText="≈ $"+deltaUSD.toFixed(4);
-      usdEl.className="sub "+(deltaUSD>=0?"digit-up":"digit-down");
-    }
-  }
-
-  // REWARDS SCORRIMENTO CONTINUO
+  // REWARDS scorrono sempre
   displayRewards += (rewards-displayRewards)*0.2;
   updateDigits(document.getElementById("rewards"),"rewards",displayRewards);
 
-  // Aggiornamento USD
+  // STAKED / AVAILABLE aggiornano solo se cambiano
+  updateDigits(document.getElementById("stake"),"stake",staked);
+  updateDigits(document.getElementById("available"),"available",available);
+
+  // PRICE aggiorna sempre
+  if(livePrice>0){
+    displayPrice += (livePrice-displayPrice)*0.2;
+    updateDigits(document.getElementById("price"),"price",displayPrice);
+
+    if(price24hOpen>0){
+      const deltaPerc = (displayPrice-price24hOpen)/price24hOpen*100;
+      const deltaUSD = displayPrice-price24hOpen;
+
+      const percEl = document.getElementById("priceDeltaPerc");
+      percEl.innerText = deltaPerc.toFixed(2) + "%";
+      percEl.className = "sub " + (deltaPerc>=0?"digit-up":"digit-down");
+
+      const usdEl = document.getElementById("priceDeltaUSD");
+      usdEl.innerText = "≈ $" + deltaUSD.toFixed(4);
+      usdEl.className = "sub " + (deltaUSD>=0?"digit-up":"digit-down");
+    }
+  }
+
+  // USD
   document.getElementById("availableUsd").innerText=formatUSD(available*displayPrice);
   document.getElementById("stakeUsd").innerText=formatUSD(staked*displayPrice);
   document.getElementById("rewardsUsd").innerText=formatUSD(displayRewards*displayPrice);
 
-  // Aggiornamento timestamp
+  document.getElementById("apr").innerText=apr.toFixed(2)+"%";
   document.getElementById("updated").innerText="Last Update: "+new Date().toLocaleTimeString();
 
   requestAnimationFrame(loop);
@@ -173,7 +191,7 @@ function loop(){
 loop();
 
 /********************
- * INITIAL LOAD
+ * INITIAL DATA LOAD
  ********************/
 if(address) loadOnchainData(true);
-setInterval(loadOnchainData,10000);
+setInterval(()=>loadOnchainData(),10000);
