@@ -60,13 +60,14 @@ h1 {
 
 /* ---------- INJ Price Specific ---------- */
 .price-row .value {
-  font-size: 1.8rem; /* uguale agli altri valori */
+  font-size: 1.8rem; /* uguale agli altri valori principali */
 }
 
 /* ---------- Price %/delta ---------- */
 #price24h {
-  font-size: 1rem; /* più grande del normale sub */
-  font-weight: bold;
+  font-size: 0.9rem; /* piccolo come sub normale */
+  color: #9ca3af;
+  font-weight: normal;
 }
 
 #price24h.up {
