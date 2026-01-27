@@ -10,10 +10,9 @@
 </head>
 
 <body>
-
   <div class="container">
 
-    <!-- TITLE + LOGO -->
+    <!-- TITLE -->
     <div class="title-wrapper">
       <img
         src="https://cryptologos.cc/logos/injective-inj-logo.svg?v=029"
@@ -22,12 +21,8 @@
       <h1>INJECTIVE DASHBOARD</h1>
     </div>
 
-    <!-- ADDRESS INPUT -->
-    <input
-      type="text"
-      id="addressInput"
-      placeholder="Inserisci indirizzo INJ"
-    />
+    <!-- ADDRESS -->
+    <input id="addressInput" placeholder="Inserisci indirizzo INJ" />
 
     <!-- CARDS -->
     <div class="cards-wrapper">
@@ -38,8 +33,18 @@
         <div class="value-row">
           <span id="price">0.0000</span>
         </div>
+
         <div class="sub-row">
-          <span id="price24h">0.00% | ≈ $0.00</span>
+          <span id="price24h">
+            <span id="priceArrow">▬</span>
+            <span id="priceDelta">0.00%</span>
+            |
+            <span id="priceDeltaUsd">≈ $0.00</span>
+          </span>
+        </div>
+
+        <div class="sub-row small">
+          <span id="highLow">H: -- | L: --</span>
         </div>
       </div>
 
@@ -96,13 +101,12 @@
 
     </div>
 
-    <!-- LAST UPDATE -->
     <div id="updated" class="last-update">
       Last Update: --:--:--
     </div>
-
   </div>
 
   <script src="app.js" defer></script>
 </body>
 </html>
+
