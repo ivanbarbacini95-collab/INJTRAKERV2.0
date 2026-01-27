@@ -15,20 +15,18 @@ const rewardBar = document.getElementById("rewardBar");
 
 // ----- STATE -----
 let address = localStorage.getItem("inj_address") || "";
-
 let displayedPrice = 0, targetPrice = 0, price24hOpen = 0;
 let stakeInj = 0, displayedStake = 0;
 let rewardsInj = 0, displayedRewards = 0;
 let availableInj = 0, displayedAvailable = 0;
 let apr = 0;
-
 let chart, chartData = [];
 const rewardTargets = [0.005,0.01,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1];
 let reachedTargets = new Set();
 
 // ----- UTILS -----
-const fetchJSON = url => fetch(url).then(r => r.json());
-const formatUSD = v => "≈ $" + v.toFixed(2);
+const fetchJSON = url => fetch(url).then(r=>r.json());
+const formatUSD = v => "≈ $"+v.toFixed(2);
 
 function updateNumber(el, oldV, newV, fixed){
   el.innerText = newV.toFixed(fixed);
@@ -50,20 +48,16 @@ addressInput.onchange = e=>{
 async function loadData(){
   if(!address) return;
   try {
-    // BALANCE
     const balance = await fetchJSON(`https://lcd.injective.network/cosmos/bank/v1beta1/balances/${address}`);
     const injBalance = balance.balances?.find(b=>b.denom==="inj")?.amount || "0";
     availableInj = Number(injBalance)/1e18;
 
-    // STAKE
     const stakeData = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/delegations/${address}`);
-    stakeInj = stakeData.delegation_responses?.reduce((s,d)=>s + Number(d.balance.amount),0)/1e18 || 0;
+    stakeInj = stakeData.delegation_responses?.reduce((s,d)=>s+Number(d.balance.amount),0)/1e18 || 0;
 
-    // REWARDS
     const rewardsData = await fetchJSON(`https://lcd.injective.network/cosmos/distribution/v1beta1/delegators/${address}/rewards`);
-    rewardsInj = rewardsData.rewards?.reduce((s,r)=>s + Number(r.reward[0]?.amount||0),0)/1e18 || 0;
+    rewardsInj = rewardsData.rewards?.reduce((s,r)=>s+Number(r.reward[0]?.amount||0),0)/1e18 || 0;
 
-    // APR
     const inflation = await fetchJSON(`https://lcd.injective.network/cosmos/mint/v1beta1/inflation`);
     const pool = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/pool`);
     const totalSupply = Number(pool.pool.bonded_tokens)+Number(pool.pool.not_bonded_tokens);
@@ -112,7 +106,7 @@ function updateRewardBar(){
   rewardTargets.forEach(t=>{
     if(displayedRewards>=t && !reachedTargets.has(t)){
       reachedTargets.add(t);
-      // animazione flash
+      // animazione flash semplice
       const targetEl = document.createElement("div");
       targetEl.classList.add("reward-target","reached");
       targetEl.style.left = (t*100)+"%";
@@ -127,34 +121,29 @@ function updateRewardBar(){
 
 // ----- ANIMATE -----
 function animate(){
-  // PRICE
   const prevP = displayedPrice;
   displayedPrice += (targetPrice - displayedPrice)*0.1;
-  updateNumber(price, prevP, displayedPrice,4);
+  updateNumber(price,prevP,displayedPrice,4);
 
-  // AVAILABLE
   const prevA = displayedAvailable;
   displayedAvailable += (availableInj - displayedAvailable)*0.1;
   updateNumber(available,prevA,displayedAvailable,6);
   availableUsd.innerText = formatUSD(displayedAvailable*displayedPrice);
 
-  // STAKE
   const prevS = displayedStake;
   displayedStake += (stakeInj - displayedStake)*0.1;
   updateNumber(stake,prevS,displayedStake,4);
   stakeUsd.innerText = formatUSD(displayedStake*displayedPrice);
 
-  // REWARDS (scorre sempre)
   displayedRewards += (rewardsInj - displayedRewards)*0.01;
   updateNumber(rewards,displayedRewards,displayedRewards,6);
   rewardsUsd.innerText = formatUSD(displayedRewards*displayedPrice);
   dailyRewards.innerText = (displayedStake*apr/100/365).toFixed(5)+" INJ / giorno";
   weeklyRewards.innerText = (displayedStake*apr/100/52).toFixed(5)+" INJ / settimana";
+
   updateRewardBar();
 
-  // APR
   aprEl.innerText = apr.toFixed(2)+"%";
-
   updated.innerText = "Last Update: "+new Date().toLocaleTimeString();
 
   requestAnimationFrame(animate);
