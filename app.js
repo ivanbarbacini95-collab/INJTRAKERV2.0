@@ -11,7 +11,7 @@ const aprEl = document.getElementById("apr");
 const updatedEl = document.getElementById("updated");
 const rewardBarEl = document.getElementById("rewardBar");
 
-const rewardMax = 0.05; // max reward per barra (0-0.05 INJ)
+const rewardMax = 0.05; // massimo della barra 0-0.05 INJ
 
 // ---------- Stato ----------
 let address = localStorage.getItem("inj_address") || "";
@@ -54,6 +54,10 @@ async function loadData() {
 
     const rewards = await fetchJSON(`https://lcd.injective.network/cosmos/distribution/v1beta1/delegators/${address}/rewards`);
     rewardsInj = rewards.rewards?.reduce((s,r)=>s + Number(r.reward[0]?.amount||0),0)/1e18 || 0;
+
+    // Aggiorna subito la barra dei rewards
+    displayedRewards = rewardsInj;
+    updateRewardBar();
 
     const inflation = await fetchJSON(`https://lcd.injective.network/cosmos/mint/v1beta1/inflation`);
     const pool = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/pool`);
@@ -109,7 +113,7 @@ function updateRewardBar() {
   rewardBarEl.innerHTML = `<span>${percent.toFixed(1)}%</span>`;
 }
 
-// ---------- Animation ----------
+// ---------- Animazione principale ----------
 function animate() {
   // Price
   const prevP = displayedPrice;
@@ -151,20 +155,3 @@ function animate() {
 }
 
 animate();
-
-const rewardBarEl = document.getElementById("rewardBar");
-const rewardMax = 0.05; // massimo della barra 0-0.05 INJ
-
-// Funzione per aggiornare la barra in tempo reale
-function updateRewardBar() {
-  const percent = Math.min(displayedRewards / rewardMax * 100, 100);
-  rewardBarEl.style.width = percent + "%";
-  rewardBarEl.innerHTML = `<span>${percent.toFixed(1)}%</span>`;
-}
-
-// Dentro la funzione animate(), aggiorna la barra:
-displayedRewards += (rewardsInj - displayedRewards) * 0.02; // animazione fluida
-updateNumber(rewardsEl, 0, displayedRewards, 6);
-rewardsUsdEl.innerText = formatUSD(displayedRewards * displayedPrice);
-updateRewardBar();
-
