@@ -1,78 +1,84 @@
-body {
-  font-family: "Inter", sans-serif;
-  background: #000;
-  color: #f9fafb;
-  margin:0; padding:1rem;
-  transition: background 0.3s, color 0.3s;
-}
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Injective Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="header-row">
+      <h1>Injective Dashboard</h1>
+      <button id="themeToggle" class="theme-btn">🌓</button>
+    </div>
 
-body.light {
-  background:#f9fafb;
-  color:#111;
-}
+    <input type="text" id="addressInput" placeholder="Inserisci indirizzo INJ" />
 
-h1 { text-align:center; margin-bottom:1rem; }
+    <!-- PRICE -->
+    <div class="box price-box">
+      <span class="label">INJ Price</span>
+      <span id="price" class="value neutral" data-fixed="4"></span>
+      <div class="price-deltas">
+        <span id="priceDeltaPerc" class="sub neutral">0.00%</span>
+        <span id="priceDeltaUSD" class="sub neutral">≈ $0.00</span>
+      </div>
+    </div>
 
-.header { display:flex; justify-content:center; align-items:center; gap:1rem; }
+    <!-- AVAILABLE -->
+    <div class="box">
+      <span class="label">Available 💵</span>
+      <span id="available" class="value neutral" data-fixed="6"></span>
+      <div id="availableUsd" class="sub">≈ $0.00</div>
+    </div>
 
-#themeToggle {
-  background:none;
-  border:none;
-  font-size:1.2rem;
-  cursor:pointer;
-  color:inherit;
-}
+    <!-- STAKED -->
+    <div class="box">
+      <span class="label">Staked ⛏️</span>
+      <span id="stake" class="value neutral" data-fixed="6"></span>
+      <div id="stakeUsd" class="sub">≈ $0.00</div>
+    </div>
 
-.container {
-  max-width:700px;
-  margin:0 auto;
-  display:flex;
-  flex-direction:column;
-  gap:1rem;
-}
+    <!-- REWARDS -->
+    <div class="box reward-box">
+      <span class="label">Rewards 🚀</span>
+      <span id="rewards" class="value neutral" data-fixed="8"></span>
+      <div id="rewardsUsd" class="sub">≈ $0.00</div>
+    </div>
 
-.box {
-  border:2px solid #4b5563;
-  border-radius:0.6rem;
-  padding:0.7rem 1rem;
-  transition: all 0.25s ease;
-}
+    <!-- APR -->
+    <div class="box">
+      <span class="label">APR</span>
+      <span id="apr" class="value neutral" data-fixed="2"></span>
+    </div>
 
-.reward-box { border-color: #22c55e; }
+    <!-- CHART -->
+    <div class="box">
+      <span class="label">Prezzo ultime 24h</span>
+      <canvas id="priceChart"></canvas>
+    </div>
 
-.label { display:block; font-size:0.9rem; color:#9ca3af; margin-bottom:0.3rem; }
-.value { font-size:1.5rem; font-weight:bold; display:inline-block; }
-.sub { font-size:0.9rem; color:#9ca3af; }
+    <!-- MARKET TABLE -->
+    <div class="box">
+      <span class="label">Market</span>
+      <table id="marketTable">
+        <thead>
+          <tr>
+            <th>Crypto</th>
+            <th>Price</th>
+            <th>24h %</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
 
-.price-row { display:flex; justify-content:flex-start; align-items:center; gap:1rem; margin-top:0.2rem; }
-.sub-row { display:flex; justify-content:flex-end; gap:0.5rem; margin-top:0.2rem; }
+    <div class="box">
+      <div id="updated">Last Update: --:--</div>
+    </div>
+  </div>
 
-#addressInput {
-  width:100%; padding:0.6rem 0.8rem; border-radius:0.5rem;
-  border:2px solid #4b5563; background:#000; color:#f9fafb; font-size:1rem;
-}
-body.light #addressInput { background:#fff; color:#111; border-color:#ccc; }
-
-#addressInput:focus { outline:none; border-color:#38bdf8; box-shadow:0 0 10px rgba(56,189,248,0.3); }
-
-canvas { max-width:100%; height:150px; }
-
-.neutral { color:#f9fafb; }
-.digit-up { color:#22c55e; transition: color 0.3s; }
-.digit-down { color:#ef4444; transition: color 0.3s; }
-
-.digit-wrapper { display:inline-block; position:relative; overflow:hidden; height:1em; }
-.digit-inner { display:inline-block; transition: transform 0.3s ease, color 0.3s ease; }
-
-@media (max-width:700px){ .value { font-size:1.2rem; } }
-
-/* Tabella Market */
-#marketTable { width:100%; border-collapse: collapse; margin-top:0.5rem; }
-#marketTable th, #marketTable td { padding:0.3rem 0.5rem; text-align:center; border-bottom:1px solid #4b5563; font-size:0.9rem; }
-#marketTable th { color:#9ca3af; font-weight:600; }
-#marketTable td .digit-wrapper { display:inline-block; }
-#marketTable td .digit-inner { transition: transform 0.2s, color 0.2s; }
-
-/* Animazione riga */
-.row-up { background-color: rgba(34,197,94,0.2); transition: background 0.5s; }
-.row-down { background-color: rgba(239,68,68,0.2); transition: background 0.5s; }
+  <script src="app.js" defer></script>
+</body>
+</html>
