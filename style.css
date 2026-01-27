@@ -1,3 +1,4 @@
+/* ===== BODY ===== */
 body {
   font-family: Inter, sans-serif;
   background: #000;
@@ -14,6 +15,7 @@ body {
   gap: 1rem;
 }
 
+/* ===== INPUT INDIRIZZO ===== */
 #addressInput {
   padding: 0.8rem;
   border-radius: 0.5rem;
@@ -28,29 +30,37 @@ body {
   border-color: #38bdf8;
 }
 
+/* ===== CARDS WRAPPER VERTICALE ===== */
 .cards-wrapper {
   display: flex;
-  flex-direction: column; /* verticali */
+  flex-direction: column; /* verticale */
   gap: 1rem;
 }
 
+/* ===== CARD ===== */
 .card {
   background: #111;
   border: 2px solid #4b5563;
   border-radius: 0.5rem;
-  padding: 0.8rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 100%; /* full width */
+  width: 100%;
 }
 
+/* ===== LABEL CARD ===== */
 .card .label {
-  font-weight: bold;
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
+  font-weight: 800;                  /* molto grassetto */
+  font-size: 1.4rem;                 /* più grande */
+  margin-bottom: 0.8rem;             /* spazio sotto */
+  color: #38bdf8;                    /* evidenziato azzurro */
+  text-transform: uppercase;         /* maiuscolo */
+  letter-spacing: 0.5px;             /* più leggibile */
+  text-shadow: 0 0 5px rgba(56,189,248,0.6); /* leggero glow */
 }
 
+/* ===== VALORI ===== */
 .value-row {
   display: flex;
   justify-content: flex-end;
@@ -66,9 +76,10 @@ body {
   margin-top: 0.2rem;
 }
 
+/* ===== BARRA REWARDS ===== */
 .reward-bar-container {
   background: #222;
-  height: 20px;
+  height: 24px;
   border-radius: 0.3rem;
   margin-top: 0.5rem;
   position: relative;
@@ -83,10 +94,18 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: #f9fafb;
 }
 
+/* ===== AGGIUNGI PERCENTUALE ALLA BARRA ===== */
+.reward-bar span {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+}
+
+/* ===== ULTIMO AGGIORNAMENTO ===== */
 .last-update {
   font-size: 0.8rem;
   text-align: center;
@@ -94,11 +113,14 @@ body {
   color: #9ca3af;
 }
 
+/* ===== COLORI UP/DOWN ===== */
 .up { color: #22c55e; }
 .down { color: #ef4444; }
 
-/* Responsivo: già verticale quindi basta solo padding/margine */
+/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .cards-wrapper { gap: 0.8rem; }
-  .card { padding: 0.6rem; }
+  .card { padding: 0.8rem; }
+  .card .label { font-size: 1.3rem; }
+  .reward-bar { font-size: 0.7rem; }
 }
