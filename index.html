@@ -1,72 +1,289 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Injective Dashboard</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Injective Dashboard</title>
+<style>
+/* ---------- CSS ---------- */
+body {
+  font-family: "Inter", sans-serif;
+  background: #000;
+  color: #f9fafb;
+  margin:0; padding:1rem;
+  transition: background 0.3s, color 0.3s;
+}
+body.light { background:#f9fafb; color:#111; }
+body.light .box { border-color:#ccc; }
+body.light .sub { color:#555; }
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
-  <link rel="stylesheet" href="style.css" />
+h1 { text-align:center; margin-bottom:1rem; position:relative; }
+#themeToggle { cursor:pointer; font-size:1.2rem; margin-left:0.5rem; }
+
+.container { max-width:600px; margin:0 auto; display:flex; flex-direction:column; gap:1rem; }
+
+.box {
+  border:2px solid #4b5563;
+  border-radius:0.6rem;
+  padding:0.7rem 1rem;
+  transition: all 0.25s ease;
+}
+.reward-box { border-color: #22c55e; }
+
+.label { display:block; font-size:0.9rem; color:#9ca3af; margin-bottom:0.3rem; }
+.value { font-size:1.5rem; font-weight:bold; display:inline-block; }
+.sub { font-size:0.9rem; color:#9ca3af; }
+
+.price-row { display:flex; justify-content:space-between; align-items:center; gap:1rem; }
+.price-delta { display:flex; flex-direction:column; text-align:right; }
+
+#addressInput {
+  width:100%; padding:0.6rem 0.8rem; border-radius:0.5rem;
+  border:2px solid #4b5563; background:#000; color:#f9fafb; font-size:1rem;
+}
+#addressInput:focus { outline:none; border-color:#38bdf8; box-shadow:0 0 10px rgba(56,189,248,0.3); }
+
+canvas { max-width:100%; height:150px; }
+
+.neutral { color:#f9fafb; }
+.digit-up { color:#22c55e; }
+.digit-down { color:#ef4444; }
+
+.digit-wrapper { display:inline-block; position:relative; overflow:hidden; height:1em; }
+.digit-inner { display:inline-block; transition: transform 0.3s ease, color 0.3s ease; }
+
+@media (max-width:600px){ .value { font-size:1.2rem; } }
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>
-      Injective Dashboard 
-      <span id="themeToggle" title="Cambia tema">🌓</span>
-    </h1>
+<div class="container">
+  <h1>
+    Injective Dashboard 
+    <span id="themeToggle" title="Cambia tema">🌓</span>
+  </h1>
 
-    <input type="text" id="addressInput" placeholder="Inserisci indirizzo INJ" />
+  <input type="text" id="addressInput" placeholder="Inserisci indirizzo INJ" />
 
-    <!-- PRICE -->
-    <div class="box price-box">
-      <span class="label">INJ Price</span>
-      <div class="price-row">
-        <span id="price" class="value neutral" data-fixed="4">0.0000</span>
-        <div class="price-delta">
-          <span id="priceDeltaPerc" class="sub neutral">0.00%</span>
-          <span id="priceDeltaUSD" class="sub neutral">≈ $0.00</span>
-        </div>
+  <div class="box price-box">
+    <span class="label">INJ Price</span>
+    <div class="price-row">
+      <span id="price" class="value neutral" data-fixed="4"></span>
+      <div class="price-delta">
+        <span id="priceDeltaPerc" class="sub neutral">0.00%</span>
+        <span id="priceDeltaUSD" class="sub neutral">≈ $0.00</span>
       </div>
-    </div>
-
-    <!-- AVAILABLE -->
-    <div class="box">
-      <span class="label">Available 💵</span>
-      <span id="available" class="value neutral" data-fixed="6">0.000000</span>
-      <div id="availableUsd" class="sub">≈ $0.00</div>
-    </div>
-
-    <!-- STAKED -->
-    <div class="box">
-      <span class="label">Staked ⛏️</span>
-      <span id="stake" class="value neutral" data-fixed="6">0.000000</span>
-      <div id="stakeUsd" class="sub">≈ $0.00</div>
-    </div>
-
-    <!-- REWARDS -->
-    <div class="box reward-box">
-      <span class="label">Rewards 🚀</span>
-      <span id="rewards" class="value neutral" data-fixed="8">0.00000000</span>
-      <div id="rewardsUsd" class="sub">≈ $0.00</div>
-    </div>
-
-    <!-- APR -->
-    <div class="box">
-      <span class="label">APR</span>
-      <span id="apr" class="value neutral" data-fixed="2">0.00%</span>
-    </div>
-
-    <!-- CHART -->
-    <div class="box">
-      <span class="label">Prezzo ultime 24h</span>
-      <canvas id="priceChart"></canvas>
-    </div>
-
-    <div class="box">
-      <div id="updated">Last Update: --:--</div>
     </div>
   </div>
 
-  <script src="app.js" defer></script>
+  <div class="box">
+    <span class="label">Available 💵</span>
+    <span id="available" class="value neutral" data-fixed="6"></span>
+    <div id="availableUsd" class="sub">≈ $0.00</div>
+  </div>
+
+  <div class="box">
+    <span class="label">Staked ⛏️</span>
+    <span id="stake" class="value neutral" data-fixed="6"></span>
+    <div id="stakeUsd" class="sub">≈ $0.00</div>
+  </div>
+
+  <div class="box reward-box">
+    <span class="label">Rewards 🚀</span>
+    <span id="rewards" class="value neutral" data-fixed="8"></span>
+    <div id="rewardsUsd" class="sub">≈ $0.00</div>
+  </div>
+
+  <div class="box">
+    <span class="label">APR</span>
+    <span id="apr" class="value neutral" data-fixed="2"></span>
+  </div>
+
+  <div class="box">
+    <span class="label">Prezzo ultime 24h</span>
+    <canvas id="priceChart"></canvas>
+  </div>
+
+  <div class="box">
+    <div id="updated">Last Update: --:--</div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// ---------- JS ----------
+
+let address = localStorage.getItem("inj_address") || "";
+let livePrice=0, displayPrice=0, price24hOpen=0;
+let available=0, staked=0, displayStaked=0;
+let rewards=0, displayRewards=0, apr=0;
+let chart, chartData=[];
+let lastUI = { price:"", priceDeltaPerc:"", priceDeltaUSD:"", available:"", stake:"", rewards:"" };
+
+// ---------- UTILS ----------
+const fetchJSON = (url, timeout=8000) =>
+  Promise.race([fetch(url).then(r=>r.json()), new Promise((_,rej)=>setTimeout(()=>rej("timeout"), timeout))]);
+
+const formatUSD = v=>"≈ $"+v.toFixed(2);
+
+function createDigits(el, value) {
+  el.innerHTML="";
+  const s=value.toFixed(el.dataset.fixed||4);
+  for(let c of s){
+    const w=document.createElement("span"); w.className="digit-wrapper";
+    const inner=document.createElement("span"); inner.className="digit-inner neutral"; inner.innerText=c;
+    w.appendChild(inner); el.appendChild(w);
+  }
+}
+
+function updateDigits(el,key,newV){
+  const s = newV.toFixed(el.dataset.fixed || 4);
+  const children = el.querySelectorAll(".digit-inner");
+
+  if(children.length !== s.length){ 
+    createDigits(el, newV); 
+    lastUI[key] = s; 
+    return; 
+  }
+
+  let changed = false;
+  for(let i = 0; i < s.length; i++){
+    const oldChar = lastUI[key]?.[i] || "";
+    if(oldChar < s[i]) { children[i].className = "digit-inner digit-up"; changed=true; }
+    else if(oldChar > s[i]) { children[i].className = "digit-inner digit-down"; changed=true; }
+    else children[i].className = "digit-inner neutral";
+    children[i].innerText = s[i];
+  }
+
+  lastUI[key] = s;
+
+  // Torna a neutral dopo 500ms se non cambia più
+  if(changed){
+    setTimeout(() => {
+      const updatedChildren = el.querySelectorAll(".digit-inner");
+      for(let c of updatedChildren){
+        c.className = "digit-inner neutral";
+      }
+    }, 500);
+  }
+}
+
+// ---------- THEME ----------
+document.getElementById("themeToggle").addEventListener("click",()=>{
+  document.body.classList.toggle("light");
+});
+
+// ---------- ADDRESS ----------
+const addrInput=document.getElementById("addressInput");
+addrInput.value = address;
+addrInput.addEventListener("change", async e=>{
+  address = e.target.value.trim();
+  localStorage.setItem("inj_address", address);
+  await loadOnchainData(true);
+});
+
+// ---------- ONCHAIN DATA ----------
+async function loadOnchainData(initial=false){
+  if(!address) return;
+  try{
+    const bal=await fetchJSON(`https://lcd.injective.network/cosmos/bank/v1beta1/balances/${address}`);
+    available=(bal.balances||[]).filter(b=>b.denom==="inj").reduce((s,b)=>s+Number(b.amount),0)/1e18;
+
+    const stakeRes=await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/delegations/${address}`);
+    staked=(stakeRes.delegation_responses||[]).reduce((s,d)=>s+Number(d.balance.amount),0)/1e18;
+
+    const rewardsRes=await fetchJSON(`https://lcd.injective.network/cosmos/distribution/v1beta1/delegators/${address}/rewards`);
+    let r=0; rewardsRes.rewards?.forEach(rr=>rr.reward?.forEach(c=>{if(c.denom==="inj") r+=Number(c.amount);}));
+    rewards=r/1e18;
+
+    const infl=await fetchJSON("https://lcd.injective.network/cosmos/mint/v1beta1/inflation");
+    const pool=await fetchJSON("https://lcd.injective.network/cosmos/staking/v1beta1/pool");
+    const bonded=Number(pool.pool.bonded_tokens), total=bonded+Number(pool.pool.not_bonded_tokens);
+    apr=(Number(infl.inflation)/(bonded/total))*100;
+
+  }catch(e){ console.error("Onchain error:",e); }
+}
+
+// ---------- PRICE HISTORY ----------
+async function loadPriceHistory(){
+  try{
+    const res=await fetch("https://api.binance.com/api/v3/klines?symbol=INJUSDT&interval=1h&limit=24");
+    const data=await res.json();
+    chartData=data.map(c=>parseFloat(c[4]));
+    price24hOpen=parseFloat(data[0][1]);
+    drawChart();
+  }catch(e){ console.error("Price history error:",e); }
+}
+
+function drawChart(){
+  const ctx=document.getElementById("priceChart").getContext("2d");
+  if(chart) chart.destroy();
+  const color=displayPrice>=price24hOpen?"#22c55e":"#ef4444";
+  chart=new Chart(ctx,{
+    type:'line',
+    data:{labels:chartData.map((_,i)=>i), datasets:[{data:chartData,borderColor:color,borderWidth:2,tension:0.3,fill:true,backgroundColor:"rgba(34,197,94,0.1)",pointRadius:0}]},
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:true}}}
+  });
+}
+
+// ---------- PRICE LIVE ----------
+function connectWS(){
+  const ws=new WebSocket("wss://stream.binance.com:9443/ws/injusdt@trade");
+  ws.onmessage=msg=>{
+    const data=JSON.parse(msg.data);
+    livePrice=parseFloat(data.p);
+    if(displayPrice===0) displayPrice=livePrice;
+  };
+  ws.onclose=()=>setTimeout(connectWS,2000);
+}
+connectWS();
+
+// ---------- LOOP ANIMATION ----------
+function loop(){
+  // Rewards sempre in movimento
+  displayRewards += (rewards-displayRewards)*0.2;
+  updateDigits(document.getElementById("rewards"),"rewards",displayRewards);
+
+  // Staked / Available solo se cambia
+  displayStaked += (staked-displayStaked)*0.2;
+  updateDigits(document.getElementById("stake"),"stake",displayStaked);
+  updateDigits(document.getElementById("available"),"available",available);
+
+  // Price
+  if(livePrice>0){
+    const prevPrice = displayPrice;
+    displayPrice += (livePrice-displayPrice)*0.2;
+    updateDigits(document.getElementById("price"),"price",displayPrice);
+
+    if(price24hOpen>0){
+      const deltaPerc = (displayPrice-price24hOpen)/price24hOpen*100;
+      const deltaUSD = displayPrice-price24hOpen;
+
+      const percEl = document.getElementById("priceDeltaPerc");
+      percEl.innerText = deltaPerc.toFixed(2) + "%";
+      percEl.className = "sub " + (deltaPerc>prevPrice?"digit-up":deltaPerc<prevPrice?"digit-down":"neutral");
+
+      const usdEl = document.getElementById("priceDeltaUSD");
+      usdEl.innerText = "≈ $" + deltaUSD.toFixed(4);
+      usdEl.className = "sub " + (deltaUSD>prevPrice?"digit-up":deltaUSD<prevPrice?"digit-down":"neutral");
+    }
+  }
+
+  // USD conversion
+  document.getElementById("availableUsd").innerText=formatUSD(available*displayPrice);
+  document.getElementById("stakeUsd").innerText=formatUSD(displayStaked*displayPrice);
+  document.getElementById("rewardsUsd").innerText=formatUSD(displayRewards*displayPrice);
+
+  document.getElementById("apr").innerText=apr.toFixed(2)+"%";
+  document.getElementById("updated").innerText="Last Update: "+new Date().toLocaleTimeString();
+
+  requestAnimationFrame(loop);
+}
+
+loop();
+loadPriceHistory();
+setInterval(loadPriceHistory,60000);
+if(address) loadOnchainData();
+setInterval(loadOnchainData,10000);
+</script>
 </body>
 </html>
