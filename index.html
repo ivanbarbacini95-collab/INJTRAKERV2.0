@@ -11,71 +11,71 @@
 </head>
 <body>
 
-<h1 class="dashboard-title">Injective Dashboard</h1>
+<div class="container">
+  <h1 class="dashboard-title">Injective Dashboard</h1>
 
-<input type="text" id="addressInput" placeholder="Inserisci indirizzo INJ">
+  <input type="text" id="addressInput" placeholder="Inserisci indirizzo INJ">
 
-<div class="cards-container">
+  <!-- Cards -->
+  <div class="cards">
 
-  <div class="card price-card">
-    <span class="label">INJ Price</span>
-    <div class="value-container">
-      <span class="value" id="price">0.0000</span>
-      <span class="sub" id="price24h">0.00% | ≈ $0.00</span>
+    <div class="card">
+      <div class="card-label">INJ Price</div>
+      <div class="card-value">
+        <span id="price">0.0000</span>
+        <span class="sub" id="price24h">0.00% | ≈ $0.00</span>
+      </div>
     </div>
-  </div>
 
-  <div class="card">
-    <span class="label">INJ Balance 💵</span>
-    <div class="value-container">
-      <span class="value" id="available">0.0000000</span>
-      <span class="sub" id="availableUsd">≈ $0.00</span>
+    <div class="card">
+      <div class="card-label">INJ Balance 💵</div>
+      <div class="card-value">
+        <span id="available">0.000000</span>
+        <span class="sub" id="availableUsd">≈ $0.00</span>
+      </div>
     </div>
-  </div>
 
-  <div class="card">
-    <span class="label">Staked ⛏️</span>
-    <div class="value-container">
-      <span class="value" id="stake">0.0000</span>
-      <span class="sub" id="stakeUsd">≈ $0.00</span>
+    <div class="card">
+      <div class="card-label">Staked ⛏️</div>
+      <div class="card-value">
+        <span id="stake">0.0000</span>
+        <span class="sub" id="stakeUsd">≈ $0.00</span>
+      </div>
     </div>
-  </div>
 
-  <div class="card reward-card">
-    <span class="label">Rewards 🚀</span>
-    <div class="value-container">
-      <span class="value" id="rewards">0.0000000</span>
-      <span class="sub" id="rewardsUsd">≈ $0.00</span>
-      <span class="sub" id="dailyRewards">0.00000 INJ / giorno</span>
-      <span class="sub" id="monthlyRewards">0.00000 INJ / mese</span>
+    <div class="card">
+      <div class="card-label">Rewards 🚀</div>
+      <div class="card-value">
+        <span id="rewards">0.0000000</span>
+        <span class="sub" id="rewardsUsd">≈ $0.00</span>
+      </div>
+      <div class="reward-bar-bg">
+        <div id="rewardBar"></div>
+        <div class="reward-target" style="left:5%;">0.005</div>
+        <div class="reward-target" style="left:10%;">0.01</div>
+        <div class="reward-target" style="left:20%;">0.02</div>
+        <div class="reward-target" style="left:50%;">0.05</div>
+        <div class="reward-target" style="left:100%;">1</div>
+      </div>
     </div>
-    <div class="reward-bar-container">
-      <div id="rewardBar" class="reward-bar"></div>
-      <div class="reward-target" style="left:0.5%"></div>
-      <div class="reward-target" style="left:1%"></div>
-      <div class="reward-target" style="left:5%"></div>
-      <div class="reward-target" style="left:10%"></div>
-      <div class="reward-target" style="left:50%"></div>
-      <div class="reward-target" style="left:100%"></div>
+
+    <div class="card">
+      <div class="card-label">APR</div>
+      <div class="card-value">
+        <span id="apr">0%</span>
+      </div>
     </div>
-  </div>
 
-  <div class="card">
-    <span class="label">APR</span>
-    <div class="value-container">
-      <span class="value" id="apr">0%</span>
+    <div class="card">
+      <div class="card-label">Grafico 24h</div>
+      <canvas id="priceChart"></canvas>
     </div>
-  </div>
 
-  <div class="card chart-card">
-    <span class="label">Grafico 24h</span>
-    <canvas id="priceChart"></canvas>
-  </div>
+    <div class="card">
+      <div id="updated">Last Update: --:--:--</div>
+    </div>
 
-  <div class="card">
-    <div id="updated">Last Update: --:--:--</div>
   </div>
-
 </div>
 
 <script src="app.js" defer></script>
