@@ -8,6 +8,7 @@ let availableInj = 0, displayedAvailable = 0;
 let apr = 0;
 
 let chart, chartData = [];
+let rewardsPerSecond = 0;
 
 // ---------- Utils ----------
 const fetchJSON = url => fetch(url).then(r => r.json());
@@ -51,6 +52,9 @@ async function loadData() {
     const inflationData = await fetchJSON(`https://lcd.injective.network/cosmos/mint/v1beta1/inflation`);
     const inflationRate = Number(inflationData.inflation) || 0;
     apr = inflationRate * 100; // percentuale annua
+
+    // CALCOLO REWARDS PER SECONDO
+    rewardsPerSecond = (stakeInj * apr / 100 / 365) / 86400; // INJ/sec
 
   } catch (e) {
     console.error(e);
@@ -114,30 +118,38 @@ const stakeEl = document.getElementById("stake");
 const stakeUsd = document.getElementById("stakeUsd");
 const rewardsEl = document.getElementById("rewards");
 const rewardsUsd = document.getElementById("rewardsUsd");
-const dailyRewards = document.getElementById("dailyRewards");
-const monthlyRewards = document.getElementById("monthlyRewards");
+const dailyRewardsEl = document.getElementById("dailyRewards");
+const monthlyRewardsEl = document.getElementById("monthlyRewards");
 const aprEl = document.getElementById("apr");
 const updated = document.getElementById("updated");
 
+// Variabile per il tempo trascorso
+let lastTime = Date.now() / 1000;
+
 function animate() {
-  // PRICE
+  const now = Date.now() / 1000;
+  const delta = now - lastTime;
+  lastTime = now;
+
+  // AGGIORNA PRICE
   const prevP = displayedPrice;
   displayedPrice += (targetPrice - displayedPrice) * 0.1;
   updateNumber(priceEl, prevP, displayedPrice, 4);
 
-  // AVAILABLE
+  // AGGIORNA AVAILABLE
   const prevA = displayedAvailable;
   displayedAvailable += (availableInj - displayedAvailable) * 0.1;
   updateNumber(availableEl, prevA, displayedAvailable, 6);
   availableUsd.innerText = formatUSD(displayedAvailable * displayedPrice);
 
-  // STAKE
+  // AGGIORNA STAKE
   const prevS = displayedStake;
   displayedStake += (stakeInj - displayedStake) * 0.1;
   updateNumber(stakeEl, prevS, displayedStake, 4);
   stakeUsd.innerText = formatUSD(displayedStake * displayedPrice);
 
-  // REWARDS
+  // AGGIORNA REWARDS in tempo reale
+  rewardsInj += rewardsPerSecond * delta; // incremento continuo
   const prevR = displayedRewards;
   displayedRewards += (rewardsInj - displayedRewards) * 0.1;
   updateNumber(rewardsEl, prevR, displayedRewards, 6);
@@ -146,11 +158,11 @@ function animate() {
   // APR
   aprEl.innerText = apr.toFixed(2) + "%";
 
-  // DAILY / MONTHLY REWARDS
-  dailyRewards.innerText = (displayedStake * apr / 100 / 365).toFixed(4) + " INJ / giorno";
-  monthlyRewards.innerText = (displayedStake * apr / 100 / 12).toFixed(4) + " INJ / mese";
+  // Daily / Monthly Rewards
+  dailyRewardsEl.innerText = (displayedStake * apr / 100 / 365).toFixed(4) + " INJ / giorno";
+  monthlyRewardsEl.innerText = (displayedStake * apr / 100 / 12).toFixed(4) + " INJ / mese";
 
-  // LAST UPDATE
+  // Last Update
   updated.innerText = "Last Update: " + new Date().toLocaleTimeString();
 
   requestAnimationFrame(animate);
