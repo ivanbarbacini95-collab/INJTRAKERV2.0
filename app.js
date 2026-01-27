@@ -8,7 +8,6 @@ let apr = 0;
 
 let chart, chartData = [];
 
-// ---------- DOM Elements ----------
 const price = document.getElementById("price");
 const available = document.getElementById("available");
 const stake = document.getElementById("stake");
@@ -21,29 +20,8 @@ const rewardsUsd = document.getElementById("rewardsUsd");
 const dailyRewards = document.getElementById("dailyRewards");
 const monthlyRewards = document.getElementById("monthlyRewards");
 const updated = document.getElementById("updated");
+const rewardBar = document.getElementById("rewardBar");
 
-// ---------- Utils ----------
-const fetchJSON = url => fetch(url).then(r => r.json());
-const formatUSD = v => "≈ $" + v.toFixed(2);
-
-function fitTextToContainer(el, maxFont = 28, minFont = 10) {
-  let fontSize = maxFont;
-  el.style.fontSize = fontSize + "px";
-  while ((el.scrollWidth > el.clientWidth || el.scrollHeight > el.clientHeight) && fontSize > minFont) {
-    fontSize -= 1;
-    el.style.fontSize = fontSize + "px";
-  }
-}
-
-function updateNumber(el, oldV, newV, fixed) {
-  el.classList.remove("digit-up", "digit-down");
-  el.innerText = newV.toFixed(fixed);
-  if (newV > oldV) el.classList.add("digit-up");
-  if (newV < oldV) el.classList.add("digit-down");
-  fitTextToContainer(el, 28, 10);
-}
-
-// ---------- Address ----------
 const addressInput = document.getElementById("addressInput");
 addressInput.value = address;
 addressInput.onchange = e => {
@@ -52,13 +30,22 @@ addressInput.onchange = e => {
   loadData();
 };
 
-// ---------- Load Injective Data ----------
+const fetchJSON = url => fetch(url).then(r => r.json());
+const formatUSD = v => "≈ $" + v.toFixed(2);
+
+function updateNumber(el, oldV, newV, fixed) {
+  el.classList.remove("up", "down");
+  el.innerText = newV.toFixed(fixed);
+  if(newV > oldV) el.classList.add("up");
+  if(newV < oldV) el.classList.add("down");
+}
+
 async function loadData() {
-  if (!address) return;
+  if(!address) return;
 
   try {
     const balance = await fetchJSON(`https://lcd.injective.network/cosmos/bank/v1beta1/balances/${address}`);
-    availableInj = (balance.balances?.find(b => b.denom === "inj")?.amount || 0) / 1e18;
+    availableInj = (balance.balances?.find(b => b.denom === "inj")?.amount || 0)/1e18;
 
     const stakeResp = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/delegations/${address}`);
     stakeInj = stakeResp.delegation_responses?.reduce((s,d)=>s+Number(d.balance.amount),0)/1e18 || 0;
@@ -68,14 +55,13 @@ async function loadData() {
 
     const inflation = await fetchJSON(`https://lcd.injective.network/cosmos/mint/v1beta1/inflation`);
     const pool = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/pool`);
-    apr = (inflation.inflation * (Number(pool.pool.bonded_tokens) + Number(pool.pool.not_bonded_tokens)) / Number(pool.pool.bonded_tokens)) * 100;
+    apr = (inflation.inflation * (Number(pool.pool.bonded_tokens)+Number(pool.pool.not_bonded_tokens)) / Number(pool.pool.bonded_tokens))*100;
 
-  } catch (e) {
-    console.error("Errore caricamento dati:", e);
+  } catch(e) {
+    console.error(e);
   }
 }
 
-// ---------- Price History ----------
 async function fetchHistory() {
   try {
     const r = await fetch("https://api.binance.com/api/v3/klines?symbol=INJUSDT&interval=1h&limit=24");
@@ -85,41 +71,27 @@ async function fetchHistory() {
     targetPrice = chartData.at(-1);
     drawChart();
   } catch(e) {
-    console.error("Errore caricamento storico prezzi:", e);
+    console.error(e);
   }
 }
 
-// ---------- Chart ----------
 function drawChart() {
   const ctx = document.getElementById("priceChart");
-  if (chart) chart.destroy();
+  if(chart) chart.destroy();
   chart = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: chartData.map((_,i)=>i),
-      datasets: [{
-        data: chartData,
-        borderColor: "#22c55e",
-        tension: 0.3,
-        fill: true
-      }]
-    },
-    options: {
-      plugins:{legend:{display:false}},
-      scales:{x:{display:false}}
-    }
+    type:"line",
+    data:{labels: chartData.map((_,i)=>i), datasets:[{data: chartData, borderColor:"#22c55e", tension:0.3, fill:true}]},
+    options:{plugins:{legend:{display:false}}, scales:{x:{display:false}}}
   });
 }
 
-// ---------- Binance WS ----------
 function startWS() {
   const ws = new WebSocket("wss://stream.binance.com:9443/ws/injusdt@trade");
   ws.onmessage = e => targetPrice = +JSON.parse(e.data).p;
-  ws.onclose = () => setTimeout(startWS, 3000);
+  ws.onclose = () => setTimeout(startWS,3000);
 }
 startWS();
 
-// ---------- Animation ----------
 async function init() {
   await loadData();
   fetchHistory();
@@ -127,41 +99,38 @@ async function init() {
 }
 
 function animate() {
-  // ---------- Price ----------
   const prevP = displayedPrice;
-  displayedPrice += (targetPrice - displayedPrice) * 0.1;
+  displayedPrice += (targetPrice - displayedPrice)*0.1;
   updateNumber(price, prevP, displayedPrice, 4);
 
-  // ---------- Available ----------
   const prevA = displayedAvailable;
-  displayedAvailable += (availableInj - displayedAvailable) * 0.1;
+  displayedAvailable += (availableInj - displayedAvailable)*0.1;
   updateNumber(available, prevA, displayedAvailable, 6);
-  availableUsd.innerText = formatUSD(displayedAvailable * displayedPrice);
+  availableUsd.innerText = formatUSD(displayedAvailable*displayedPrice);
 
-  // ---------- Stake ----------
   const prevS = displayedStake;
-  displayedStake += (stakeInj - displayedStake) * 0.1;
+  displayedStake += (stakeInj - displayedStake)*0.1;
   updateNumber(stake, prevS, displayedStake, 4);
-  stakeUsd.innerText = formatUSD(displayedStake * displayedPrice);
+  stakeUsd.innerText = formatUSD(displayedStake*displayedPrice);
 
-  // ---------- Rewards sempre scorrevoli ----------
-  const rewardSpeed = rewardsInj / 3600; // piccolo incremento costante
-  displayedRewards += rewardSpeed / 60;   // frame rate
-  updateNumber(rewards, 0, displayedRewards, 7); // 1 decimale in più
-  rewardsUsd.innerText = formatUSD(displayedRewards * displayedPrice);
+  // Rewards scorrevoli
+  const rewardSpeed = rewardsInj/3600;
+  displayedRewards += rewardSpeed/60;
+  updateNumber(rewards, 0, displayedRewards, 7);
+  rewardsUsd.innerText = formatUSD(displayedRewards*displayedPrice);
 
-  dailyRewards.innerText = (displayedStake * apr / 100 / 365).toFixed(5) + " INJ / giorno";
-  monthlyRewards.innerText = (displayedStake * apr / 100 / 12).toFixed(5) + " INJ / mese";
+  // Aggiorna barra dei rewards
+  const maxReward = rewardsInj*1.5 || 1;
+  rewardBar.style.width = Math.min((displayedRewards/maxReward)*100,100)+"%";
 
-  aprEl.innerText = apr.toFixed(2) + "%";
+  dailyRewards.innerText = (displayedStake*apr/100/365).toFixed(5)+" INJ / giorno";
+  monthlyRewards.innerText = (displayedStake*apr/100/12).toFixed(5)+" INJ / mese";
 
-  updated.innerText = "Last Update: " + new Date().toLocaleTimeString();
+  aprEl.innerText = apr.toFixed(2)+"%";
+  updated.innerText = "Last Update: "+new Date().toLocaleTimeString();
 
   requestAnimationFrame(animate);
 }
 
-// ---------- Refresh dati ogni minuto ----------
-setInterval(loadData, 60000);
-
-// ---------- Start ----------
+setInterval(loadData,60000);
 init();
