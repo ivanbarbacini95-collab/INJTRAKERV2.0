@@ -9,105 +9,110 @@ body {
 h1.dashboard-title {
   text-align: center;
   margin-bottom: 1rem;
-  border: 2px solid #22c55e;
-  padding: 0.7rem 1rem;
-  font-size: 2rem;
   font-weight: bold;
+  border: 2px solid #4b5563;
+  padding: 0.5rem;
+  position: relative;
 }
 
-#addressInput {
+input#addressInput {
   width: 100%;
-  padding: 0.8rem;
-  margin-bottom: 1rem;
+  padding: 0.6rem;
   border-radius: 0.5rem;
   border: 2px solid #4b5563;
   background: #000;
   color: #f9fafb;
-  font-size: 1rem;
+  margin-bottom: 1rem;
 }
 
-.cards-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+input#addressInput:focus {
+  outline: none;
+  border-color: #38bdf8;
+  box-shadow: 0 0 8px rgba(56,189,248,0.3);
+}
+
+.cards {
+  display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
+  justify-content: center;
 }
 
 .card {
+  background: #111;
   border: 2px solid #4b5563;
-  border-radius: 0.5rem;
+  border-radius: 0.8rem;
+  flex: 1 1 280px;
+  max-width: 300px;
   padding: 1rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 140px;
-  overflow: hidden;
+  min-height: 120px;
+  position: relative;
 }
 
-.card .label {
-  font-size: 1.3rem;
-  font-weight: 700;
+.card-label {
+  font-weight: bold;
+  font-size: 1.1rem;
   color: #9ca3af;
   text-align: left;
+  margin-bottom: 0.5rem;
 }
 
-.card .value-container {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: flex-end;
-}
-
-.card .value {
-  font-size: 1.8rem;
-  font-weight: 600;
-}
-
-.card .sub {
-  font-size: 1rem;
-  color: #9ca3af;
-  margin-top: 0.1rem;
+.card-value {
   text-align: right;
 }
 
-.reward-card .reward-bar-container {
-  position: relative;
-  height: 14px;
-  background: #1f2937;
-  border-radius: 7px;
-  overflow: hidden;
-  margin-top: 0.5rem;
+.card-value span {
+  font-size: 1.5rem;
 }
 
-.reward-card .reward-bar {
-  height: 100%;
-  background: linear-gradient(90deg, #22c55e, #84cc16);
-  width: 0%;
-}
-
-.reward-card .reward-target {
-  position: absolute;
-  top: 0;
-  width: 2px;
-  height: 100%;
-  background: #facc15;
-  animation: blink 1s ease infinite;
-}
-
-@keyframes blink {
-  0%, 50%, 100% { opacity: 0.3; }
-  25%, 75% { opacity: 1; }
-}
-
-.chart-card canvas {
-  width: 100%;
-  height: 180px;
+.sub {
+  display: block;
+  font-size: 0.9rem;
+  color: #9ca3af;
 }
 
 .up { color: #22c55e; }
 .down { color: #ef4444; }
 
-@media(max-width:600px){
-  .card .label { font-size: 1.1rem; }
-  .card .value { font-size: 1.5rem; }
-  .card .sub { font-size: 0.9rem; }
+/* Reward bar */
+.reward-bar-bg {
+  position: relative;
+  background: #222;
+  height: 10px;
+  border-radius: 5px;
+  margin-top: 0.5rem;
+  overflow: hidden;
+}
+
+#rewardBar {
+  background: #22c55e;
+  width: 0%;
+  height: 100%;
+  transition: width 0.2s linear;
+}
+
+.reward-target {
+  position: absolute;
+  top: -4px;
+  font-size: 0.7rem;
+  color: #f9fafb;
+}
+
+/* Chart */
+canvas#priceChart {
+  width: 100%;
+  height: 160px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .card {
+    flex: 1 1 100%;
+  }
+  .card-value span {
+    font-size: 1.2rem;
+  }
 }
