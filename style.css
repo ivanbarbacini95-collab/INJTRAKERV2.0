@@ -64,24 +64,24 @@ h1::after {
   padding: 0.8rem 1rem;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;  /* mantiene bilanciamento interno */
-  min-height: 120px;              /* tutte le card hanno altezza minima uguale */
+  justify-content: space-between;
+  min-height: 120px;
   box-sizing: border-box;
-  overflow: hidden;                /* previene uscita numeri */
+  overflow: hidden;
 }
 
 .card .label {
   font-size: 1.1rem;
   font-weight: bold;
   color: #9ca3af;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.3rem;
 }
 
 .card .value {
   font-size: 1.5rem;
   font-weight: bold;
   text-align: right;
-  word-wrap: break-word;           /* evita overflow numeri grandi */
+  word-wrap: break-word;
 }
 
 .card .sub {
