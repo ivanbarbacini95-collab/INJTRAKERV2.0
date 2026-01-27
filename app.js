@@ -111,7 +111,7 @@ async function loadPriceHistory() {
     const data = await res.json();
     chartData = data.map(c => parseFloat(c[4]));
     price24hOpen = parseFloat(data[0][1]);
-    if (displayPrice === 0) displayPrice = chartData[chartData.length - 1]; // last price
+    if (displayPrice === 0) displayPrice = chartData[chartData.length - 1];
     drawChart();
   } catch (e) { console.error("Price history error:", e); }
 }
@@ -156,7 +156,16 @@ async function loadMarket() {
     const ids = marketData.map(c => c.toLowerCase()).join(",");
     const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
     const prices = await res.json();
-    for (const c of marketData) marketPrices[c] = prices[c.toLowerCase()] || { usd: 0, usd_24h_change: 0 };
+    for (const c of marketData) {
+      const prev = marketPrices[c]?.usd || 0;
+      const newPrice = prices[c.toLowerCase()]?.usd || 0;
+      marketPrices[c] = prices[c.toLowerCase()] || { usd: 0, usd_24h_change: 0 };
+      // lampeggio se cambia
+      if (prev !== 0 && prev !== newPrice) {
+        const row = document.querySelector(`#marketTable tbody tr[data-coin="${c}"]`);
+        if (row) { row.classList.add("table-flash"); setTimeout(()=>row.classList.remove("table-flash"),400); }
+      }
+    }
   } catch (e) { console.error(e); }
 }
 
@@ -167,6 +176,7 @@ async function updateMarketTable() {
     const price = marketPrices[c].usd;
     const change = marketPrices[c].usd_24h_change;
     const tr = document.createElement("tr");
+    tr.dataset.coin = c;
     tr.innerHTML = `
       <td>${c}</td>
       <td><span class="digit-wrapper"><span class="digit-inner neutral">${price.toFixed(4)}</span></span></td>
@@ -211,4 +221,15 @@ function loop() {
   document.getElementById("stakeUsd").innerText = formatUSD(displayStaked * displayPrice);
   document.getElementById("rewardsUsd").innerText = formatUSD(displayRewards * displayPrice);
 
-  document.getElementById("apr").innerText = apr.t
+  document.getElementById("apr").innerText = apr.toFixed(2) + "%";
+  document.getElementById("updated").innerText = "Last Update: " + new Date().toLocaleTimeString();
+
+  requestAnimationFrame(loop);
+}
+loop();
+
+/********************
+ * INITIAL DATA
+ ********************/
+if (address) loadOnchainData();
+setInterval(loadOnchainData, 60000);
