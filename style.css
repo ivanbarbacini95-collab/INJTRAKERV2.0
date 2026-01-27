@@ -42,7 +42,7 @@ h1 {
 }
 
 .value {
-  font-size: 1.5rem;
+  font-size: 1.8rem; /* tutti i valori principali ingranditi */
   font-weight: bold;
   color: #f9fafb;
 }
@@ -56,6 +56,25 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+/* ---------- INJ Price Specific ---------- */
+.price-row .value {
+  font-size: 1.8rem; /* uguale agli altri valori */
+}
+
+/* ---------- Price %/delta ---------- */
+#price24h {
+  font-size: 1rem; /* più grande del normale sub */
+  font-weight: bold;
+}
+
+#price24h.up {
+  color: #22c55e; /* verde se positivo */
+}
+
+#price24h.down {
+  color: #ef4444; /* rosso se negativo */
 }
 
 /* ---------- Input ---------- */
