@@ -19,18 +19,26 @@ body {
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  background: #111827;          /* Sfondo leggermente più chiaro per contrasto */
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5); /* Ombra per evidenziare */
 }
 
 .header h1 {
-  font-size: 2rem;
-  font-weight: bold;
-  background: linear-gradient(90deg, #0f172a, #1e293b, #3b82f6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #f9fafb;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.7); /* Migliora leggibilità su sfondo scuro */
+  margin: 0;
 }
 
-.header .logo { height: 2rem; }
+.header .logo {
+  height: 2.5rem;              /* Logo leggermente più grande */
+  width: auto;
+  display: block;
+}
 
 /* Input */
 #addressInput {
