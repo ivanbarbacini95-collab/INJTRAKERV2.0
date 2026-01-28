@@ -11,12 +11,11 @@
 
 <div class="container">
 
-  <!-- Header -->
+  <!-- Header con logo -->
   <div class="header">
-  <img src="injective-logo.png" class="logo" alt="Injective Logo">
-  <h1>Injective Dashboard</h1>
-</div>
-
+    <img src="https://upload.wikimedia.org/wikipedia/commons/4/46/Injective_Protocol_logo.png" class="logo" alt="Injective Logo">
+    <h1>Injective Dashboard</h1>
+  </div>
 
   <!-- Address Input -->
   <input type="text" id="addressInput" placeholder="Inserisci indirizzo INJ">
@@ -35,9 +34,9 @@
       <div class="price-bar-container">
         <div id="priceBar" class="price-bar"></div>
         <div id="priceLineOpen" class="price-line-open"></div>
-        <div class="price-extremes left" id="priceMin">0.00</div>
-        <div class="price-extremes center" id="priceOpen">0.00</div>
-        <div class="price-extremes right" id="priceMax">0.00</div>
+        <div id="priceMin" class="price-extremes left">0.00</div>
+        <div id="priceOpen" class="price-extremes center">0.00</div>
+        <div id="priceMax" class="price-extremes right">0.00</div>
       </div>
     </div>
 
@@ -94,7 +93,9 @@
 
   </div>
 
+  <!-- Last Update -->
   <div id="updated" class="last-update">Last Update: --:--:--</div>
+
 </div>
 
 <script src="app.js" defer></script>
