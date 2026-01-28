@@ -11,7 +11,7 @@
 
 <div class="container">
 
-  <!-- Header con logo -->
+  <!-- Header -->
   <div class="header">
     <img src="injective-logo.png" class="logo" alt="Injective Logo">
     <h1>Injective Dashboard</h1>
@@ -34,6 +34,9 @@
       <div class="price-bar-container">
         <div id="priceBar" class="price-bar"></div>
         <div id="priceLineOpen" class="price-line-open"></div>
+        <div class="price-extremes left" id="priceMin">0.00</div>
+        <div class="price-extremes center" id="priceOpen">0.00</div>
+        <div class="price-extremes right" id="priceMax">0.00</div>
       </div>
     </div>
 
@@ -70,7 +73,7 @@
       </div>
       <div class="reward-bar-container">
         <div id="rewardBar" class="reward-bar"></div>
-        <div id="rewardPercent" class="reward-percent">0%</div>
+        <span id="rewardPercent" class="reward-percent">0%</span>
       </div>
     </div>
 
@@ -90,9 +93,7 @@
 
   </div>
 
-  <!-- Last Update -->
   <div id="updated" class="last-update">Last Update: --:--:--</div>
-
 </div>
 
 <script src="app.js" defer></script>
