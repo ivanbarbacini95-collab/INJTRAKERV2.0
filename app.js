@@ -9,37 +9,8 @@ let availableInj = 0, displayedAvailable = 0;
 let apr = 0;
 
 let chart, chartData = [];
-const rewardMax = 0.05; // 0 - 0.05
+const rewardMax = 0.05;
 
-// Elementi
-const price = document.getElementById("price");
-const price24h = document.getElementById("price24h");
-const available = document.getElementById("available");
-const availableUsd = document.getElementById("availableUsd");
-const stake = document.getElementById("stake");
-const stakeUsd = document.getElementById("stakeUsd");
-const rewards = document.getElementById("rewards");
-const rewardsUsd = document.getElementById("rewardsUsd");
-const aprEl = document.getElementById("apr");
-const updated = document.getElementById("updated");
-
-const priceBarEl = document.getElementById("priceBar");
-const priceLineOpenEl = document.getElementById("priceLineOpen");
-const priceMinEl = document.getElementById("priceMin");
-const priceMaxEl = document.getElementById("priceMax");
-
-const rewardBarEl = document.getElementById("rewardBar");
-const rewardContainerEl = rewardBarEl.parentElement;
-
-const addressInput = document.getElementById("addressInput");
-addressInput.value = address;
-addressInput.onchange = e => {
-  address = e.target.value.trim();
-  localStorage.setItem("inj_address", address);
-  loadData();
-};
-
-// ---------- Fetch JSON ----------
 const fetchJSON = async url => {
   try {
     const res = await fetch(url);
@@ -59,25 +30,30 @@ function updateNumber(el, oldV, newV, fixed){
   setTimeout(()=>el.classList.remove("up","down"),500);
 }
 
+// Input address
+const addressInput = document.getElementById("addressInput");
+addressInput.value = address;
+addressInput.onchange = e => {
+  address = e.target.value.trim();
+  localStorage.setItem("inj_address", address);
+  loadData();
+};
+
 // ---------- Load Injective Data ----------
 async function loadData(){
   if(!address) return;
 
   try{
-    // Bank balance
     const balanceRes = await fetchJSON(`https://lcd.injective.network/cosmos/bank/v1beta1/balances/${address}`);
     const injBalance = balanceRes.balances?.find(b => b.denom === "inj");
     availableInj = injBalance ? Number(injBalance.amount)/1e18 : 0;
 
-    // Staking
     const stakeRes = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/delegations/${address}`);
     stakeInj = stakeRes.delegation_responses?.reduce((sum,d) => sum + Number(d.balance.amount||0),0)/1e18 || 0;
 
-    // Rewards
     const rewardsRes = await fetchJSON(`https://lcd.injective.network/cosmos/distribution/v1beta1/delegators/${address}/rewards`);
     rewardsInj = rewardsRes.rewards?.reduce((sum,r)=>sum+Number(r.reward[0]?.amount||0),0)/1e18||0;
 
-    // Inflation & pool
     const inflationRes = await fetchJSON(`https://lcd.injective.network/cosmos/mint/v1beta1/inflation`);
     const poolRes = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/pool`);
     const bonded = Number(poolRes.pool?.bonded_tokens||0);
@@ -129,22 +105,37 @@ function startWS(){
 }
 startWS();
 
+// ---------- Elementi DOM ----------
+const price = document.getElementById("price");
+const price24h = document.getElementById("price24h");
+const priceBarEl = document.getElementById("priceBar");
+const priceLineOpenEl = document.getElementById("priceLineOpen");
+const priceMinValEl = document.createElement("span");
+const priceOpenValEl = document.createElement("span");
+const priceMaxValEl = document.createElement("span");
+
+const rewardBarEl = document.getElementById("rewardBar");
+const rewardPercentEl = document.getElementById("rewardPercent");
+
+const available = document.getElementById("available");
+const availableUsd = document.getElementById("availableUsd");
+const stake = document.getElementById("stake");
+const stakeUsd = document.getElementById("stakeUsd");
+const rewards = document.getElementById("rewards");
+const rewardsUsd = document.getElementById("rewardsUsd");
+const aprEl = document.getElementById("apr");
+const updated = document.getElementById("updated");
+
 // ---------- Reward bar ----------
 function updateRewardBar(){
-  const percent = Math.min(displayedRewards/rewardMax*100,100);
-  rewardBarEl.style.width = percent+"%";
-
-  let percentEl = rewardContainerEl.querySelector("span");
-  if(!percentEl){
-    percentEl = document.createElement("span");
-    rewardContainerEl.appendChild(percentEl);
-  }
-  percentEl.innerText = percent.toFixed(2)+"%";
+  const perc = Math.min(displayedRewards/rewardMax*100,100);
+  rewardBarEl.style.width = perc + "%";
+  rewardPercentEl.innerText = Math.round(perc) + "%";
 }
 
 // ---------- Animate ----------
 function animate(){
-  // Price
+  // Prezzo
   const prevP = displayedPrice;
   displayedPrice += (targetPrice-displayedPrice)*0.1;
   updateNumber(price, prevP, displayedPrice, 4);
@@ -154,15 +145,41 @@ function animate(){
   price24h.innerText = (delta>0?"▲ ":"▼ ") + Math.abs(delta).toFixed(2) + "%";
   price24h.className = "sub " + (delta>0?"up":delta<0?"down":"");
 
-  // Price bar
-  const minVal = price24hLow, maxVal = price24hHigh, range = maxVal-minVal||1;
-  const leftPercent = (displayedPrice-minVal)/range*100;
-  priceBarEl.style.left = Math.min(leftPercent,100)+"%";
-  priceBarEl.style.width = Math.abs(leftPercent-((price24hOpen-minVal)/range*100))+"%";
-  priceBarEl.style.background = (displayedPrice>=price24hOpen) ? "#22c55e" : "#ef4444";
-  priceLineOpenEl.style.left = ((price24hOpen-minVal)/range*100)+"%";
-  priceMinEl.innerText = minVal.toFixed(4);
-  priceMaxEl.innerText = maxVal.toFixed(4);
+  // Barra prezzo dal centro
+  const minVal = price24hLow, maxVal = price24hHigh, range = maxVal - minVal || 1;
+  const centerPercent = (price24hOpen - minVal)/range*100;
+  let widthPercent = Math.abs((displayedPrice - price24hOpen)/range*100);
+
+  if(displayedPrice >= price24hOpen){
+    priceBarEl.style.left = centerPercent + "%";
+    priceBarEl.style.width = widthPercent + "%";
+    priceBarEl.style.background = "#22c55e";
+  } else {
+    priceBarEl.style.left = (centerPercent - widthPercent) + "%";
+    priceBarEl.style.width = widthPercent + "%";
+    priceBarEl.style.background = "#ef4444";
+  }
+
+  // Min/Open/Max
+  if(displayedPrice > price24hHigh) {
+    priceMaxValEl.classList.add("ath");
+  } else { priceMaxValEl.classList.remove("ath"); }
+  if(displayedPrice < price24hLow) {
+    priceMinValEl.classList.add("atl");
+  } else { priceMinValEl.classList.remove("atl"); }
+
+  priceMinValEl.innerText = price24hLow.toFixed(4);
+  priceOpenValEl.innerText = price24hOpen.toFixed(4);
+  priceMaxValEl.innerText = price24hHigh.toFixed(4);
+
+  if(!document.querySelector(".price-values")){
+    const pv = document.createElement("div");
+    pv.className="price-values";
+    pv.appendChild(priceMinValEl);
+    pv.appendChild(priceOpenValEl);
+    pv.appendChild(priceMaxValEl);
+    document.querySelector(".price-card").appendChild(pv);
+  }
 
   // Available
   const prevA = displayedAvailable;
@@ -192,7 +209,7 @@ function animate(){
 }
 animate();
 
-// ---------- Aggiorna rewards ogni 3 secondi ----------
+// Aggiorna rewards ogni 3 secondi
 setInterval(async()=>{
   if(!address) return;
   try{
