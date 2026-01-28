@@ -192,3 +192,21 @@ function startWS(){
   ws.onclose=()=>setTimeout(startWS,3000);
 }
 startWS();
+
+// ---------- Aggiorna rewards ogni 3 secondi ----------
+setInterval(async ()=>{
+  if(!address) return;
+  try{
+    const rewardsRes = await fetchJSON(`https://lcd.injective.network/cosmos/distribution/v1beta1/delegators/${address}/rewards`);
+    const newRewards = rewardsRes.rewards?.reduce((sum,r)=>sum+Number(r.reward[0]?.amount||0),0)/1e18||0;
+
+    if(newRewards !== rewardsInj){
+      const prevR = displayedRewards;
+      rewardsInj = newRewards;
+      // Lampeggiano solo i valori rewards
+      updateNumber(rewardsEl, prevR, rewardsInj, 6);
+      updateNumber(rewardsUsdEl, prevR*displayedPrice, rewardsInj*displayedPrice, 2);
+    }
+
+  } catch(e){ console.error("Errore aggiornamento rewards:", e); }
+}, 3000);
