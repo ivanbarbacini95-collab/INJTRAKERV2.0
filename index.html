@@ -6,7 +6,6 @@
   <title>Injective Dashboard</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
-  <script src="app.js" defer></script>
 </head>
 <body>
 
@@ -35,8 +34,6 @@
       <div class="price-bar-container">
         <div id="priceBar" class="price-bar"></div>
         <div id="priceLineOpen" class="price-line-open"></div>
-        <div id="priceMin" class="price-extremes left">0.00</div>
-        <div id="priceMax" class="price-extremes right">0.00</div>
       </div>
     </div>
 
@@ -73,8 +70,7 @@
       </div>
       <div class="reward-bar-container">
         <div id="rewardBar" class="reward-bar"></div>
-        <!-- Percentuale sarà inserita dinamicamente dal JS -->
-        <span></span>
+        <div id="rewardPercent" class="reward-percent">0%</div>
       </div>
     </div>
 
@@ -99,5 +95,6 @@
 
 </div>
 
+<script src="app.js" defer></script>
 </body>
 </html>
