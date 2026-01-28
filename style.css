@@ -104,14 +104,14 @@ body {
   background: #111827;
   border-radius: 0.3rem;
   margin-top: 0.5rem;
-  overflow: hidden; /* previene barra fuoriuscita */
+  overflow: hidden;
 }
 
 .price-bar {
   position: absolute;
   top: 0;
   height: 100%;
-  width: 0; /* inizialmente zero */
+  width: 0;
   transition: width 0.3s linear, left 0.3s linear, background 0.3s linear;
 }
 
@@ -148,7 +148,7 @@ body {
   overflow: hidden;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: center; /* centra il testo */
   font-size: 0.8rem;
   font-weight: bold;
   color: #f9fafb;
@@ -166,9 +166,12 @@ body {
   z-index: 1;
 }
 
-/* Percentuale centrata nella barra */
+/* Percentuale sempre centrata */
 .reward-bar-container span {
-  position: relative; /* sopra la barra */
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   z-index: 2;
 }
 
