@@ -1,8 +1,7 @@
 // ===============================
-// Injective Dashboard - JS Rifatto
+// Injective Dashboard - JS Aggiornato
 // ===============================
 
-// ---------- Variabili principali ----------
 let address = localStorage.getItem("inj_address") || "";
 let displayedPrice = 0, targetPrice = 0, price24hOpen = 0;
 let price24hLow = 0, price24hHigh = 0;
@@ -11,9 +10,9 @@ let rewardsInj = 0, displayedRewards = 0;
 let availableInj = 0, displayedAvailable = 0;
 let apr = 0;
 let chart, chartData = [];
-const rewardTargetsArray = [0.005,0.01,0.02,0.03,0.04,0.05];
+const rewardMax = 0.05;
 
-// ---------- Elementi DOM ----------
+// ---------- DOM ----------
 const addressInput = document.getElementById("addressInput");
 const priceEl = document.getElementById("price");
 const price24hEl = document.getElementById("price24h");
@@ -26,18 +25,13 @@ const rewardsUsdEl = document.getElementById("rewardsUsd");
 const aprEl = document.getElementById("apr");
 const updatedEl = document.getElementById("updated");
 const rewardBarEl = document.getElementById("rewardBar");
-const rewardTargetsEl = document.getElementById("rewardTargets");
 const priceBarEl = document.getElementById("priceBar");
 const priceLineOpenEl = document.getElementById("priceLineOpen");
 const priceMinEl = document.getElementById("priceMin");
 const priceMaxEl = document.getElementById("priceMax");
 
 // ---------- Helpers ----------
-const fetchJSON = async url => {
-  try { const res = await fetch(url); return await res.json(); }
-  catch(e){ console.error("Fetch error:", url,e); return {}; }
-};
-const formatUSD = v => "≈ $" + v.toFixed(2);
+const fetchJSON = async url => { try { const res = await fetch(url); return await res.json(); } catch(e){ console.error("Fetch error:", url,e); return {}; } };
 function updateNumber(el, oldV, newV, fixed){
   el.innerText = newV.toFixed(fixed);
   if(newV>oldV) el.classList.add("up");
@@ -69,20 +63,17 @@ function initDashboard(){
   rewardsInterval = setInterval(updateRewards, 3000);
 }
 
-// ---------- Carica dati Injective ----------
+// ---------- Load Injective ----------
 async function loadData(){
   if(!address) return;
   try{
-    // Balance
     const balanceRes = await fetchJSON(`https://lcd.injective.network/cosmos/bank/v1beta1/balances/${address}`);
     const injBalance = balanceRes.balances?.find(b=>b.denom==="inj");
     availableInj = injBalance?Number(injBalance.amount)/1e18:0;
 
-    // Stake
     const stakeRes = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/delegations/${address}`);
     stakeInj = stakeRes.delegation_responses?.reduce((sum,d)=>sum+Number(d.balance.amount||0),0)/1e18||0;
 
-    // APR
     const inflationRes = await fetchJSON(`https://lcd.injective.network/cosmos/mint/v1beta1/inflation`);
     const poolRes = await fetchJSON(`https://lcd.injective.network/cosmos/staking/v1beta1/pool`);
     const bonded = Number(poolRes.pool?.bonded_tokens||0);
@@ -91,7 +82,7 @@ async function loadData(){
   } catch(e){ console.error("Errore caricamento dati Injective:", e); }
 }
 
-// ---------- Aggiorna rewards ----------
+// ---------- Rewards ----------
 async function updateRewards(){
   if(!address) return;
   try{
@@ -100,7 +91,7 @@ async function updateRewards(){
   } catch(e){ console.error("Errore rewards:", e); }
 }
 
-// ---------- Fetch Price History ----------
+// ---------- Price History ----------
 async function fetchHistory(){
   try{
     const res = await fetch("https://api.binance.com/api/v3/klines?symbol=INJUSDT&interval=15m&limit=96");
@@ -139,91 +130,77 @@ function startWS(){
   ws.onclose=()=>setTimeout(startWS,3000);
 }
 
-// ---------- Reward Bar 0→0.05 + tooltip ----------
+// ---------- Reward Bar ----------
 function updateRewardBar(){
-  const maxReward=0.05;
-  const fillPercent=Math.min(displayedRewards/maxReward*100,100);
-  rewardBarEl.style.width=fillPercent+"%";
-  rewardBarEl.title=(fillPercent.toFixed(2))+"%"; // tooltip
-
-  rewardTargetsEl.innerHTML="";
-  rewardTargetsArray.forEach(t=>{
-    if(t<=maxReward){
-      const span=document.createElement("span");
-      span.style.left=(t/maxReward*100)+"%";
-      span.innerText=t;
-      rewardTargetsEl.appendChild(span);
-    }
-  });
+  const percent = Math.min(displayedRewards/rewardMax*100,100);
+  rewardBarEl.style.width = percent+"%";
+  rewardBarEl.innerText = percent.toFixed(2)+"%"; // percentuale al centro
 }
 
-// ---------- Price Bar logica ATH/ATL ----------
+// ---------- Price Bar ----------
 function updatePriceBar(){
-  const minVal=price24hLow,maxVal=price24hHigh,range=maxVal-minVal||1;
-  const openPercent=(price24hOpen-minVal)/range*100;
-  const pricePercent=(displayedPrice-minVal)/range*100;
-
-  if(displayedPrice>=price24hOpen){
-    priceBarEl.style.left=openPercent+"%";
-    priceBarEl.style.width=(pricePercent-openPercent)+"%";
-    priceBarEl.style.background="#22c55e";
-  } else {
-    priceBarEl.style.left=pricePercent+"%";
-    priceBarEl.style.width=(openPercent-pricePercent)+"%";
-    priceBarEl.style.background="#ef4444";
+  if(price24hHigh===0 && price24hLow===0) {
+    priceBarEl.style.width = "0"; return;
   }
 
-  priceLineOpenEl.style.left=openPercent+"%";
+  const minVal = price24hLow, maxVal = price24hHigh, range = maxVal-minVal||1;
+  const openPercent = (price24hOpen-minVal)/range*100;
+  const pricePercent = (displayedPrice-minVal)/range*100;
 
-  // ATH/ATL
-  if(displayedPrice>=price24hHigh) priceMaxEl.classList.add("ath"); else priceMaxEl.classList.remove("ath");
-  if(displayedPrice<=price24hLow) priceMinEl.classList.add("atl"); else priceMinEl.classList.remove("atl");
+  if(displayedPrice >= price24hOpen){
+    priceBarEl.style.left = openPercent+"%";
+    priceBarEl.style.width = (pricePercent-openPercent)+"%";
+    priceBarEl.style.background = "#22c55e";
+  } else {
+    priceBarEl.style.left = pricePercent+"%";
+    priceBarEl.style.width = (openPercent-pricePercent)+"%";
+    priceBarEl.style.background = "#ef4444";
+  }
 
-  priceMinEl.innerText=price24hLow.toFixed(4);
-  priceMaxEl.innerText=price24hHigh.toFixed(4);
+  priceLineOpenEl.style.left = openPercent+"%";
+
+  if(displayedPrice >= price24hHigh) priceMaxEl.classList.add("ath"); else priceMaxEl.classList.remove("ath");
+  if(displayedPrice <= price24hLow) priceMinEl.classList.add("atl"); else priceMinEl.classList.remove("atl");
+
+  priceMinEl.innerText = price24hLow.toFixed(4);
+  priceMaxEl.innerText = price24hHigh.toFixed(4);
 }
 
 // ---------- Animazioni ----------
 function animate(){
   if(!address) return;
 
-  // Price
-  const prevP=displayedPrice;
-  displayedPrice+=(targetPrice-displayedPrice)*0.1;
+  const prevP = displayedPrice;
+  displayedPrice += (targetPrice-displayedPrice)*0.1;
   updateNumber(priceEl, prevP, displayedPrice, 4);
 
-  const delta=((displayedPrice-price24hOpen)/price24hOpen)*100;
-  price24hEl.innerText=(delta>0?"▲ ":"▼ ")+Math.abs(delta).toFixed(2)+"%";
-  price24hEl.className="sub "+(delta>0?"up":delta<0?"down":"");
+  const delta = ((displayedPrice-price24hOpen)/price24hOpen)*100;
+  price24hEl.innerText = (delta>0?"▲ ":"▼ ") + Math.abs(delta).toFixed(2)+"%";
+  price24hEl.className = "sub " + (delta>0?"up":delta<0?"down":"");
 
   updatePriceBar();
 
-  // Available
-  const prevA=displayedAvailable;
-  displayedAvailable+=(availableInj-displayedAvailable)*0.1;
+  const prevA = displayedAvailable;
+  displayedAvailable += (availableInj-displayedAvailable)*0.1;
   updateNumber(availableEl, prevA, displayedAvailable,6);
   updateNumber(availableUsdEl, prevA*displayedPrice, displayedAvailable*displayedPrice,2);
 
-  // Stake
-  const prevS=displayedStake;
-  displayedStake+=(stakeInj-displayedStake)*0.1;
+  const prevS = displayedStake;
+  displayedStake += (stakeInj-displayedStake)*0.1;
   updateNumber(stakeEl, prevS, displayedStake,4);
   updateNumber(stakeUsdEl, prevS*displayedPrice, displayedStake*displayedPrice,2);
 
-  // Rewards
-  displayedRewards+=(rewardsInj-displayedRewards)*0.05;
+  displayedRewards += (rewardsInj-displayedRewards)*0.05;
   updateNumber(rewardsEl, displayedRewards, displayedRewards,6);
   updateNumber(rewardsUsdEl, displayedRewards*displayedPrice, displayedRewards*displayedPrice,2);
   updateRewardBar();
 
-  // APR
-  aprEl.innerText=apr.toFixed(2)+"%";
+  aprEl.innerText = apr.toFixed(2)+"%";
 
-  // Last update
-  updatedEl.innerText="Last Update: "+new Date().toLocaleTimeString();
+  updatedEl.innerText = "Last Update: "+new Date().toLocaleTimeString();
 
   requestAnimationFrame(animate);
 }
 
-// ---------- Avvio automatico se già presente indirizzo ----------
+// ---------- Avvio automatico ----------
 if(address) initDashboard();
