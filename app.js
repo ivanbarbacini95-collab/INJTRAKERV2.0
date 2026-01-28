@@ -35,6 +35,16 @@ const rewardPercentEl = document.getElementById("rewardPercent");
 const aprEl = document.getElementById("apr");
 const updatedEl = document.getElementById("updated");
 
+// ---------- Utility ----------
+function updateNumber(el, oldV, newV, fixed=2, flashClass="") {
+  el.innerText = newV.toFixed(fixed);
+  el.classList.remove("up","down","ath","atl");
+  if(flashClass) el.classList.add(flashClass);
+  else if(newV>oldV) el.classList.add("up");
+  else if(newV<oldV) el.classList.add("down");
+  setTimeout(()=>el.classList.remove("up","down","ath","atl"),600);
+}
+
 // Input address
 addressInput.value = address;
 addressInput.onchange = e => {
@@ -111,7 +121,7 @@ function animate(){
   // Price
   const prevP = displayedPrice;
   displayedPrice += (targetPrice-displayedPrice)*0.1;
-  priceEl.innerText = "$"+displayedPrice.toFixed(4);
+  updateNumber(priceEl, prevP, displayedPrice, 4);
 
   // Delta %
   const delta = ((displayedPrice-price24hOpen)/price24hOpen)*100;
@@ -131,28 +141,27 @@ function animate(){
   }
 
   // Update min, max, open
-  priceMinEl.innerText = price24hLow.toFixed(4);
-  priceMaxEl.innerText = price24hHigh.toFixed(4);
-  priceOpenEl.innerText = price24hOpen.toFixed(4);
-
-  // ATH/ATL flash
-  priceMaxEl.classList.toggle("ath", displayedPrice>=price24hHigh);
-  priceMinEl.classList.toggle("atl", displayedPrice<=price24hLow);
+  updateNumber(priceMinEl, parseFloat(priceMinEl.innerText), price24hLow, 4, displayedPrice<=price24hLow?"atl":"");
+  updateNumber(priceMaxEl, parseFloat(priceMaxEl.innerText), price24hHigh, 4, displayedPrice>=price24hHigh?"ath":"");
+  updateNumber(priceOpenEl, parseFloat(priceOpenEl.innerText), price24hOpen, 4);
 
   // Available
+  const prevA = displayedAvailable;
   displayedAvailable += (availableInj-displayedAvailable)*0.1;
-  availableEl.innerText = displayedAvailable.toFixed(6);
-  availableUsdEl.innerText = "≈ $"+(displayedAvailable*displayedPrice).toFixed(2);
+  updateNumber(availableEl, prevA, displayedAvailable, 6);
+  updateNumber(availableUsdEl, prevA*displayedPrice, displayedAvailable*displayedPrice, 2);
 
   // Stake
+  const prevS = displayedStake;
   displayedStake += (stakeInj-displayedStake)*0.1;
-  stakeEl.innerText = displayedStake.toFixed(4);
-  stakeUsdEl.innerText = "≈ $"+(displayedStake*displayedPrice).toFixed(2);
+  updateNumber(stakeEl, prevS, displayedStake, 4);
+  updateNumber(stakeUsdEl, prevS*displayedPrice, displayedStake*displayedPrice, 2);
 
   // Rewards
+  const prevR = displayedRewards;
   displayedRewards += (rewardsInj-displayedRewards)*0.05;
-  rewardsEl.innerText = displayedRewards.toFixed(6);
-  rewardsUsdEl.innerText = "≈ $"+(displayedRewards*displayedPrice).toFixed(2);
+  updateNumber(rewardsEl, prevR, displayedRewards, 6);
+  updateNumber(rewardsUsdEl, prevR*displayedPrice, displayedRewards*displayedPrice, 2);
 
   // Reward bar
   const rewardPercent = Math.min(displayedRewards/rewardMax*100,100);
@@ -160,7 +169,8 @@ function animate(){
   rewardPercentEl.innerText = rewardPercent.toFixed(1)+"%";
 
   // APR
-  aprEl.innerText = apr.toFixed(2)+"%";
+  const prevAPR = parseFloat(aprEl.innerText);
+  updateNumber(aprEl, prevAPR, apr, 2);
 
   // Last update
   updatedEl.innerText = "Last Update: " + new Date().toLocaleTimeString();
