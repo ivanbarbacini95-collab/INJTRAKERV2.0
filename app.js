@@ -9,7 +9,7 @@ let availableInj = 0, displayedAvailable = 0;
 let apr = 0;
 
 let chart, chartData = [];
-const rewardMax = 0.05;
+const rewardTargetsArray = [0,0.01,0.02,0.03,0.04,0.05];
 
 const fetchJSON = async url => {
   try {
@@ -30,7 +30,7 @@ function updateNumber(el, oldV, newV, fixed){
   setTimeout(()=>el.classList.remove("up","down"),500);
 }
 
-// Input address
+// Elementi
 const addressInput = document.getElementById("addressInput");
 addressInput.value = address;
 addressInput.onchange = e => {
@@ -38,6 +38,26 @@ addressInput.onchange = e => {
   localStorage.setItem("inj_address", address);
   loadData();
 };
+
+const price = document.getElementById("price");
+const price24h = document.getElementById("price24h");
+const available = document.getElementById("available");
+const availableUsd = document.getElementById("availableUsd");
+const stake = document.getElementById("stake");
+const stakeUsd = document.getElementById("stakeUsd");
+const rewards = document.getElementById("rewards");
+const rewardsUsd = document.getElementById("rewardsUsd");
+const aprEl = document.getElementById("apr");
+const updated = document.getElementById("updated");
+
+const priceBarEl = document.getElementById("priceBar");
+const priceLineOpenEl = document.getElementById("priceLineOpen");
+const priceMinEl = document.getElementById("priceMin");
+const priceMaxEl = document.getElementById("priceMax");
+const priceOpenEl = document.getElementById("priceOpen");
+
+const rewardBarEl = document.getElementById("rewardBar");
+const rewardPercentEl = document.getElementById("rewardPercent");
 
 // ---------- Load Injective Data ----------
 async function loadData(){
@@ -81,7 +101,6 @@ async function fetchHistory(){
 }
 fetchHistory();
 
-// ---------- Draw chart ----------
 function drawChart(){
   const ctx=document.getElementById("priceChart");
   if(chart) chart.destroy();
@@ -105,99 +124,60 @@ function startWS(){
 }
 startWS();
 
-// ---------- Elementi DOM ----------
-const price = document.getElementById("price");
-const price24h = document.getElementById("price24h");
-const priceBarEl = document.getElementById("priceBar");
-const priceLineOpenEl = document.getElementById("priceLineOpen");
-const priceMinValEl = document.createElement("span");
-const priceOpenValEl = document.createElement("span");
-const priceMaxValEl = document.createElement("span");
-
-const rewardBarEl = document.getElementById("rewardBar");
-const rewardPercentEl = document.getElementById("rewardPercent");
-
-const available = document.getElementById("available");
-const availableUsd = document.getElementById("availableUsd");
-const stake = document.getElementById("stake");
-const stakeUsd = document.getElementById("stakeUsd");
-const rewards = document.getElementById("rewards");
-const rewardsUsd = document.getElementById("rewardsUsd");
-const aprEl = document.getElementById("apr");
-const updated = document.getElementById("updated");
-
-// ---------- Reward bar ----------
-function updateRewardBar(){
-  const perc = Math.min(displayedRewards/rewardMax*100,100);
-  rewardBarEl.style.width = perc + "%";
-  rewardPercentEl.innerText = Math.round(perc) + "%";
-}
-
 // ---------- Animate ----------
 function animate(){
   // Prezzo
-  const prevP = displayedPrice;
   displayedPrice += (targetPrice-displayedPrice)*0.1;
-  updateNumber(price, prevP, displayedPrice, 4);
+  updateNumber(price, displayedPrice, displayedPrice, 4);
 
   // Delta %
   const delta = ((displayedPrice-price24hOpen)/price24hOpen)*100;
   price24h.innerText = (delta>0?"▲ ":"▼ ") + Math.abs(delta).toFixed(2) + "%";
   price24h.className = "sub " + (delta>0?"up":delta<0?"down":"");
 
-  // Barra prezzo dal centro
-  const minVal = price24hLow, maxVal = price24hHigh, range = maxVal - minVal || 1;
-  const centerPercent = (price24hOpen - minVal)/range*100;
-  let widthPercent = Math.abs((displayedPrice - price24hOpen)/range*100);
+  // Barra prezzo centrata
+  const range = price24hHigh-price24hLow||1;
+  const centerPercent = ((price24hOpen-price24hLow)/range)*100;
 
-  if(displayedPrice >= price24hOpen){
+  if(displayedPrice>=price24hOpen){
     priceBarEl.style.left = centerPercent + "%";
-    priceBarEl.style.width = widthPercent + "%";
+    priceBarEl.style.width = ((displayedPrice-price24hOpen)/range*100) + "%";
     priceBarEl.style.background = "#22c55e";
   } else {
-    priceBarEl.style.left = (centerPercent - widthPercent) + "%";
-    priceBarEl.style.width = widthPercent + "%";
+    const widthLeft = ((price24hOpen-displayedPrice)/range*100);
+    priceBarEl.style.left = (centerPercent - widthLeft) + "%";
+    priceBarEl.style.width = widthLeft + "%";
     priceBarEl.style.background = "#ef4444";
   }
+  priceLineOpenEl.style.left = centerPercent + "%";
 
   // Min/Open/Max
-  if(displayedPrice > price24hHigh) {
-    priceMaxValEl.classList.add("ath");
-  } else { priceMaxValEl.classList.remove("ath"); }
-  if(displayedPrice < price24hLow) {
-    priceMinValEl.classList.add("atl");
-  } else { priceMinValEl.classList.remove("atl"); }
+  priceMinEl.innerText = price24hLow.toFixed(4);
+  priceMaxEl.innerText = price24hHigh.toFixed(4);
+  priceOpenEl.innerText = price24hOpen.toFixed(4);
 
-  priceMinValEl.innerText = price24hLow.toFixed(4);
-  priceOpenValEl.innerText = price24hOpen.toFixed(4);
-  priceMaxValEl.innerText = price24hHigh.toFixed(4);
-
-  if(!document.querySelector(".price-values")){
-    const pv = document.createElement("div");
-    pv.className="price-values";
-    pv.appendChild(priceMinValEl);
-    pv.appendChild(priceOpenValEl);
-    pv.appendChild(priceMaxValEl);
-    document.querySelector(".price-card").appendChild(pv);
-  }
+  if(displayedPrice>=price24hHigh) priceMaxEl.classList.add("ath"); else priceMaxEl.classList.remove("ath");
+  if(displayedPrice<=price24hLow) priceMinEl.classList.add("atl"); else priceMinEl.classList.remove("atl");
 
   // Available
-  const prevA = displayedAvailable;
   displayedAvailable += (availableInj-displayedAvailable)*0.1;
-  updateNumber(available, prevA, displayedAvailable, 6);
-  updateNumber(availableUsd, prevA*displayedPrice, displayedAvailable*displayedPrice, 2);
+  updateNumber(available, displayedAvailable, displayedAvailable, 6);
+  updateNumber(availableUsd, displayedAvailable*displayedPrice, displayedAvailable*displayedPrice, 2);
 
   // Stake
-  const prevS = displayedStake;
   displayedStake += (stakeInj-displayedStake)*0.1;
-  updateNumber(stake, prevS, displayedStake, 4);
-  updateNumber(stakeUsd, prevS*displayedPrice, displayedStake*displayedPrice, 2);
+  updateNumber(stake, displayedStake, displayedStake, 4);
+  updateNumber(stakeUsd, displayedStake*displayedPrice, displayedStake*displayedPrice, 2);
 
   // Rewards
   displayedRewards += (rewardsInj-displayedRewards)*0.05;
   updateNumber(rewards, displayedRewards, displayedRewards, 6);
   updateNumber(rewardsUsd, displayedRewards*displayedPrice, displayedRewards*displayedPrice, 2);
-  updateRewardBar();
+
+  // Reward bar
+  const rewardPercent = Math.min(displayedRewards/0.05*100,100);
+  rewardBarEl.style.width = rewardPercent + "%";
+  rewardPercentEl.innerText = rewardPercent.toFixed(1)+"%";
 
   // APR
   aprEl.innerText = apr.toFixed(2)+"%";
@@ -209,7 +189,7 @@ function animate(){
 }
 animate();
 
-// Aggiorna rewards ogni 3 secondi
+// ---------- Aggiorna rewards ogni 3 secondi ----------
 setInterval(async()=>{
   if(!address) return;
   try{
