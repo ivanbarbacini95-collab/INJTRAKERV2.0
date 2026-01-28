@@ -14,16 +14,11 @@ body {
   gap: 1rem;
 }
 
-/* Header */
+/* Header semplice */
 .header {
   display: flex;
   align-items: center;
-  gap: 1rem;
   margin-bottom: 1rem;
-  background: #111827;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
 }
 
 .header h1 {
@@ -32,12 +27,6 @@ body {
   color: #f9fafb;
   text-shadow: 1px 1px 4px rgba(0,0,0,0.7);
   margin: 0;
-}
-
-.header .logo {
-  height: 2.5rem;
-  width: auto;
-  display: block;
 }
 
 /* Input */
@@ -62,14 +51,15 @@ body {
   gap: 1rem;
 }
 
+/* Tutte le card con sfondo gradiente uniforme */
 .card {
-  background: linear-gradient(90deg, #0a0f1f, #1e293b);
-  border: 2px solid #3b82f6;
+  background: linear-gradient(135deg, #111827, #1e293b);
   border-radius: 0.5rem;
-  padding: 0.8rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
 }
 
 .card .label {
@@ -94,7 +84,7 @@ body {
 /* Reward bar */
 .reward-bar-container {
   background: #111827;
-  height: 20px;
+  height: 24px;
   border-radius: 0.3rem;
   position: relative;
   margin-top: 0.5rem;
@@ -174,3 +164,4 @@ body {
 @media (max-width: 768px) {
   .cards-wrapper { flex-direction: column; }
 }
+
