@@ -149,9 +149,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #f9fafb;
   font-size: 0.8rem;
   font-weight: bold;
+  color: #f9fafb;
 }
 
 .reward-bar {
@@ -163,10 +163,18 @@ body {
   background: #3b82f6; /* azzurro */
   border-radius: 0.3rem;
   transition: width 0.3s linear;
+  z-index: 1;
 }
 
+/* Percentuale centrata nella barra */
+.reward-bar-container span {
+  position: relative; /* sopra la barra */
+  z-index: 2;
+}
+
+/* Nascondi numeri target */
 .reward-targets {
-  display: none; /* togli numeri fissi */
+  display: none;
 }
 
 /* =========================
