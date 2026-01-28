@@ -20,22 +20,22 @@ body {
   align-items: center;
   gap: 1rem;
   margin-bottom: 1rem;
-  background: #111827;          /* Sfondo leggermente più chiaro per contrasto */
+  background: #111827;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.5); /* Ombra per evidenziare */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
 }
 
 .header h1 {
   font-size: 1.8rem;
   font-weight: 800;
   color: #f9fafb;
-  text-shadow: 1px 1px 4px rgba(0,0,0,0.7); /* Migliora leggibilità su sfondo scuro */
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.7);
   margin: 0;
 }
 
 .header .logo {
-  height: 2.5rem;              /* Logo leggermente più grande */
+  height: 2.5rem;
   width: auto;
   display: block;
 }
@@ -72,9 +72,24 @@ body {
   gap: 0.5rem;
 }
 
-.card .label { font-weight: bold; font-size: 1.2rem; }
-.value-row { display: flex; justify-content: flex-end; font-size: 1.4rem; font-weight: bold; }
-.sub-row { display: flex; justify-content: flex-end; font-size: 0.9rem; color: #9ca3af; }
+.card .label {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.value-row {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.sub-row {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
 
 /* Reward bar */
 .reward-bar-container {
@@ -87,26 +102,27 @@ body {
 }
 
 .reward-bar {
-  background: #22caff;
+  background: #0ea5e9; /* azzurro */
   height: 100%;
   width: 0%;
+  border-radius: 0.3rem;
   transition: width 0.3s linear;
 }
 
 .reward-percent {
   position: absolute;
-  left: 50%;
   top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
+  font-size: 0.85rem;
   color: #f9fafb;
-  font-size: 0.8rem;
   font-weight: bold;
 }
 
 /* Price bar */
 .price-bar-container {
   position: relative;
-  height: 20px;
+  height: 24px;
   background: #111827;
   border-radius: 0.3rem;
   margin-top: 0.5rem;
@@ -117,8 +133,9 @@ body {
   position: absolute;
   top: 0;
   height: 100%;
-  z-index: 1;
-  transition: all 0.3s linear;
+  width: 0%;
+  background: #22c55e;
+  transition: width 0.2s linear, left 0.2s linear, background 0.2s;
 }
 
 .price-line-open {
@@ -127,13 +144,15 @@ body {
   height: 100%;
   width: 2px;
   background: #f9fafb;
-  z-index: 2;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .price-extremes {
   position: absolute;
-  top: 25px;
+  top: 28px;
   font-size: 0.75rem;
+  color: #f9fafb;
 }
 
 .price-extremes.left { left: 0; }
@@ -149,8 +168,8 @@ body {
 
 .up { color: #22c55e; transition: color 0.3s; }
 .down { color: #ef4444; transition: color 0.3s; }
-.ath { color: #facc15; transition: color 0.3s; }
-.atl { color: #facc15; transition: color 0.3s; }
+.ath { color: #facc15; transition: color 0.3s; } /* giallo ATH */
+.atl { color: #facc15; transition: color 0.3s; } /* giallo ATL */
 
 @media (max-width: 768px) {
   .cards-wrapper { flex-direction: column; }
