@@ -30,9 +30,7 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
-.header .logo {
-  height: 2rem;
-}
+.header .logo { height: 2rem; }
 
 /* Input */
 #addressInput {
@@ -92,6 +90,7 @@ body {
   border-radius: 0.3rem;
   position: relative;
   margin-top: 0.5rem;
+  overflow: hidden;
 }
 
 .reward-bar {
@@ -150,6 +149,13 @@ body {
 
 .price-extremes.left { left: 0; }
 .price-extremes.right { right: 0; }
+
+/* ATH/ATL numeri */
+.price-extremes.ath, .price-extremes.atl {
+  color: #facc15; /* giallo */
+  font-weight: bold;
+  transition: color 0.5s;
+}
 
 .last-update {
   font-size: 0.8rem;
