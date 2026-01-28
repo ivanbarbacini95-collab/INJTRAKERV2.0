@@ -1,5 +1,5 @@
 // ===============================
-// Injective Dashboard JS Optimized
+// Injective Dashboard JS completo
 // ===============================
 
 // Recupera address dal localStorage
@@ -66,13 +66,19 @@ addressInput.onchange = e => {
 };
 
 // ---------- Inizializza Dashboard ----------
+let ws;
+let loadInterval, rewardsInterval;
 function initDashboard(){
   loadData();
   fetchHistory();
   startWS();
   animate();
-  setInterval(loadData, 60000);
-  setInterval(updateRewards, 3000);
+
+  if(loadInterval) clearInterval(loadInterval);
+  loadInterval = setInterval(loadData, 60000);
+
+  if(rewardsInterval) clearInterval(rewardsInterval);
+  rewardsInterval = setInterval(updateRewards, 3000);
 }
 
 // ---------- Load Injective Data ----------
@@ -146,7 +152,6 @@ function drawChart(){
 }
 
 // ---------- WebSocket Live Prices ----------
-let ws;
 function startWS(){
   if(!address) return;
   if(ws) ws.close();
@@ -161,36 +166,64 @@ function startWS(){
   ws.onclose = () => setTimeout(startWS, 3000);
 }
 
-// ---------- Reward Bar ----------
+// ---------- Reward Bar (range 0 → 0.05) ----------
 function updateRewardBar(){
-  const maxReward = Math.max(rewardsInj, rewardTargetsArray[rewardTargetsArray.length-1]);
+  const maxReward = 0.05; // range fisso
   const fillPercent = Math.min(displayedRewards / maxReward * 100, 100);
   rewardBarEl.style.width = fillPercent + "%";
 
   rewardTargetsEl.innerHTML = "";
   const frag = document.createDocumentFragment();
+
   rewardTargetsArray.forEach(t=>{
-    const span = document.createElement("span");
-    span.style.left = (t/maxReward*100) + "%";
-    span.innerText = t;
-    frag.appendChild(span);
+    if(t <= maxReward){
+      const span = document.createElement("span");
+      span.style.left = (t / maxReward * 100) + "%";
+      span.innerText = t;
+      frag.appendChild(span);
+    }
   });
   rewardTargetsEl.appendChild(frag);
 }
 
-// ---------- Price Bar ----------
-function updatePriceBar(){
+// ---------- Price Bar con logica ATH/ATL ----------
+function updatePriceBar() {
   const minVal = price24hLow;
   const maxVal = price24hHigh;
   const range = maxVal - minVal || 1;
-  const leftPercent = (displayedPrice - minVal) / range * 100;
-  priceBarEl.style.width = leftPercent + "%";
 
-  const delta = ((displayedPrice - price24hOpen)/price24hOpen) * 100;
-  priceBarEl.style.background = delta >= 0 ? "#22c55e" : "#ef4444";
-  priceLineOpenEl.style.left = ((price24hOpen - minVal)/range*100) + "%";
-  priceMinEl.innerText = minVal.toFixed(4);
-  priceMaxEl.innerText = maxVal.toFixed(4);
+  const openPercent = (price24hOpen - minVal) / range * 100;
+  const pricePercent = (displayedPrice - minVal) / range * 100;
+
+  if (displayedPrice >= price24hOpen) {
+    priceBarEl.style.left = openPercent + "%";
+    priceBarEl.style.width = (pricePercent - openPercent) + "%";
+    priceBarEl.style.background = "#22c55e"; // verde
+  } else {
+    priceBarEl.style.left = pricePercent + "%";
+    priceBarEl.style.width = (openPercent - pricePercent) + "%";
+    priceBarEl.style.background = "#ef4444"; // rosso
+  }
+
+  priceLineOpenEl.style.left = openPercent + "%";
+
+  // ATH/ATL numeri gialli
+  if (displayedPrice >= price24hHigh) {
+    priceMaxEl.classList.add("ath");
+    price24hHigh = displayedPrice;
+  } else {
+    priceMaxEl.classList.remove("ath");
+  }
+
+  if (displayedPrice <= price24hLow) {
+    priceMinEl.classList.add("atl");
+    price24hLow = displayedPrice;
+  } else {
+    priceMinEl.classList.remove("atl");
+  }
+
+  priceMinEl.innerText = price24hLow.toFixed(4);
+  priceMaxEl.innerText = price24hHigh.toFixed(4);
 }
 
 // ---------- Animate Numbers ----------
