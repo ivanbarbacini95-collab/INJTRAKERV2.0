@@ -30,9 +30,7 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
-.header .logo {
-  height: 2rem;
-}
+.header .logo { height: 2rem; }
 
 /* Input */
 #addressInput {
@@ -64,26 +62,37 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+.card .label { font-weight: bold; font-size: 1.2rem; }
+.value-row { display: flex; justify-content: flex-end; font-size: 1.4rem; font-weight: bold; }
+.sub-row { display: flex; justify-content: flex-end; font-size: 0.9rem; color: #9ca3af; }
+
+/* Reward bar */
+.reward-bar-container {
+  background: #111827;
+  height: 20px;
+  border-radius: 0.3rem;
   position: relative;
+  margin-top: 0.5rem;
+  overflow: hidden;
 }
 
-.card .label {
+.reward-bar {
+  background: #22caff;
+  height: 100%;
+  width: 0%;
+  transition: width 0.3s linear;
+}
+
+.reward-percent {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: #f9fafb;
+  font-size: 0.8rem;
   font-weight: bold;
-  font-size: 1.2rem;
-}
-
-.value-row {
-  display: flex;
-  justify-content: flex-end;
-  font-size: 1.4rem;
-  font-weight: bold;
-}
-
-.sub-row {
-  display: flex;
-  justify-content: flex-end;
-  font-size: 0.9rem;
-  color: #9ca3af;
 }
 
 /* Price bar */
@@ -100,6 +109,7 @@ body {
   position: absolute;
   top: 0;
   height: 100%;
+  z-index: 1;
   transition: all 0.3s linear;
 }
 
@@ -112,52 +122,15 @@ body {
   z-index: 2;
 }
 
-.price-values {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 0.3rem;
-  font-size: 0.8rem;
-  color: #9ca3af;
-}
-
-.price-values span.ath,
-.price-values span.atl {
-  color: #facc15;
-  animation: blink 0.5s infinite alternate;
-}
-
-@keyframes blink {
-  from { opacity: 1; }
-  to { opacity: 0.2; }
-}
-
-/* Reward bar */
-.reward-bar-container {
-  background: #111827;
-  height: 20px;
-  border-radius: 0.3rem;
-  position: relative;
-  margin-top: 0.5rem;
-  overflow: hidden;
-}
-
-.reward-bar {
-  background: #3b82f6;
-  height: 100%;
-  width: 0%;
-  border-radius: 0.3rem;
-  transition: width 0.3s linear;
-}
-
-.reward-percent {
+.price-extremes {
   position: absolute;
-  width: 100%;
-  text-align: center;
-  top: 0;
-  color: #f9fafb;
-  font-size: 0.8rem;
-  line-height: 20px;
+  top: 25px;
+  font-size: 0.75rem;
 }
+
+.price-extremes.left { left: 0; }
+.price-extremes.center { left: 50%; transform: translateX(-50%); }
+.price-extremes.right { right: 0; }
 
 .last-update {
   font-size: 0.8rem;
@@ -168,6 +141,8 @@ body {
 
 .up { color: #22c55e; transition: color 0.3s; }
 .down { color: #ef4444; transition: color 0.3s; }
+.ath { color: #facc15; transition: color 0.3s; }
+.atl { color: #facc15; transition: color 0.3s; }
 
 @media (max-width: 768px) {
   .cards-wrapper { flex-direction: column; }
